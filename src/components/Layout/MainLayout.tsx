@@ -1,6 +1,6 @@
 import React, { JSX, useEffect } from "react";
 import Navbar from "./Navbar";
-// import Footer from "./Footer";
+import Footer from "./Footer";
 
 const MainLayout = ({
   children,
@@ -14,10 +14,10 @@ const MainLayout = ({
   }, [pathname]);
 
   return (
-    <div className="bg-[#D7DFFF] pb-40">
+    <div className="bg-[#D7DFFF] pb-20">
       <Navbar />
       {children}
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 };
