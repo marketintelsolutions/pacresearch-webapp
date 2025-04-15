@@ -1,6 +1,7 @@
 import React, { JSX, useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import SendMessage from "./SendMessage";
 
 const MainLayout = ({
   children,
@@ -17,6 +18,7 @@ const MainLayout = ({
     <div className="bg-[#D7DFFF] pb-20">
       <Navbar />
       {children}
+      <SendMessage />
       <Footer />
     </div>
   );
