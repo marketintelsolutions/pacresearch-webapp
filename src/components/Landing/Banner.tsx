@@ -8,7 +8,7 @@ const Banner = () => {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
       }}
-      className="w-full h-[670px]  max-w-max mx-auto flex "
+      className="w-full h-[670px]  max-w-max mx-auto flex -translate-y-32 "
     >
       <div className="w-full max-w-[575px] h-full  flex items-end">
         <div className="w-full max-w-[575px] -translate-x-[77px] translate-y-[194px]">

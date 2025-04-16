@@ -4,7 +4,7 @@ import EquityMarket from "./EquityMarket";
 
 const MacroEco = () => {
   return (
-    <section className="mt-[194px] w-full max-w-[1110px] mx-auto">
+    <section className="mt-[94px] w-full max-w-[1110px] mx-auto">
       <h2 className="self-stretch justify-start text-PAC-Blue text-2xl font-semibold font-['Jost']">
         MACROECONOMICS{" "}
       </h2>
