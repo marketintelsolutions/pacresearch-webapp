@@ -28,9 +28,11 @@ const Navbar = () => {
     <>
       <PreNav />
       <nav className="sticky z-[999] w-full max-w-[1063px] mx-auto bg-[#FFFFFF] rounded-[30px] mt-[74px] top-[0px] py-5 px-[37px] flex justify-between items-center">
-        <div className="w-full max-w-[181px] ">
-          <img src="/logo.svg" alt="logo" className="w-full h-full" />
-        </div>
+        <Link to={"/"}>
+          <div className="w-full max-w-[181px] ">
+            <img src="/logo.svg" alt="logo" className="w-full h-full" />
+          </div>
+        </Link>
         <div className="flex gap-12">
           {links.map((item) => (
             <Link
