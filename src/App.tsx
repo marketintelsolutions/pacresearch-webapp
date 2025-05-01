@@ -5,6 +5,7 @@ import Landing from "./pages/Landing";
 import About from "./pages/About";
 import Directors from "./pages/Directors";
 import Contact from "./pages/Contact";
+import Services from "./pages/Services";
 
 function App() {
   const router = createBrowserRouter([
@@ -21,6 +22,14 @@ function App() {
       element: (
         <MainLayout>
           <About />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/services",
+      element: (
+        <MainLayout>
+          <Services />
         </MainLayout>
       ),
     },

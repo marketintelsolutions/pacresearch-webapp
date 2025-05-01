@@ -9,7 +9,7 @@ const FgnCard = () => {
       }}
       className="h-[169px] w-[211px] mt-5"
     >
-      <h3 className="pt-2 text-center justify-start text-black/70 text-base font-bold font-['Jost']">
+      <h3 className="pt-2 text-center justify-start text-secondaryBlue text-base font-bold font-['Jost']">
         FGN BONDS{" "}
       </h3>
       <div className="flex gap-3 mt-[31px] justify-center">

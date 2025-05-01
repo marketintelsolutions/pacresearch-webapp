@@ -31,15 +31,12 @@ const EquityMarket = () => {
         <FgnCard />
       </div>
       <div className="w-full">
-        <h2 className="w-[686px] justify-start text-blue-950 text-4xl font-semibold font-['Jost'] leading-10">
+        <h2 className="w-[686px] justify-start text-blue-950 text-2xl font-semibold font-['Jost'] leading-10">
           EQUITY MARKET{" "}
         </h2>
 
         <div className="flex gap-40 mt-[22px] border-b border-[#EBEEF2]">
           <p className="self-stretch pb-1 border-b-[3px] border-primaryBlue text-center justify-start text-PAC-Blue text-base font-medium font-['Jost']">
-            All Transactions
-          </p>
-          <p className="justify-start text-secondaryBlue text-base font-medium font-['Jost']">
             Top 5 gainers
           </p>
           <p className="justify-start text-secondaryBlue text-base font-medium font-['Jost']">

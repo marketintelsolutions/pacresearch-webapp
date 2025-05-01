@@ -2,12 +2,19 @@ import React from "react";
 
 const WhoWeAre = () => {
   return (
-    <section className="w-full max-w-max mx-auto mt-[62px] flex ">
-      <div className="w-full max-w-[620px]">
-        <img src="/images/workspace.png" alt="workspace" />
-        <img src="/images/guy.png" alt="guy" className="-translate-y-20" />
+    <section className="w-full relative z-[2] max-w-max mx-auto mt-[90px] flex ">
+      <div className="w-full max-w-[287px] absolute -bottom-[90px] -left-[136px]  ">
+        <img src="/images/bubble.svg" alt="bubble" className="w-full " />
       </div>
-      <div className="flex flex-col justify-center">
+      <div className="relative w-full flex items-end max-w-[620px]">
+        <img
+          src="/images/workspace.png"
+          alt="workspace"
+          className="absolute -top-[200px] left-0"
+        />
+        <img src="/images/guy.png" alt="guy" className="-translate-y-0" />
+      </div>
+      <div className="flex flex-col pb-[50px] justify-center">
         <h2 className="w-[453px] justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
           Who We Are
         </h2>
