@@ -6,6 +6,7 @@ import About from "./pages/About";
 import Directors from "./pages/Directors";
 import Contact from "./pages/Contact";
 import Services from "./pages/Services";
+import Resources from "./pages/Resources";
 
 function App() {
   const router = createBrowserRouter([
@@ -26,6 +27,14 @@ function App() {
       ),
     },
     {
+      path: "/about/directors",
+      element: (
+        <MainLayout>
+          <Directors />
+        </MainLayout>
+      ),
+    },
+    {
       path: "/services",
       element: (
         <MainLayout>
@@ -34,10 +43,10 @@ function App() {
       ),
     },
     {
-      path: "/about/directors",
+      path: "/resources",
       element: (
         <MainLayout>
-          <Directors />
+          <Resources />
         </MainLayout>
       ),
     },

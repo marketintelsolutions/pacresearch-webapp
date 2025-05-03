@@ -5,9 +5,10 @@ import BackgroundStyles from "../components/Services/BackgroundStyles";
 
 const Services = () => {
   return (
-    <div className="relative">
+    <div className="relative w-full border-2 border-blue-500">
       <PageBanner text="OUR SERVICES" />
       <ServicesDetails />
+      <BackgroundStyles />
     </div>
   );
 };
