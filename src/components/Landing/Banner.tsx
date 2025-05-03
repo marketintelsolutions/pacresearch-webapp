@@ -12,9 +12,6 @@ const Banner = () => {
       }}
       className=" w-full h-[670px] relative max-w-max mx-auto flex -translate-y-32 "
     >
-      <div className="w-full max-w-[35px] absolute top-[66px] -right-[57px] ">
-        <img src="/images/star.svg" alt="star" className="w-full " />
-      </div>
       <div className="w-full max-w-[287px] absolute -bottom-[179px] -left-[156px] z-[4] ">
         <img src="/images/bubble.svg" alt="bubble" className="w-full " />
       </div>

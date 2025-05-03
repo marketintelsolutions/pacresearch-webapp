@@ -1,5 +1,6 @@
 import React from "react";
 import ServiceItem from "./ServiceItem";
+import BackgroundStyles from "./BackgroundStyles";
 
 const services = [
   {
@@ -45,9 +46,6 @@ const ServicesDetails = () => {
         strategic guidance.{" "}
       </p>
       <div className="relative w-full max-w-[1050px] mx-auto mt-[91px] flex flex-col gap-[118px]">
-        <div className="absolute max-w-[300px] left-[-200px]  top-[300px]">
-          <img src="/images/bubble.svg" alt="svg" className="w-full" />
-        </div>
         {services.map((item, index) => (
           <ServiceItem key={index} index={index} {...item} />
         ))}

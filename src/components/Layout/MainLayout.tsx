@@ -2,6 +2,7 @@ import React, { JSX, useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SendMessage from "./SendMessage";
+import MainBackgroundStyles from "./MainBackgroundStyles";
 
 const MainLayout = ({
   children,
@@ -19,20 +20,7 @@ const MainLayout = ({
       <Navbar />
       {children}
       <Footer />
-      <div className="w-full max-w-[356px] absolute top-0 left-0">
-        <img
-          src="/images/eclipselightblue.svg"
-          alt="eclipselightblue"
-          className="w-full "
-        />
-      </div>
-      <div className="w-full max-w-[356px] absolute top-0 right-0 rotate-90">
-        <img
-          src="/images/eclipselightblue.svg"
-          alt="eclipselightblue"
-          className="w-full "
-        />
-      </div>
+      <MainBackgroundStyles />
     </div>
   );
 };
