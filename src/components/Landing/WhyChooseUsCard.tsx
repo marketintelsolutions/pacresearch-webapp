@@ -45,12 +45,12 @@ const WhyChooseUsCard: React.FC<WhyChooseUsCardProps> = ({
       <div
         className={`absolute top-0 rounded-[12px] bg-gradient-to-r via-[#15BFFD] w-[180px] h-full transition-all duration-500 ${
           right
-            ? "left-0 from-[#0467C3] to-[#D7DFFF]"
-            : "right-0 from-[#D7DFFF] to-[#0467C3]"
+            ? "left-0 from-[#0467C3] to-[#eef5fe]"
+            : "right-0 from-[#eef5fe] to-[#0467C3]"
         } ${isActive ? "opacity-100" : "opacity-80"}`}
       ></div>
       <div
-        className={`relative z-[1] p-3 rounded-[10px] bg-[#D7DFFF] w-full h-full transition-all duration-500 ${
+        className={`relative z-[1] p-3 rounded-[10px] bg-[#eef5fe] w-full h-full transition-all duration-500 ${
           isActive ? "bg-opacity-100" : "bg-opacity-90"
         }`}
       >

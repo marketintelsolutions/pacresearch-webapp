@@ -5,16 +5,18 @@ import LetsTalk from "../components/Landing/LetsTalk";
 import WhyChooseUs from "../components/About/WhyChooseUs";
 import CustomResearch from "../components/About/CustomResearch";
 import Directors from "../components/About/Directors";
+import PageBanner from "../components/Layout/PageBanner";
 
 const About = () => {
   return (
     <>
+      <PageBanner text="ABOUT US" />
       <WhoWeAre />
       <Objectives />
-      <Directors />
       <CustomResearch />
       <LetsTalk />
       <WhyChooseUs />
+      <Directors />
     </>
   );
 };

@@ -15,11 +15,24 @@ const MainLayout = ({
   }, [pathname]);
 
   return (
-    <div className="bg-[#D7DFFF] pb-20">
+    <div className=" bg-[#eef5fe] pb-20">
       <Navbar />
       {children}
-      <SendMessage />
       <Footer />
+      <div className="w-full max-w-[356px] absolute top-0 left-0">
+        <img
+          src="/images/eclipselightblue.svg"
+          alt="eclipselightblue"
+          className="w-full "
+        />
+      </div>
+      <div className="w-full max-w-[356px] absolute top-0 right-0 rotate-90">
+        <img
+          src="/images/eclipselightblue.svg"
+          alt="eclipselightblue"
+          className="w-full "
+        />
+      </div>
     </div>
   );
 };
