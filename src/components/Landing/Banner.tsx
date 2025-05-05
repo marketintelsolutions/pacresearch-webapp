@@ -10,7 +10,7 @@ const Banner = () => {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
       }}
-      className=" w-full h-[670px] relative max-w-max mx-auto flex -translate-y-32 "
+      className=" w-full h-[670px] relative z-[2] max-w-max mx-auto flex -translate-y-32 "
     >
       <div className="w-full max-w-[287px] absolute -bottom-[179px] -left-[156px] z-[4] ">
         <img src="/images/bubble.svg" alt="bubble" className="w-full " />
