@@ -124,11 +124,11 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-      <div className="bg-[#FAFAFA] flex justify-between w-full max-w-[1050px] mx-auto -translate-y-[50%] py-[25px] px-[45px] rounded-[30px]">
-        <p className="justify-start text-neutral-500 text-sm font-semibold font-['Montserrat'] leading-normal tracking-tight">
+      <div className="bg-[#A4A4A4] flex justify-between w-full max-w-[1050px] mx-auto -translate-y-[50%] py-[25px] px-[45px] rounded-[30px]">
+        <p className="justify-start text-white text-sm font-semibold font-['Montserrat'] leading-normal tracking-tight">
           © PAC Research Nigeria Copyright 2025
         </p>
-        <div className="flex gap-[22px] text-[#23A6F0]">
+        <div className="flex gap-[22px] text-[#FFFFFF]">
           <span>
             <Facebook size={20} />
           </span>
