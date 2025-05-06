@@ -6,6 +6,7 @@ import WhyChooseUs from "../components/About/WhyChooseUs";
 import CustomResearch from "../components/About/CustomResearch";
 import Directors from "../components/About/Directors";
 import PageBanner from "../components/Layout/PageBanner";
+import MainBackgroundStyles from "../components/Layout/MainBackgroundStyles";
 
 const About = () => {
   return (
