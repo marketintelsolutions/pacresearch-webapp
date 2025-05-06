@@ -7,6 +7,10 @@ import Directors from "./pages/Directors";
 import Contact from "./pages/Contact";
 import Services from "./pages/Services";
 import Resources from "./pages/Resources";
+import AdminLogin from "./pages/Admin/AdminLogin";
+import AdminLayout from "./components/Layout/AdminLayout";
+import Macroeconomics from "./pages/Admin/Macroeconomics";
+import EquityMarket from "./pages/Admin/EquityMarket";
 
 function App() {
   const router = createBrowserRouter([
@@ -55,6 +59,34 @@ function App() {
       element: (
         <MainLayout>
           <Contact />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/login",
+      element: (
+        <MainLayout>
+          <AdminLogin />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/macroeconomics",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <Macroeconomics />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/equity-market",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <EquityMarket />
+          </AdminLayout>
         </MainLayout>
       ),
     },
