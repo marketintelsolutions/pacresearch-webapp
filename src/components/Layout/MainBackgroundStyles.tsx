@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const MainBackgroundStyles = () => {
+  const [path, setPath] = useState("");
+
+  const { pathname } = window.location;
+  console.log(pathname);
+
+  useEffect(() => {
+    setPath(pathname);
+  }, [pathname]);
+
   return (
     <>
       {/* eclipse */}
@@ -36,13 +45,18 @@ const MainBackgroundStyles = () => {
         </div>
       </div>
       {/* star right two */}
-      <div className="w-full  absolute top-[4293px]">
-        <div className="w-full max-w-max relative mx-auto">
-          <div className="w-full max-w-[24px] absolute top-0 -right-[60px] ">
-            <img src="/images/star.svg" alt="star" className="w-full " />
+      {/* do not show on services and resources and contact */}
+      {pathname !== "/services" &&
+        pathname !== "/resources" &&
+        pathname !== "/contact" && (
+          <div className="w-full  absolute top-[4293px]">
+            <div className="w-full max-w-max relative mx-auto">
+              <div className="w-full max-w-[24px] absolute top-0 -right-[60px] ">
+                <img src="/images/star.svg" alt="star" className="w-full " />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
       {/* stroke */}
       <div className="w-full max-w-[512px] absolute top-[280px] right-[0px] ">
         <img src="/images/stroke.svg" alt="star" className="w-full " />
@@ -56,29 +70,40 @@ const MainBackgroundStyles = () => {
         />
       </div>
       {/* blue patch right two */}
-      <div className="w-full max-w-[356px] absolute top-[3126px] -right-[0px] ">
-        <img
-          src="/images/bluepatchrightone.svg"
-          alt="star"
-          className="w-full "
-        />
-      </div>
+      {/* do not show on resources and contact */}
+      {pathname !== "/resources" && pathname !== "/contact" && (
+        <div className="w-full max-w-[356px] absolute top-[3126px] -right-[0px] ">
+          <img
+            src="/images/bluepatchrightone.svg"
+            alt="star"
+            className="w-full "
+          />
+        </div>
+      )}
       {/* blue patch right three */}
-      <div className="w-full max-w-[356px] absolute top-[4166px] -right-[0px] ">
-        <img
-          src="/images/bluepatchrightone.svg"
-          alt="star"
-          className="w-full "
-        />
-      </div>
+      {/* do not show on services and resources and contact */}
+      {pathname !== "/services" &&
+        pathname !== "/resources" &&
+        pathname !== "/contact" && (
+          <div className="w-full max-w-[356px] absolute top-[4166px] -right-[0px] ">
+            <img
+              src="/images/bluepatchrightone.svg"
+              alt="star"
+              className="w-full "
+            />
+          </div>
+        )}
       {/* blue patch right four */}
-      <div className="w-full max-w-[356px] absolute top-[5572px] -right-[0px] ">
-        <img
-          src="/images/bluepatchrightone.svg"
-          alt="star"
-          className="w-full "
-        />
-      </div>
+      {/* show only on landing */}
+      {pathname === "/" && (
+        <div className="w-full max-w-[356px] absolute top-[5572px] -right-[0px] ">
+          <img
+            src="/images/bluepatchrightone.svg"
+            alt="star"
+            className="w-full "
+          />
+        </div>
+      )}
       {/* blue patch left one */}
       <div className="w-full max-w-[356px] absolute top-[1265px] -left-[0px] ">
         <img
@@ -88,29 +113,40 @@ const MainBackgroundStyles = () => {
         />
       </div>
       {/* blue patch left two */}
-      <div className="w-full max-w-[356px] absolute top-[2065px] -left-[0px] ">
-        <img
-          src="/images/bluepatchleftone.svg"
-          alt="star"
-          className="w-full "
-        />
-      </div>
+      {/* do not show on resources and contact */}
+      {pathname !== "/resources" && pathname !== "/contact" && (
+        <div className="w-full max-w-[356px] absolute top-[2065px] -left-[0px] ">
+          <img
+            src="/images/bluepatchleftone.svg"
+            alt="star"
+            className="w-full "
+          />
+        </div>
+      )}
       {/* blue patch left three */}
-      <div className="w-full max-w-[356px] absolute top-[3837px] -left-[0px] ">
-        <img
-          src="/images/bluepatchleftone.svg"
-          alt="star"
-          className="w-full "
-        />
-      </div>
+      {/* do not show on services and resources and contact */}
+      {pathname !== "/services" &&
+        pathname !== "/resources" &&
+        pathname !== "/contact" && (
+          <div className="w-full max-w-[356px] absolute top-[3837px] -left-[0px] ">
+            <img
+              src="/images/bluepatchleftone.svg"
+              alt="star"
+              className="w-full "
+            />
+          </div>
+        )}
       {/* blue patch left four */}
-      <div className="w-full max-w-[356px] absolute top-[5233px] -left-[0px] ">
-        <img
-          src="/images/bluepatchleftone.svg"
-          alt="star"
-          className="w-full "
-        />
-      </div>
+      {/* show only on landing */}
+      {pathname === "/" && (
+        <div className="w-full max-w-[356px] absolute top-[5233px] -left-[0px] ">
+          <img
+            src="/images/bluepatchleftone.svg"
+            alt="star"
+            className="w-full "
+          />
+        </div>
+      )}
     </>
   );
 };

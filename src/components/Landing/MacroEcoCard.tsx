@@ -1,6 +1,20 @@
 import React from "react";
 
-const MacroEcoCard = () => {
+interface MacroEcoCardProps {
+  title: string;
+  date: string;
+  percentage: number;
+  iconSrc: string;
+  isPositive?: boolean;
+}
+
+const MacroEcoCard: React.FC<MacroEcoCardProps> = ({
+  title,
+  date,
+  percentage,
+  iconSrc,
+  isPositive = false,
+}) => {
   return (
     <div
       style={{
@@ -11,19 +25,23 @@ const MacroEcoCard = () => {
     >
       <div className="flex gap-[17px]">
         <div className="bg-[#FFF5D9] rounded-full p-[14px] w-fit h-fit">
-          <img src="/images/money.svg" alt="money" />
+          <img src={iconSrc} alt={title.toLowerCase()} />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="w-24 h-6 justify-start text-white text-base font-medium font-['Jost']">
-            Inflation Rate{" "}
+          <p className="h-6 justify-start text-white text-base font-medium font-['Jost']">
+            {title}
           </p>
           <p className="justify-start text-secondaryBlue text-base font-normal font-['Jost']">
-            JANUARY 2025
+            {date.toUpperCase()}
           </p>
         </div>
       </div>
-      <p className="text-right justify-start text-red-500 text-base font-medium font-['Jost']">
-        20%
+      <p
+        className={`text-right justify-start ${
+          isPositive ? "text-green-500" : "text-red-500"
+        } text-base font-medium font-['Jost']`}
+      >
+        {percentage}%
       </p>
     </div>
   );

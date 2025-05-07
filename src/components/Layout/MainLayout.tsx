@@ -16,9 +16,9 @@ const MainLayout = ({
   }, [pathname]);
 
   return (
-    <div className="relative bg-[#eef5fe] pb-20 overflow-hidden">
+    <div className=" bg-[#eef5fe]   pb-20">
       <Navbar />
-      <div className="relative z-[2] ">{children}</div>
+      <div className="relative z-[2]">{children}</div>
       <Footer />
       <MainBackgroundStyles />
     </div>
