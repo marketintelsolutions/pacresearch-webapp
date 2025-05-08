@@ -364,6 +364,47 @@ export const deleteFile = createAsyncThunk(
   }
 );
 
+export const batchDeleteFiles = createAsyncThunk(
+  "resources/batchDeleteFiles",
+  async (
+    filesToDelete: { fileId: string; filePath: string }[],
+    { rejectWithValue }
+  ) => {
+    try {
+      // Create a batch for Firestore operations
+      const batch = writeBatch(db);
+
+      // Track all Storage deletion promises
+      const deletePromises = filesToDelete.map(async ({ fileId, filePath }) => {
+        try {
+          // Delete from Storage
+          const storageRef = ref(storage, filePath);
+          await deleteObject(storageRef);
+
+          // Queue Firestore deletion in batch
+          batch.delete(doc(db, "resourceFiles", fileId));
+
+          return fileId;
+        } catch (error) {
+          console.error(`Error deleting file ${fileId}:`, error);
+          throw error;
+        }
+      });
+
+      // Wait for all Storage deletions to complete
+      const deletedFileIds = await Promise.all(deletePromises);
+
+      // Commit the batch operation for Firestore
+      await batch.commit();
+
+      return deletedFileIds;
+    } catch (error) {
+      console.error("Error in batch delete operation:", error);
+      return rejectWithValue("Failed to delete one or more files");
+    }
+  }
+);
+
 const resourcesSlice = createSlice({
   name: "resources",
   initialState,
@@ -498,6 +539,18 @@ const resourcesSlice = createSlice({
       state.success = "File deleted successfully!";
     });
     builder.addCase(deleteFile.rejected, (state, action) => {
+      state.error = action.payload as string;
+    });
+    builder.addCase(batchDeleteFiles.pending, (state) => {
+      state.error = null;
+    });
+    builder.addCase(batchDeleteFiles.fulfilled, (state, action) => {
+      // Remove all deleted files from state
+      const deletedIds = action.payload as string[];
+      state.files = state.files.filter((file) => !deletedIds.includes(file.id));
+      state.success = `Successfully deleted ${deletedIds.length} files`;
+    });
+    builder.addCase(batchDeleteFiles.rejected, (state, action) => {
       state.error = action.payload as string;
     });
   },
