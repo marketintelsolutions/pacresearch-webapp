@@ -1,3 +1,4 @@
+// File: src/components/admin/ResourceCategoryManager.tsx
 import React, { useState, useEffect } from "react";
 import {
   collection,
@@ -24,6 +25,12 @@ const ResourceCategoryManager: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [draggedCategory, setDraggedCategory] = useState<string | null>(null);
+  const [dragOverCategory, setDragOverCategory] = useState<string | null>(null);
+  const [dragPosition, setDragPosition] = useState<"before" | "after" | null>(
+    null
+  );
 
   useEffect(() => {
     fetchCategories();
@@ -99,6 +106,7 @@ const ResourceCategoryManager: React.FC = () => {
         const categoryData = {
           ...newCategory,
           id: newCategoryId,
+          displayOrder: categories.length, // Set display order to the end
         };
 
         await setDoc(
@@ -108,7 +116,7 @@ const ResourceCategoryManager: React.FC = () => {
         setCategories([...categories, categoryData as ResourceCategory]);
         setNewCategory({
           name: "",
-          displayOrder: categories.length,
+          displayOrder: categories.length + 1,
         });
         setSuccess("Category added successfully!");
       }
@@ -206,6 +214,15 @@ const ResourceCategoryManager: React.FC = () => {
 
         // Update local state
         setCategories(categories.filter((cat) => cat.id !== categoryId));
+
+        // Update display orders of remaining categories
+        await reorderCategories(
+          categories
+            .filter((cat) => cat.id !== categoryId)
+            .sort((a, b) => a.displayOrder - b.displayOrder)
+            .map((cat, index) => ({ ...cat, displayOrder: index }))
+        );
+
         setSuccess("Category and all associated files deleted successfully!");
 
         // Clear success message after 3 seconds
@@ -219,6 +236,176 @@ const ResourceCategoryManager: React.FC = () => {
       } finally {
         setIsDeleting(false);
       }
+    }
+  };
+
+  // Handle drag start
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    categoryId: string
+  ) => {
+    // Prevent dragging during editing
+    if (editingId) {
+      e.preventDefault();
+      return;
+    }
+
+    // Set data transfer properties
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", categoryId);
+
+    // Set dragged category state
+    setDraggedCategory(categoryId);
+
+    // Make the drag image more translucent
+    if (e.currentTarget) {
+      e.currentTarget.style.opacity = "0.4";
+    }
+  };
+
+  // Handle drag end
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    // Reset styles
+    if (e.currentTarget) {
+      e.currentTarget.style.opacity = "1";
+    }
+
+    // Reset state
+    setDraggedCategory(null);
+    setDragOverCategory(null);
+    setDragPosition(null);
+  };
+
+  // Handle drag over
+  const handleDragOver = (
+    e: React.DragEvent<HTMLDivElement>,
+    categoryId: string
+  ) => {
+    // Prevent default to allow drop
+    e.preventDefault();
+
+    // Skip if dragging over self or during editing
+    if (categoryId === draggedCategory || editingId) {
+      setDragOverCategory(null);
+      setDragPosition(null);
+      return;
+    }
+
+    // Set drop effect
+    e.dataTransfer.dropEffect = "move";
+
+    // Determine if we're dragging before or after the target
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+
+    // If we're in the top half, we're dropping before
+    // Otherwise, we're dropping after
+    const position = y < rect.height / 2 ? "before" : "after";
+
+    setDragOverCategory(categoryId);
+    setDragPosition(position);
+  };
+
+  // Handle drag leave
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    // Only clear if we're leaving the element, not entering a child
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverCategory(null);
+      setDragPosition(null);
+    }
+  };
+
+  // Handle drop
+  const handleDrop = async (
+    e: React.DragEvent<HTMLDivElement>,
+    categoryId: string
+  ) => {
+    // Prevent default behavior
+    e.preventDefault();
+
+    // Get the dragged category ID
+    const draggedId = e.dataTransfer.getData("text/plain");
+
+    // Skip if dropping on self or during editing
+    if (draggedId === categoryId || editingId) {
+      return;
+    }
+
+    // Find indices
+    const draggedIndex = categories.findIndex((cat) => cat.id === draggedId);
+    const targetIndex = categories.findIndex((cat) => cat.id === categoryId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      return;
+    }
+
+    // Clone the categories array
+    const reorderedCategories = [...categories];
+
+    // Remove the dragged category
+    const [draggedCategory] = reorderedCategories.splice(draggedIndex, 1);
+
+    // Calculate new index based on drop position
+    let newIndex = targetIndex;
+    if (dragPosition === "after") {
+      newIndex = targetIndex;
+    } else if (dragPosition === "before") {
+      newIndex = targetIndex;
+      // If we're dragging from above to below, we need to adjust the index
+      if (draggedIndex < targetIndex) {
+        newIndex--;
+      }
+    }
+
+    // Insert the dragged category at the new index
+    reorderedCategories.splice(newIndex, 0, draggedCategory);
+
+    // Update display orders
+    const updatedCategories = reorderedCategories.map((category, index) => ({
+      ...category,
+      displayOrder: index,
+    }));
+
+    // Update local state immediately for responsive UI
+    setCategories(updatedCategories);
+
+    // Save the new order to Firestore
+    await reorderCategories(updatedCategories);
+
+    // Reset state
+    setDraggedCategory(null);
+    setDragOverCategory(null);
+    setDragPosition(null);
+  };
+
+  // Save reordered categories to Firestore
+  const reorderCategories = async (updatedCategories: ResourceCategory[]) => {
+    setIsSaving(true);
+    try {
+      // Create a batch write for better performance
+      const batch = writeBatch(db);
+
+      updatedCategories.forEach((category) => {
+        const categoryRef = doc(db, "resourceCategories", category.id);
+        batch.update(categoryRef, { displayOrder: category.displayOrder });
+      });
+
+      await batch.commit();
+      setSuccess("Category order updated successfully!");
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      console.error("Error updating category order:", err);
+      setError("Failed to update category order. Please try again.");
+
+      // Clear error message after 3 seconds
+      setTimeout(() => setError(""), 3000);
+
+      // Revert to original order by fetching again
+      fetchCategories();
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -255,32 +442,13 @@ const ResourceCategoryManager: React.FC = () => {
               required
             />
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Display Order
-            </label>
-            <input
-              type="number"
-              name="displayOrder"
-              value={
-                editingId
-                  ? categories.find((c) => c.id === editingId)?.displayOrder ||
-                    0
-                  : newCategory.displayOrder
-              }
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              min="0"
-              required
-            />
-          </div>
         </div>
 
         <div className="flex space-x-2">
           <button
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            disabled={isSaving || isDeleting}
           >
             {editingId ? "Update Category" : "Add Category"}
           </button>
@@ -290,6 +458,7 @@ const ResourceCategoryManager: React.FC = () => {
               type="button"
               onClick={handleCancel}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+              disabled={isSaving || isDeleting}
             >
               Cancel
             </button>
@@ -297,74 +466,119 @@ const ResourceCategoryManager: React.FC = () => {
         </div>
       </form>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Display Order
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
-              <tr>
-                <td colSpan={3} className="px-6 py-4 text-center">
-                  Loading...
-                </td>
-              </tr>
-            ) : isDeleting ? (
-              <tr>
-                <td colSpan={3} className="px-6 py-4 text-center">
-                  Deleting category and files... This may take a moment.
-                </td>
-              </tr>
-            ) : categories.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="px-6 py-4 text-center">
-                  No categories found. Add your first category above.
-                </td>
-              </tr>
-            ) : (
-              categories.map((category) => (
-                <tr
-                  key={category.id}
-                  className={category.id === editingId ? "bg-blue-50" : ""}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {category.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {category.displayOrder}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(category.id)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                      disabled={isDeleting}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      className="text-red-600 hover:text-red-900"
-                      disabled={isDeleting}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="mb-4">
+        <h3 className="text-lg font-medium text-gray-700 mb-2">
+          Category Order
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Drag and drop categories to change their display order. Changes are
+          saved automatically.
+        </p>
       </div>
+
+      {loading ? (
+        <div className="py-4 text-center">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+          <p className="mt-2 text-sm text-gray-600">Loading categories...</p>
+        </div>
+      ) : isDeleting ? (
+        <div className="py-4 text-center">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-red-600 border-r-transparent"></div>
+          <p className="mt-2 text-sm text-gray-600">
+            Deleting category and files...
+          </p>
+        </div>
+      ) : isSaving ? (
+        <div className="py-4 text-center">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+          <p className="mt-2 text-sm text-gray-600">Saving category order...</p>
+        </div>
+      ) : categories.length === 0 ? (
+        <div className="py-4 text-center bg-gray-50 rounded">
+          <p className="text-gray-600">
+            No categories found. Add your first category above.
+          </p>
+        </div>
+      ) : (
+        <div className="border rounded-md overflow-hidden">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              draggable={!editingId}
+              onDragStart={(e) => handleDragStart(e, category.id)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => handleDragOver(e, category.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, category.id)}
+              className={`flex items-center justify-between p-4 border-b last:border-b-0 relative ${
+                category.id === editingId
+                  ? "bg-blue-50"
+                  : category.id === draggedCategory
+                  ? "opacity-40"
+                  : "bg-white hover:bg-gray-50"
+              }`}
+            >
+              {/* Drop indicator */}
+              {dragOverCategory === category.id &&
+                dragPosition === "before" && (
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-blue-500 z-10"></div>
+                )}
+              {dragOverCategory === category.id && dragPosition === "after" && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 z-10"></div>
+              )}
+
+              <div className="flex items-center">
+                <div
+                  className={`cursor-move mr-3 text-gray-500 hover:text-gray-700 ${
+                    editingId ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="8" cy="6" r="1" />
+                    <circle cx="15" cy="6" r="1" />
+                    <circle cx="8" cy="12" r="1" />
+                    <circle cx="15" cy="12" r="1" />
+                    <circle cx="8" cy="18" r="1" />
+                    <circle cx="15" cy="18" r="1" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">{category.name}</h4>
+                  <p className="text-sm text-gray-500">
+                    Order: {category.displayOrder}
+                  </p>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEdit(category.id)}
+                  className="text-blue-600 hover:text-blue-900"
+                  disabled={isDeleting || isSaving}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(category.id)}
+                  className="text-red-600 hover:text-red-900"
+                  disabled={isDeleting || isSaving}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
