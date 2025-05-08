@@ -11,6 +11,7 @@ import AdminLogin from "./pages/Admin/AdminLogin";
 import AdminLayout from "./components/Layout/AdminLayout";
 import Macroeconomics from "./pages/Admin/Macroeconomics";
 import EquityMarket from "./pages/Admin/EquityMarket";
+import AdminResources from "./pages/Admin/AdminResources";
 
 function App() {
   const router = createBrowserRouter([
@@ -86,6 +87,16 @@ function App() {
         <MainLayout>
           <AdminLayout>
             <EquityMarket />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/resources",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminResources />
           </AdminLayout>
         </MainLayout>
       ),
