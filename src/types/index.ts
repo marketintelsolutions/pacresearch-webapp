@@ -43,3 +43,20 @@ export interface Stock {
   currentDayClose: number;
   change: number;
 }
+
+export interface ResourceFile {
+  id: string;
+  name: string;
+  url: string;
+  fileType: string;
+  uploadDate: string;
+  category: string;
+  path: string;
+  icon: string; // Updated to include icon per file
+}
+
+export interface ResourceCategory {
+  id: string;
+  name: string;
+  displayOrder: number;
+}
