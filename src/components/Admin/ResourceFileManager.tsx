@@ -1,95 +1,76 @@
 import React, { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import {
-  collection,
-  getDocs,
-  doc,
-  deleteDoc,
-  query,
-  where,
-} from "firebase/firestore";
-import { ref, deleteObject } from "firebase/storage";
-import { ResourceFile, ResourceCategory } from "../../types";
-import { fileIcons } from "../../utils/fileIcons";
-import { db, storage } from "../../firebase/firebaseConfig";
+  fetchCategories,
+  fetchFiles,
+  deleteFile,
+  setSelectedCategory,
+  clearError,
+  clearSuccess,
+} from "../../store/resourcesSlice";
 
 const ResourceFileManager: React.FC = () => {
-  const [files, setFiles] = useState<ResourceFile[]>([]);
-  const [categories, setCategories] = useState<ResourceCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const {
+    categories,
+    files,
+    selectedCategory,
+    loading,
+    error,
+    success,
+  } = useAppSelector((state) => ({
+    categories: state.resources.categories,
+    files: state.resources.files,
+    selectedCategory: state.resources.selectedCategory,
+    loading: state.resources.loading,
+    error: state.resources.error,
+    success: state.resources.success,
+  }));
 
   useEffect(() => {
-    fetchCategories();
-    fetchFiles();
-  }, []);
+    // Fetch categories if not already loaded
+    if (categories.length === 0) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, categories]);
 
   useEffect(() => {
-    fetchFiles();
-  }, [selectedCategory]);
-
-  const fetchCategories = async () => {
-    try {
-      const categoriesRef = collection(db, "resourceCategories");
-      const querySnapshot = await getDocs(categoriesRef);
-
-      const fetchedCategories: ResourceCategory[] = [];
-      querySnapshot.forEach((doc) => {
-        fetchedCategories.push({
-          id: doc.id,
-          ...doc.data(),
-        } as ResourceCategory);
-      });
-
-      // Sort by display order
-      fetchedCategories.sort((a, b) => a.displayOrder - b.displayOrder);
-      setCategories(fetchedCategories);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-      setError("Failed to load categories.");
+    // Fetch files when selected category changes
+    if (selectedCategory) {
+      dispatch(fetchFiles(selectedCategory));
     }
-  };
+  }, [dispatch, selectedCategory]);
 
-  const fetchFiles = async () => {
-    setLoading(true);
-    try {
-      let filesQuery;
-
-      if (selectedCategory === "all") {
-        filesQuery = collection(db, "resourceFiles");
-      } else {
-        filesQuery = query(
-          collection(db, "resourceFiles"),
-          where("category", "==", selectedCategory)
-        );
-      }
-
-      const querySnapshot = await getDocs(filesQuery);
-
-      const fetchedFiles: ResourceFile[] = [];
-      querySnapshot.forEach((doc) => {
-        fetchedFiles.push({ id: doc.id, ...doc.data() } as ResourceFile);
-      });
-
-      // Sort by upload date (newest first)
-      fetchedFiles.sort((a, b) => {
-        return (
-          new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
-        );
-      });
-
-      setFiles(fetchedFiles);
-    } catch (err) {
-      console.error("Error fetching files:", err);
-      setError("Failed to load files.");
-    } finally {
-      setLoading(false);
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (success) {
+      timer = setTimeout(() => {
+        dispatch(clearSuccess());
+      }, 3000);
     }
-  };
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [success, dispatch]);
+
+  // Clear error message after 3 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (error) {
+      timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 3000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [error, dispatch]);
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(e.target.value);
+    dispatch(
+      setSelectedCategory(e.target.value === "all" ? "all" : e.target.value)
+    );
   };
 
   const handleDeleteFile = async (fileId: string, filePath: string) => {
@@ -99,25 +80,9 @@ const ResourceFileManager: React.FC = () => {
       )
     ) {
       try {
-        // Delete from Storage
-        const storageRef = ref(storage, filePath);
-        await deleteObject(storageRef);
-
-        // Delete from Firestore
-        await deleteDoc(doc(db, "resourceFiles", fileId));
-
-        // Update state
-        setFiles(files.filter((file) => file.id !== fileId));
-        setSuccess("File deleted successfully!");
-
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(""), 3000);
+        await dispatch(deleteFile({ fileId, filePath })).unwrap();
       } catch (err) {
         console.error("Error deleting file:", err);
-        setError("Failed to delete file. Please try again.");
-
-        // Clear error message after 3 seconds
-        setTimeout(() => setError(""), 3000);
       }
     }
   };
@@ -155,7 +120,7 @@ const ResourceFileManager: React.FC = () => {
           Filter by Category
         </label>
         <select
-          value={selectedCategory}
+          value={selectedCategory || ""}
           onChange={handleCategoryChange}
           className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
@@ -168,7 +133,7 @@ const ResourceFileManager: React.FC = () => {
         </select>
       </div>
 
-      {loading ? (
+      {loading.files || loading.categories ? (
         <div className="text-center py-8">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
           <p className="mt-2 text-gray-600">Loading files...</p>
@@ -182,7 +147,7 @@ const ResourceFileManager: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[350px] overflow-y-scroll">
           {files.map((file) => (
             <div
               key={file.id}
@@ -197,7 +162,7 @@ const ResourceFileManager: React.FC = () => {
               </div>
 
               <div className="flex-grow">
-                <h3 className="text-base font-medium text-gray-900 mb-1">
+                <h3 className="text-base break-words max-w-[320px] font-medium text-gray-900 mb-1">
                   {file.name}
                 </h3>
                 <div className="flex flex-col space-y-1 text-sm text-gray-600">

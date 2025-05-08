@@ -1,182 +1,192 @@
 import React, { useState, useEffect } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, getDocs, doc, setDoc } from "firebase/firestore";
-import { ResourceCategory } from "../../types";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import {
+  fetchCategories,
+  uploadFiles,
+  clearError,
+  clearSuccess,
+  resetUploadProgress,
+} from "../../store/resourcesSlice";
 import { fileIcons, getFileIconByType } from "../../utils/fileIcons";
-import { db, storage } from "../../firebase/firebaseConfig";
+
+// Interface for managing multiple files
+interface FileEntry {
+  id: string; // Local ID for tracking in the UI
+  file: File;
+  fileName: string;
+  fileIcon: string;
+}
 
 const FileUploader: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const { categories, loading, error, success } = useAppSelector((state) => ({
+    categories: state.resources.categories,
+    loading: state.resources.loading,
+    error: state.resources.error,
+    success: state.resources.success,
+  }));
+
+  const [selectedFiles, setSelectedFiles] = useState<FileEntry[]>([]);
   const [category, setCategory] = useState<string>("");
-  const [fileIcon, setFileIcon] = useState<string>("file");
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploading, setUploading] = useState<boolean>(false);
-  const [categories, setCategories] = useState<ResourceCategory[]>([]);
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    // Fetch categories if not already loaded
+    if (categories.length === 0) {
+      dispatch(fetchCategories());
+    }
 
-  const fetchCategories = async () => {
-    try {
-      const categoriesRef = collection(db, "resourceCategories");
-      const querySnapshot = await getDocs(categoriesRef);
+    // Set default category if available
+    if (categories.length > 0 && !category) {
+      setCategory(categories[0].id);
+    }
+  }, [dispatch, categories, category]);
 
-      const fetchedCategories: ResourceCategory[] = [];
-      querySnapshot.forEach((doc) => {
-        fetchedCategories.push({
-          id: doc.id,
-          ...doc.data(),
-        } as ResourceCategory);
+  // Clear success message after 5 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (success) {
+      timer = setTimeout(() => {
+        dispatch(clearSuccess());
+      }, 5000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [success, dispatch]);
+
+  // Clear error message after 5 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (error) {
+      timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 5000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [error, dispatch]);
+
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles: FileEntry[] = Array.from(e.target.files).map((file) => {
+        // Generate a unique local ID
+        const id = `local_${Date.now()}_${Math.random()
+          .toString(36)
+          .substring(2, 11)}`;
+
+        // Default file name is the original name without extension
+        const fileName = file.name.split(".")[0];
+
+        // Auto-detect file icon based on type
+        const fileIcon = getFileIconByType(file.type);
+
+        return {
+          id,
+          file,
+          fileName,
+          fileIcon,
+        };
       });
 
-      // Sort by display order
-      fetchedCategories.sort((a, b) => a.displayOrder - b.displayOrder);
-      setCategories(fetchedCategories);
-
-      // Set default category if available
-      if (fetchedCategories.length > 0 && !category) {
-        setCategory(fetchedCategories[0].id);
-      }
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-      setError("Failed to load categories. Please try again.");
+      setSelectedFiles([...selectedFiles, ...newFiles]);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-
-      // Set default file name from file
-      if (!fileName) {
-        setFileName(selectedFile.name.split(".")[0]);
-      }
-
-      // Auto-detect file icon based on type
-      const fileType = selectedFile.type;
-      setFileIcon(getFileIconByType(fileType));
-    }
+  const handleFileNameChange = (id: string, newName: string) => {
+    setSelectedFiles((prevFiles) =>
+      prevFiles.map((fileEntry) =>
+        fileEntry.id === id ? { ...fileEntry, fileName: newName } : fileEntry
+      )
+    );
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  const handleFileIconChange = (id: string, newIcon: string) => {
+    setSelectedFiles((prevFiles) =>
+      prevFiles.map((fileEntry) =>
+        fileEntry.id === id ? { ...fileEntry, fileIcon: newIcon } : fileEntry
+      )
+    );
+  };
 
-    if (name === "fileName") {
-      setFileName(value);
-    } else if (name === "category") {
-      setCategory(value);
-    } else if (name === "fileIcon") {
-      setFileIcon(value);
-    }
+  const handleRemoveFile = (id: string) => {
+    setSelectedFiles((prevFiles) =>
+      prevFiles.filter((fileEntry) => fileEntry.id !== id)
+    );
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCategory(e.target.value);
   };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!file) {
-      setError("Please select a file to upload.");
-      return;
-    }
-
-    if (!fileName.trim()) {
-      setError("Please enter a file name.");
+    if (selectedFiles.length === 0) {
+      dispatch({
+        type: "resources/setError",
+        payload: "Please select at least one file to upload.",
+      });
       return;
     }
 
     if (!category) {
-      setError("Please select a category.");
+      dispatch({
+        type: "resources/setError",
+        payload: "Please select a category.",
+      });
+      return;
+    }
+
+    // Check that all files have names
+    const missingNames = selectedFiles.some((file) => !file.fileName.trim());
+    if (missingNames) {
+      dispatch({
+        type: "resources/setError",
+        payload: "Please provide a name for all files.",
+      });
       return;
     }
 
     setUploading(true);
-    setError("");
 
     try {
-      // Create a reference to the file in Firebase Storage
-      const fileExtension = file.name.split(".").pop() || "";
-      const storageFilePath = `resources/${category}/${Date.now()}_${fileName.replace(
-        /\s+/g,
-        "_"
-      )}.${fileExtension}`;
-      const storageRef = ref(storage, storageFilePath);
+      // Prepare files for upload
+      const filesToUpload = selectedFiles.map((fileEntry) => ({
+        file: fileEntry.file,
+        fileName: fileEntry.fileName,
+        fileIcon: fileEntry.fileIcon,
+      }));
 
-      // Get file type
-      const fileType = file.type || `application/${fileExtension}`;
+      await dispatch(
+        uploadFiles({
+          files: filesToUpload,
+          category,
+        })
+      ).unwrap();
 
-      // Upload file with progress tracking
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      // Reset form
+      setSelectedFiles([]);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          // Track upload progress
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          setUploadProgress(progress);
-        },
-        (error) => {
-          console.error("Upload error:", error);
-          setError("Failed to upload file. Please try again.");
-          setUploading(false);
-        },
-        async () => {
-          // Upload completed successfully
-          // Get the download URL
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-          // Save file metadata to Firestore
-          const fileId = `file_${Date.now()}`;
-          const fileData = {
-            id: fileId,
-            name: fileName,
-            url: downloadURL,
-            fileType: fileType,
-            uploadDate: new Date().toISOString(),
-            category: category,
-            path: storageFilePath,
-            icon: fileIcon, // Store the selected icon
-          };
-
-          await setDoc(doc(db, "resourceFiles", fileId), fileData);
-
-          // Reset form
-          setFile(null);
-          setFileName("");
-          setFileIcon("file");
-          setUploadProgress(0);
-          setUploading(false);
-          setSuccess("File uploaded successfully!");
-
-          // Clear success message after 5 seconds
-          setTimeout(() => setSuccess(""), 5000);
-
-          // Reset file input
-          const fileInput = document.getElementById(
-            "fileInput"
-          ) as HTMLInputElement;
-          if (fileInput) {
-            fileInput.value = "";
-          }
-        }
-      );
+      // Reset file input
+      const fileInput = document.getElementById(
+        "fileInput"
+      ) as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = "";
+      }
     } catch (err) {
       console.error("Error during upload:", err);
-      setError("Failed to upload file. Please try again.");
+    } finally {
       setUploading(false);
+      dispatch(resetUploadProgress());
     }
   };
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Upload Resource File</h2>
+      <h2 className="text-xl font-semibold mb-4">Upload Resource Files</h2>
 
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
@@ -192,109 +202,181 @@ const FileUploader: React.FC = () => {
         <div className="space-y-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select File
+              Select Files
             </label>
             <input
               id="fileInput"
               type="file"
-              onChange={handleFileChange}
+              multiple
+              onChange={handleFilesChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
             />
+            <p className="mt-1 text-sm text-gray-500">
+              You can select multiple files at once
+            </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              File Name (Display Name)
+              Category
             </label>
-            <input
-              type="text"
-              name="fileName"
-              value={fileName}
-              onChange={handleInputChange}
+            <select
+              name="category"
+              value={category}
+              onChange={handleCategoryChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter display name for the file"
               required
-            />
+            >
+              <option value="">Select a category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {selectedFiles.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              <select
-                name="category"
-                value={category}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              >
-                <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">
+                Selected Files ({selectedFiles.length})
+              </h3>
+              <div className="space-y-4 mt-2 max-h-[400px] overflow-y-auto pr-2">
+                {selectedFiles.map((fileEntry) => (
+                  <div
+                    key={fileEntry.id}
+                    className="p-4 rounded-lg border border-gray-200 bg-gray-50"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <div className="p-2 bg-primaryBlue rounded-full mr-3">
+                          <img
+                            src={`/images/${fileEntry.fileIcon}.svg`}
+                            alt="file"
+                            className="w-5 h-5"
+                          />
+                        </div>
+                        <span className="font-medium text-gray-900 truncate max-w-[200px]">
+                          {fileEntry.file.name}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(fileEntry.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                File Icon
-              </label>
-              <select
-                name="fileIcon"
-                value={fileIcon}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              >
-                {fileIcons.map((icon) => (
-                  <option key={icon.value} value={icon.value}>
-                    {icon.label}
-                  </option>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          File Name (Display Name)
+                        </label>
+                        <input
+                          type="text"
+                          value={fileEntry.fileName}
+                          onChange={(e) =>
+                            handleFileNameChange(fileEntry.id, e.target.value)
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter display name"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          File Icon
+                        </label>
+                        <div className="flex space-x-2">
+                          <select
+                            value={fileEntry.fileIcon}
+                            onChange={(e) =>
+                              handleFileIconChange(fileEntry.id, e.target.value)
+                            }
+                            className="flex-grow px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            {fileIcons.map((icon) => (
+                              <option
+                                key={`${fileEntry.id}_${icon.value}`}
+                                value={icon.value}
+                              >
+                                {icon.label}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="flex items-center">
+                            <div className="p-1.5 bg-primaryBlue rounded-full">
+                              <img
+                                src={`/images/${fileEntry.fileIcon}.svg`}
+                                alt="Selected icon"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 text-xs text-gray-500">
+                      Size: {(fileEntry.file.size / 1024).toFixed(1)} KB • Type:{" "}
+                      {fileEntry.file.type || "Unknown"}
+                    </div>
+                  </div>
                 ))}
-              </select>
-              <div className="mt-2 flex items-center">
-                <div className="p-2 bg-primaryBlue rounded-full mr-2">
-                  <img
-                    src={`/images/${fileIcon}.svg`}
-                    alt="Selected icon"
-                    className="w-5 h-5"
-                  />
-                </div>
-                <span className="text-sm text-gray-500">
-                  Preview: {fileIcon}.svg
-                </span>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {uploading && (
+        {loading.uploadProgress > 0 && (
           <div className="mb-4">
             <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
                 className="bg-blue-600 h-2.5 rounded-full"
-                style={{ width: `${uploadProgress}%` }}
+                style={{ width: `${loading.uploadProgress}%` }}
               ></div>
             </div>
             <p className="text-sm text-gray-600 mt-1">
-              Upload progress: {uploadProgress}%
+              Upload progress: {loading.uploadProgress}%
             </p>
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={uploading}
-          className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 ${
-            uploading ? "opacity-70 cursor-not-allowed" : ""
-          }`}
-        >
-          {uploading ? "Uploading..." : "Upload File"}
-        </button>
+        <div className="flex space-x-3">
+          <button
+            type="submit"
+            disabled={
+              uploading || loading.categories || selectedFiles.length === 0
+            }
+            className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 ${
+              uploading || loading.categories || selectedFiles.length === 0
+                ? "opacity-70 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            {uploading
+              ? "Uploading..."
+              : `Upload ${
+                  selectedFiles.length > 0 ? selectedFiles.length : ""
+                } File${selectedFiles.length !== 1 ? "s" : ""}`}
+          </button>
+
+          {selectedFiles.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedFiles([])}
+              disabled={uploading}
+              className={`px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 ${
+                uploading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+            >
+              Clear All
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

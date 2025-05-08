@@ -1,65 +1,67 @@
-// File: src/components/admin/ResourceCategoryManager.tsx
 import React, { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  deleteDoc,
-  query,
-  where,
-  writeBatch,
-} from "firebase/firestore";
-import { ref, deleteObject, listAll } from "firebase/storage";
-import { ResourceCategory, ResourceFile } from "../../types";
-import { db, storage } from "../../firebase/firebaseConfig";
+  fetchCategories,
+  addCategory,
+  updateCategory,
+  deleteCategory,
+  reorderCategories,
+  clearError,
+  clearSuccess,
+} from "../../store/resourcesSlice";
+import { ResourceCategory } from "../../types";
 
 const ResourceCategoryManager: React.FC = () => {
-  const [categories, setCategories] = useState<ResourceCategory[]>([]);
+  const dispatch = useAppDispatch();
+  const { categories, loading, error, success } = useAppSelector((state) => ({
+    categories: state.resources.categories,
+    loading: state.resources.loading,
+    error: state.resources.error,
+    success: state.resources.success,
+  }));
+
   const [newCategory, setNewCategory] = useState<Partial<ResourceCategory>>({
     name: "",
     displayOrder: 0,
   });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [draggedCategory, setDraggedCategory] = useState<string | null>(null);
   const [dragOverCategory, setDragOverCategory] = useState<string | null>(null);
   const [dragPosition, setDragPosition] = useState<"before" | "after" | null>(
     null
   );
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
-  const fetchCategories = async () => {
-    setLoading(true);
-    try {
-      const categoriesRef = collection(db, "resourceCategories");
-      const querySnapshot = await getDocs(categoriesRef);
-
-      const fetchedCategories: ResourceCategory[] = [];
-      querySnapshot.forEach((doc) => {
-        fetchedCategories.push({
-          id: doc.id,
-          ...doc.data(),
-        } as ResourceCategory);
-      });
-
-      // Sort by display order
-      fetchedCategories.sort((a, b) => a.displayOrder - b.displayOrder);
-      setCategories(fetchedCategories);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-      setError("Failed to load categories. Please try again.");
-    } finally {
-      setLoading(false);
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (success) {
+      timer = setTimeout(() => {
+        dispatch(clearSuccess());
+      }, 3000);
     }
-  };
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [success, dispatch]);
+
+  // Clear error message after 3 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (error) {
+      timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 3000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [error, dispatch]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -67,16 +69,15 @@ const ResourceCategoryManager: React.FC = () => {
     const { name, value } = e.target;
 
     if (editingId) {
-      const updatedCategories = categories.map((category) => {
-        if (category.id === editingId) {
-          return {
-            ...category,
-            [name]: name === "displayOrder" ? parseInt(value, 10) : value,
-          };
-        }
-        return category;
-      });
-      setCategories(updatedCategories);
+      // Only update local state for editing, we'll dispatch when saving
+      const categoryToEdit = categories.find((cat) => cat.id === editingId);
+      if (categoryToEdit) {
+        const updatedCategory = {
+          ...categoryToEdit,
+          [name]: name === "displayOrder" ? parseInt(value, 10) : value,
+        };
+        setNewCategory(updatedCategory);
+      }
     } else {
       setNewCategory({
         ...newCategory,
@@ -93,52 +94,48 @@ const ResourceCategoryManager: React.FC = () => {
         // Update existing category
         const categoryToUpdate = categories.find((cat) => cat.id === editingId);
         if (categoryToUpdate) {
-          await setDoc(
-            doc(db, "resourceCategories", editingId),
-            categoryToUpdate
-          );
-          setSuccess("Category updated successfully!");
+          const updatedCategory = {
+            ...categoryToUpdate,
+            ...newCategory,
+          } as ResourceCategory;
+
+          await dispatch(updateCategory(updatedCategory)).unwrap();
           setEditingId(null);
         }
       } else {
         // Add new category
-        const newCategoryId = `cat_${Date.now()}`;
-        const categoryData = {
-          ...newCategory,
-          id: newCategoryId,
-          displayOrder: categories.length, // Set display order to the end
-        };
+        await dispatch(
+          addCategory({
+            ...newCategory,
+            displayOrder: categories.length, // Set display order to the end
+          })
+        ).unwrap();
 
-        await setDoc(
-          doc(db, "resourceCategories", newCategoryId),
-          categoryData
-        );
-        setCategories([...categories, categoryData as ResourceCategory]);
+        // Reset form
         setNewCategory({
           name: "",
           displayOrder: categories.length + 1,
         });
-        setSuccess("Category added successfully!");
       }
-
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       console.error("Error saving category:", err);
-      setError("Failed to save category. Please try again.");
-
-      // Clear error message after 3 seconds
-      setTimeout(() => setError(""), 3000);
     }
   };
 
   const handleEdit = (categoryId: string) => {
-    setEditingId(categoryId);
+    const categoryToEdit = categories.find((cat) => cat.id === categoryId);
+    if (categoryToEdit) {
+      setNewCategory(categoryToEdit);
+      setEditingId(categoryId);
+    }
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    fetchCategories(); // Reset to original data
+    setNewCategory({
+      name: "",
+      displayOrder: categories.length,
+    });
   };
 
   const handleDelete = async (categoryId: string) => {
@@ -149,90 +146,9 @@ const ResourceCategoryManager: React.FC = () => {
     ) {
       setIsDeleting(true);
       try {
-        // 1. Get all files in this category
-        const filesQuery = query(
-          collection(db, "resourceFiles"),
-          where("category", "==", categoryId)
-        );
-        const filesSnapshot = await getDocs(filesQuery);
-
-        // Create a batch write for Firestore operations
-        const batch = writeBatch(db);
-
-        // Delete all files in Firebase Storage and queue Firestore deletes
-        const deletePromises = filesSnapshot.docs.map(async (fileDoc) => {
-          const fileData = fileDoc.data() as ResourceFile;
-
-          // Delete from Storage
-          try {
-            const storageRef = ref(storage, fileData.path);
-            await deleteObject(storageRef);
-          } catch (storageError) {
-            console.error(
-              `Error deleting file from storage: ${fileData.path}`,
-              storageError
-            );
-            // Continue with Firestore cleanup even if Storage delete fails
-          }
-
-          // Queue delete in Firestore batch
-          batch.delete(doc(db, "resourceFiles", fileDoc.id));
-        });
-
-        // Wait for all storage deletions to complete
-        await Promise.all(deletePromises);
-
-        // Also try to delete the category folder in storage if it exists
-        try {
-          const categoryFolderRef = ref(storage, `resources/${categoryId}`);
-          const folderContents = await listAll(categoryFolderRef);
-
-          // Delete any remaining files in the folder
-          const remainingFileDeletes = folderContents.items.map((itemRef) =>
-            deleteObject(itemRef).catch((err) =>
-              console.error(
-                `Error deleting remaining file ${itemRef.fullPath}`,
-                err
-              )
-            )
-          );
-
-          await Promise.all(remainingFileDeletes);
-        } catch (folderError) {
-          console.error(
-            `Error cleaning up category folder: resources/${categoryId}`,
-            folderError
-          );
-          // Continue with deletion even if folder cleanup fails
-        }
-
-        // Finally, delete the category document itself
-        batch.delete(doc(db, "resourceCategories", categoryId));
-
-        // Commit all the Firestore operations
-        await batch.commit();
-
-        // Update local state
-        setCategories(categories.filter((cat) => cat.id !== categoryId));
-
-        // Update display orders of remaining categories
-        await reorderCategories(
-          categories
-            .filter((cat) => cat.id !== categoryId)
-            .sort((a, b) => a.displayOrder - b.displayOrder)
-            .map((cat, index) => ({ ...cat, displayOrder: index }))
-        );
-
-        setSuccess("Category and all associated files deleted successfully!");
-
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(""), 3000);
+        await dispatch(deleteCategory(categoryId)).unwrap();
       } catch (err) {
-        console.error("Error deleting category and files:", err);
-        setError("Failed to delete category. Please try again.");
-
-        // Clear error message after 3 seconds
-        setTimeout(() => setError(""), 3000);
+        console.error("Error deleting category:", err);
       } finally {
         setIsDeleting(false);
       }
@@ -366,47 +282,20 @@ const ResourceCategoryManager: React.FC = () => {
       displayOrder: index,
     }));
 
-    // Update local state immediately for responsive UI
-    setCategories(updatedCategories);
-
-    // Save the new order to Firestore
-    await reorderCategories(updatedCategories);
+    setIsSaving(true);
+    try {
+      // Save the new order to Firestore via Redux
+      await dispatch(reorderCategories(updatedCategories)).unwrap();
+    } catch (err) {
+      console.error("Error reordering categories:", err);
+    } finally {
+      setIsSaving(false);
+    }
 
     // Reset state
     setDraggedCategory(null);
     setDragOverCategory(null);
     setDragPosition(null);
-  };
-
-  // Save reordered categories to Firestore
-  const reorderCategories = async (updatedCategories: ResourceCategory[]) => {
-    setIsSaving(true);
-    try {
-      // Create a batch write for better performance
-      const batch = writeBatch(db);
-
-      updatedCategories.forEach((category) => {
-        const categoryRef = doc(db, "resourceCategories", category.id);
-        batch.update(categoryRef, { displayOrder: category.displayOrder });
-      });
-
-      await batch.commit();
-      setSuccess("Category order updated successfully!");
-
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      console.error("Error updating category order:", err);
-      setError("Failed to update category order. Please try again.");
-
-      // Clear error message after 3 seconds
-      setTimeout(() => setError(""), 3000);
-
-      // Revert to original order by fetching again
-      fetchCategories();
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   return (
@@ -432,11 +321,7 @@ const ResourceCategoryManager: React.FC = () => {
             <input
               type="text"
               name="name"
-              value={
-                editingId
-                  ? categories.find((c) => c.id === editingId)?.name || ""
-                  : newCategory.name
-              }
+              value={newCategory.name || ""}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
@@ -448,7 +333,7 @@ const ResourceCategoryManager: React.FC = () => {
           <button
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            disabled={isSaving || isDeleting}
+            disabled={loading.categories || isSaving || isDeleting}
           >
             {editingId ? "Update Category" : "Add Category"}
           </button>
@@ -458,7 +343,7 @@ const ResourceCategoryManager: React.FC = () => {
               type="button"
               onClick={handleCancel}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-              disabled={isSaving || isDeleting}
+              disabled={loading.categories || isSaving || isDeleting}
             >
               Cancel
             </button>
@@ -476,7 +361,7 @@ const ResourceCategoryManager: React.FC = () => {
         </p>
       </div>
 
-      {loading ? (
+      {loading.categories ? (
         <div className="py-4 text-center">
           <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
           <p className="mt-2 text-sm text-gray-600">Loading categories...</p>

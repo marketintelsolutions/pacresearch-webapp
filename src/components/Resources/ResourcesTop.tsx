@@ -23,14 +23,30 @@ const ResourcesTop = () => {
             <img src="/images/wallet.svg" alt="wallet" />
           </div>
         </div>
-        <h3 className="w-full text-center justify-start text-primaryBlue text-base font-bold font-['Inter'] leading-normal">
+        <div className="flex justify-between px-4">
+          <span className="inline-flex p-5 bg-primaryBlue rounded-full">
+            <img src="/images/pdf.svg" alt="pdf" className="max-w-[40px]" />
+          </span>
+          <span className="inline-flex p-5 bg-primaryBlue rounded-full">
+            <img src="/images/word.svg" alt="pdf" className="max-w-[40px]" />
+          </span>
+          <span className="inline-flex p-5 bg-primaryBlue rounded-full">
+            <img src="/images/excel.svg" alt="pdf" className="max-w-[40px]" />
+          </span>
+        </div>
+        {/* <h3 className="w-full text-center justify-start text-primaryBlue text-base font-bold font-['Inter'] leading-normal">
           Total file
         </h3>
         <p className="text-center mt-[22px] justify-start text-secondaryBlue text-xl font-medium font-['Inter'] underline leading-loose">
           VIEW ALL FILES
-        </p>
+        </p> */}
       </div>
-      <div className="w-full grid grid-cols-2 ">
+      <div>
+        <h2 className="text-[80px] leading-[110px] text-white font-bold">
+          PAC Research <br /> Resources
+        </h2>
+      </div>
+      {/* <div className="w-full grid grid-cols-2 ">
         {Array.from({ length: 6 }, (_, index) => (
           <div
             key={index}
@@ -49,7 +65,7 @@ const ResourcesTop = () => {
             </p>
           </div>
         ))}
-      </div>
+      </div> */}
     </section>
   );
 };
