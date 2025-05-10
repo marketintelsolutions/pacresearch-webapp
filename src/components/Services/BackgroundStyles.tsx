@@ -4,7 +4,7 @@ const BackgroundStyles = () => {
   return (
     <>
       {/* first glass bubble on the left */}
-      <div className="absolute w-full  border-2 border-red-500 left-[-0px]  top-[700px]">
+      <div className="absolute w-full  left-[-0px]  top-[700px]">
         <div className="w-full max-w-max mx-auto">
           <div className="max-w-[300px] -translate-x-32">
             <img src="/images/bubble.svg" alt="bubble" className="w-full" />

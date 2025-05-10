@@ -147,14 +147,19 @@ const WhyChooseUs: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full rounded-[30px] h-[208px] pt-[29px] bg-secondaryBlue mt-[105px]">
+      <div className="w-full rounded-[30px] min-h-[208px] py-[29px] bg-secondaryBlue mt-[105px]">
         <h2 className="self-stretch  text-center justify-start text-primaryBlue text-base font-bold font-['Inter'] leading-snug tracking-tight">
           TRUSTED BY
         </h2>
 
         <div className="flex gap-3 justify-center mt-[27px]">
-          {Array.from({ length: 5 }, (_, index) => (
-            <div className="w-14 h-14 rounded-full bg-sky-50" />
+          {["pacam", "PACCapital", "PACR", "pacs"].map((item, index) => (
+            <div
+              key={index}
+              className="w-40 h-40 rounded-full bg-white flex justify-center items-center p-2"
+            >
+              <img src={`/images/${item}.png`} alt={item} className="w-full" />
+            </div>
           ))}
         </div>
       </div>

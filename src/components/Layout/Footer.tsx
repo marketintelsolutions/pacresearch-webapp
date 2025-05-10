@@ -1,6 +1,7 @@
 import {
   Facebook,
   Instagram,
+  Linkedin,
   Mail,
   MapPin,
   Phone,
@@ -129,15 +130,18 @@ const Footer = () => {
           © PAC Research Nigeria Copyright 2025
         </p>
         <div className="flex gap-[22px] text-[#FFFFFF]">
-          <span>
+          {/* <span>
             <Facebook size={20} />
-          </span>
-          <span>
+          </span> */}
+          <a target="_blank" href="https://www.instagram.com/pacresearchorg/">
             <Instagram size={20} />
-          </span>
-          <span>
-            <Twitter size={20} />
-          </span>
+          </a>
+          <a
+            href="https://www.linkedin.com/company/pac-research-org/"
+            target="_blank"
+          >
+            <Linkedin size={20} />
+          </a>
         </div>
       </div>
     </>
