@@ -19,10 +19,13 @@ const NewsCommentary = () => {
       <div className="mt-10 flex justify-between">
         {Array.from({ length: 3 }, (_, index) => (
           <div
-            style={{ backgroundImage: "url(/images/newsbg.png)" }}
-            className="h-[452px] w-full max-w-[331px] rounded-[30px] "
+            style={{
+              backgroundImage: "url(/images/watchthisspace.jpg)",
+              backgroundSize: "cover",
+            }}
+            className="h-[452px] w-full max-w-[331px] rounded-[30px]"
           >
-            <div className="h-full flex items-end px-5 pb-8 rounded-[30px]  bg-gradient-to-b to-[#000000b7] from-[#383838D6]">
+            <div className="h-full flex items-end px-5 pb-8 rounded-[30px]  bg-gradient-to-b to-[#00000042] from-[#383838fe]">
               <div className="flex flex-col gap-[15px]">
                 <p className="justify-start text-white text-sm font-semibold font-['Montserrat'] leading-normal tracking-tight">
                   27/11/2024

@@ -1,12 +1,31 @@
 import { X } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const NewsletterForm = () => {
+  const [isOpen, setIsOpen] = useState(true);
+  const isNewsLetter = JSON.parse(
+    localStorage.getItem("isNewsLetter") as string
+  );
+
+  const close = () => {
+    setIsOpen(false);
+    localStorage.setItem("isNewsLetter", JSON.stringify("closed"));
+  };
+
+  useEffect(() => {
+    if (isNewsLetter === "closed") {
+      setIsOpen(false);
+    }
+  }, []);
   return (
-    <div className=" bg-[#FFFFFFBF] rounded-[30px] pt-[37px] pb-[25px] px-[28px] absolute right-[51px] -bottom-[236px] w-full max-w-[302px] ">
-      <span className="absolute top-5 right-5 ">
+    <div
+      className={`${
+        isOpen ? "static" : "hidden"
+      } bg-[#FFFFFFBF] fixed rounded-[30px] pt-[37px] pb-[25px] px-[28px]  right-[51px] z-[99] bottom-[36px] w-full max-w-[302px]`}
+    >
+      <button onClick={close} className="absolute top-5 right-5 ">
         <X />
-      </span>
+      </button>
       <h2 className="text-[#000000] font-roboto text-2xl font-semibold">
         Stay Ahead with PAC Research Newsletter 
       </h2>

@@ -39,7 +39,6 @@ const Banner = () => {
           </div>
         </button>
       </div>
-      <NewsletterForm />
     </div>
   );
 };
