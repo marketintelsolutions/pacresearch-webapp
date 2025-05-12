@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const WhoWeAre = () => {
   return (
@@ -39,11 +40,14 @@ const WhoWeAre = () => {
           insight, fuel innovation and effectively navigate this time of
           unequalled change.{" "}
         </p>
-        <button className="px-5 py-3 w-fit bg-cyan-400 rounded-[30px] outline outline-1 outline-offset-[-1px] outline-cyan-400 inline-flex justify-center items-center gap-2.5">
-          <span className="text-center justify-start text-white text-base font-medium font-['Inter'] leading-normal">
+        <Link
+          to={"/services"}
+          className="px-5 py-3 w-fit bg-[#15BFFD] hover:bg-transparent hover:text-[#15BFFD] text-white rounded-[30px] outline outline-1 outline-offset-[-1px] outline-[#15BFFD] border  inline-flex justify-center items-center gap-2.5"
+        >
+          <span className="text-center justify-start  text-base font-medium font-['Inter'] leading-normal">
             Learn More
           </span>
-        </button>
+        </Link>
       </div>
     </section>
   );
