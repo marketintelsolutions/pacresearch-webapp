@@ -114,7 +114,7 @@ const MainBackgroundStyles = () => {
             )}
           {/* blue patch left four */}
           {/* show only on landing */}
-          {pathname === "/" && (
+          {/* {pathname === "/" && (
             <div className="w-full max-w-[356px] absolute top-[5233px] -left-[0px] ">
               <img
                 src="/images/bluepatchleftone.svg"
@@ -122,7 +122,7 @@ const MainBackgroundStyles = () => {
                 className="w-full "
               />
             </div>
-          )}
+          )} */}
 
           {/* blue patch right two */}
           {/* do not show on resources and contact */}
@@ -150,7 +150,7 @@ const MainBackgroundStyles = () => {
             )}
           {/* blue patch right four */}
           {/* show only on landing */}
-          {pathname === "/" && (
+          {/* {pathname === "/" && (
             <div className="w-full max-w-[356px] absolute top-[5572px] -right-[0px] ">
               <img
                 src="/images/bluepatchrightone.svg"
@@ -158,7 +158,7 @@ const MainBackgroundStyles = () => {
                 className="w-full "
               />
             </div>
-          )}
+          )} */}
         </>
       )}
     </>

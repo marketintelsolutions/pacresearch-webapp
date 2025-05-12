@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const ServiceItem: React.FC<{
   heading: string;
@@ -53,11 +54,14 @@ const ServiceItem: React.FC<{
         <p className="self-stretch text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-[26px] tracking-tight">
           {text}
         </p>
-        <button className="px-5 py-3 w-fit border border-[#15bffd] bg-[#15bffd] text-white hover:bg-white hover:text-[#15bffd] rounded-[30px] outline outline-1 outline-offset-[-1px] outline-[#15bffd] inline-flex justify-center items-center gap-2.5">
+        <Link
+          to={"/contact"}
+          className="px-5 py-3 w-fit border border-[#15bffd] bg-[#15bffd] text-white hover:bg-white hover:text-[#15bffd] rounded-[30px] outline outline-1 outline-offset-[-1px] outline-[#15bffd] inline-flex justify-center items-center gap-2.5"
+        >
           <span className="text-center justify-start text-base font-medium font-['Inter'] leading-normal">
             Get Started
           </span>
-        </button>
+        </Link>
       </div>
     </div>
   );

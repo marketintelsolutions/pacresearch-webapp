@@ -1,24 +1,45 @@
 import { ArrowLeft, ArrowLeftIcon, ArrowRight } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BiLeftArrow, BiRightArrow } from "react-icons/bi";
 
 const carousel = [
   {
+    heading: "… intellectually curious, imaginative & analytical... ",
+    text:
+      "Partnering with You to Deliver Tailored Insights for Sustainable Market Success ",
+    image: "building.png",
+  },
+  {
     heading: "Empowering smarter decisions with cleaner data.",
     text:
       "We draw on cleaner and richer data to help our customers gain greater insight, fuel innovation and effectively navigate this time of unequalled change.",
-    image: "caro1",
+    image: "caro1.jpg",
   },
   {
     heading: "PAC Research Analytics",
     text:
       "We deploy the latest analytical methods to identify patterns, trends, and insights that can help businesses make informed decisions and gain a competitive advantage.",
-    image: "caro2",
+    image: "caro2.jpg",
   },
 ];
 
 const LetsTalk = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const timeout = setTimeout(
+      () =>
+        setActiveIndex((prev) => {
+          if (prev === carousel.length - 1) {
+            return 0;
+          }
+          return prev + 1;
+        }),
+      3000
+    );
+
+    return () => clearTimeout(timeout);
+  }, [activeIndex]);
 
   return (
     <section className=" h-[649px] px-[101px] flex justify-between rounded-[30px] relative z-[2] bg-primaryBlue w-full max-w-max mx-auto mt-[163px]">
@@ -38,7 +59,7 @@ const LetsTalk = () => {
       <div className=" py-[40px] relative w-full max-w-[46%]">
         <div className="relative  h-full">
           <img
-            src={`/images/${carousel[activeIndex].image}.jpg`}
+            src={`/images/${carousel[activeIndex].image}`}
             alt="building"
             className="w-full z-[3] absolute top-0 left-0 object-cover rounded-[30px] h-full max-w-[390px]"
           />
@@ -58,13 +79,13 @@ const LetsTalk = () => {
             className="w-full absolute top-[60px] left-[60px] max-w-[390px]"
           />
         </div>
-        <div>
+        {/* <div>
           <img
             src="/images/man.png"
             alt="building"
             className="w-full max-w-[412px] absolute z-[4] bottom-0 right-0"
           />
-        </div>
+        </div> */}
       </div>
       <div className="absolute h-full right-12 top-0 flex flex-col justify-center items-center gap-20">
         <div className="flex flex-col gap-3">
@@ -93,7 +114,7 @@ const LetsTalk = () => {
             <ArrowLeft color="white" />
           </button>
           <button
-            className={`p-2 rounded-full bg-secondaryBlue ${
+            className={`p-2 rounded-full  ${
               activeIndex === carousel.length - 1
                 ? "bg-[#FFFFFF33]"
                 : "bg-secondaryBlue"

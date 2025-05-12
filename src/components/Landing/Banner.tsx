@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import React from "react";
 import NewsletterForm from "./NewsletterForm";
+import { Link } from "react-router-dom";
 
 const Banner = () => {
   return (
@@ -33,11 +34,14 @@ const Banner = () => {
           Deep understanding of industries across economies <br />
           and leading through on diverse subjects.
         </p>
-        <button className="border border-[#FFFFFF] rounded-full w-fit py-[15px] px-[36px]">
-          <div className="text-center justify-start text-white text-sm font-bold font-['Montserrat'] leading-snug tracking-tight">
+        <Link
+          to={"/services"}
+          className="border border-[#FFFFFF] hover:border-secondaryBlue text-white hover:text-secondaryBlue rounded-full w-fit py-[15px] px-[36px]"
+        >
+          <div className="text-center justify-start  text-sm font-bold font-['Montserrat'] leading-snug tracking-tight">
             Learn More
           </div>
-        </button>
+        </Link>
       </div>
     </div>
   );

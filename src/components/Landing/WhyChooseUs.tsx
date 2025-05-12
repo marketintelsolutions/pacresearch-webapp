@@ -148,15 +148,15 @@ const WhyChooseUs: React.FC = () => {
       </div>
 
       <div className="w-full rounded-[30px] min-h-[208px] py-[29px] bg-secondaryBlue mt-[105px]">
-        <h2 className="self-stretch  text-center justify-start text-primaryBlue text-base font-bold font-['Inter'] leading-snug tracking-tight">
+        <h2 className="self-stretch  text-center justify-start text-primaryBlue text-2xl font-bold font-['Inter'] leading-snug tracking-tight">
           TRUSTED BY
         </h2>
 
-        <div className="flex gap-3 justify-center mt-[27px]">
+        <div className="flex gap-10 justify-center mt-[7px]">
           {["pacam", "PACCapital", "PACR", "pacs"].map((item, index) => (
             <div
               key={index}
-              className="w-40 h-40 rounded-full bg-white flex justify-center items-center p-2"
+              className="w-[200px] h-[200px] rounded-full  flex justify-center items-center p-2"
             >
               <img src={`/images/${item}.png`} alt={item} className="w-full" />
             </div>

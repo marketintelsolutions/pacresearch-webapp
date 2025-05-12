@@ -17,7 +17,7 @@ const Landing = () => {
       <LetsTalk />
       <WhyChooseUs />
       <NewsCommentary />
-      <SendMessage />
+      {/* <SendMessage /> */}
       <NewsletterForm />
     </>
   );
