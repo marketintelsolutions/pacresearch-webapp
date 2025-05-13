@@ -66,11 +66,11 @@ const EquityMarket: React.FC = () => {
   };
 
   return (
-    <div className="relative flex gap-[36px]">
+    <div className="relative flex flex-wrap lg:flex-nowrap gap-[36px]">
       <div className="absolute -bottom-[290px] -left-[61px]">
         <img src="/images/semieclipse.svg" alt="semieclipse" />
       </div>
-      <div className="w-full max-w-64">
+      <div className="w-full lg:max-w-64">
         <div className="w-64 h-11 px-9 py-3 bg-white rounded-3xl shadow-[2.9px_2.9px_13.3px_-1.4px_rgba(231,228,232,0.80)] border-Color-blue inline-flex justify-start items-center gap-2">
           <span className="justify-start text-primaryBlue text-xs font-normal font-['Jost']">
             All Share Index (ASI){" "}
@@ -84,7 +84,7 @@ const EquityMarket: React.FC = () => {
             <span className="w-20 h-6 bg-gray-200 animate-pulse rounded"></span>
           </div>
         ) : (
-          <div className="flex justify-between mt-2.5">
+          <div className="flex justify-between max-w-[300px] mt-2.5">
             <span className="w-24 h-6 justify-start text-primaryBlue text-sm font-normal font-['Jost']">
               {formatLargeNumber(asiData.value)}
             </span>
@@ -121,11 +121,11 @@ const EquityMarket: React.FC = () => {
             <div className="h-[169px] w-[211px] mt-5 bg-gray-200 animate-pulse rounded"></div>
           </>
         ) : (
-          <>
+          <div className="flex flex-wrap lg:flex-col gap-6 mt-5">
             {fgnData.map((fgn) => (
               <FgnCard key={fgn.id} data={fgn} />
             ))}
-          </>
+          </div>
         )}
       </div>
       <EquityMarketTable />

@@ -12,7 +12,7 @@ const FgnCard: React.FC<FgnCardProps> = ({ data }) => {
         backgroundImage: "url(/images/fgnbg.png)",
         backgroundRepeat: "no-repeat",
       }}
-      className="h-[169px] w-[211px] mt-5"
+      className="h-[169px] w-[211px] "
     >
       <h3 className="pt-2 text-center justify-start text-secondaryBlue text-base font-bold font-['Jost']">
         FGN {data.type}{" "}

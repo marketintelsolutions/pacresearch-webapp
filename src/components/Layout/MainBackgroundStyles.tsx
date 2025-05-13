@@ -29,17 +29,17 @@ const MainBackgroundStyles = () => {
         />
       </div>
       {/* star top right */}
-      <div className="w-full  absolute  top-[160px]">
+      <div className=" w-full  absolute  top-[160px]">
         <div className="w-full max-w-max relative mx-auto">
-          <div className="w-full max-w-[32px] absolute top-[0px] -right-[60px] ">
+          <div className="zr:hidden md:flex w-full max-w-[32px] absolute top-[0px] right-0 xl:-right-[60px] ">
             <img src="/images/star.svg" alt="star" className="w-full " />
           </div>
         </div>
       </div>
       {/* star right one */}
-      <div className="w-full  absolute top-[1010px]">
+      <div className="zr:hidden md:flex w-full  absolute top-[1010px]">
         <div className="w-full max-w-max relative mx-auto">
-          <div className="w-full max-w-[30px] absolute top-[0px] -right-[60px] ">
+          <div className="w-full max-w-[30px] absolute top-[0px] right-0 xl:-right-[60px] ">
             <img src="/images/star.svg" alt="star" className="w-full " />
           </div>
         </div>
@@ -77,7 +77,7 @@ const MainBackgroundStyles = () => {
             pathname !== "/contact" && (
               <div className="w-full  absolute top-[4293px]">
                 <div className="w-full max-w-max relative mx-auto">
-                  <div className="w-full max-w-[24px] absolute top-0 -right-[60px] ">
+                  <div className="w-full max-w-[24px] absolute top-0 right-0 xl:-right-[60px] ">
                     <img
                       src="/images/star.svg"
                       alt="star"

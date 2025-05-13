@@ -2,11 +2,11 @@ import React from "react";
 
 const NewsCommentary = () => {
   return (
-    <section className="mt-[98px] w-full max-w-[1032px] mx-auto">
-      <h1 className="text-center justify-start text-PAC-Blue text-4xl font-bold font-['Montserrat'] leading-[57px] tracking-tight">
+    <section className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto">
+      <h1 className="text-center justify-start text-PAC-Blue text-2xl md:text-4xl font-bold font-['Montserrat'] leading-[57px] tracking-tight">
         NEWS COMMENTARY
       </h1>
-      <p className="self-stretch mt-[18px] text-center justify-start text-PAC-Blue text-base font-normal font-['Montserrat'] leading-normal tracking-tight">
+      <p className="self-stretch mt-[18px] text-center justify-start text-PAC-Blue text-sm md:text-base font-normal font-['Montserrat'] leading-normal tracking-tight">
         At PAC Research, we go beyond headlines. Our expert team dissects key
         news stories and market developments, offering deeper insights into how
         they affect industries, businesses, and investments. Whether it's a
@@ -16,14 +16,14 @@ const NewsCommentary = () => {
         with our timely updates and expert takes.{" "}
       </p>
 
-      <div className="mt-10 flex justify-between">
+      <div className="mt-10 flex flex-wrap md:flex-nowrap gap-5 justify-between">
         {Array.from({ length: 3 }, (_, index) => (
           <div
             style={{
               backgroundImage: "url(/images/watchthisspace.jpg)",
               backgroundSize: "cover",
             }}
-            className="h-[452px] w-full max-w-[331px] rounded-[30px]"
+            className="h-[452px] w-full md:max-w-[331px] rounded-[30px]"
           >
             <div className="h-full flex items-end px-5 pb-8 rounded-[30px]  bg-gradient-to-b to-[#00000042] from-[#383838fe]">
               <div className="flex flex-col gap-[15px]">

@@ -62,7 +62,7 @@ const MacroEco: React.FC = () => {
   };
 
   return (
-    <section className="mt-[94px] w-full max-w-[1110px] mx-auto">
+    <section className="mt-[94px] px-6 lg:px-0 w-full max-w-[1110px] mx-auto">
       <h2 className="self-stretch justify-start text-PAC-Blue text-2xl font-semibold font-['Jost']">
         MACROECONOMICS{" "}
       </h2>
@@ -74,7 +74,7 @@ const MacroEco: React.FC = () => {
           <div className="w-full max-w-[352px] h-[110px] bg-gray-200 animate-pulse rounded-md"></div>
         </div>
       ) : (
-        <div className="mt-5 flex justify-between">
+        <div className="mt-5 flex flex-wrap gap-10 lg:gap-5 ">
           {inflation && (
             <MacroEcoCard
               title="Inflation Rate"

@@ -42,21 +42,21 @@ const LetsTalk = () => {
   }, [activeIndex]);
 
   return (
-    <section className=" h-[649px] px-[101px] flex justify-between rounded-[30px] relative z-[2] bg-primaryBlue w-full max-w-max mx-auto mt-[163px]">
-      <div className="flex flex-col justify-center h-full">
-        <h1 className="w-[450px] justify-start text-white text-4xl font-bold font-['Montserrat'] leading-[48px] tracking-tight">
+    <section className=" pb-40 pt-20 lg:pt-0  lg:h-[649px] px-6 md:px-[50px] lg:px-[101px] flex flex-wrap lg:flex-nowrap justify-between rounded-[30px] relative z-[2] bg-primaryBlue w-full max-w-max mx-auto mt-[163px]">
+      <div className="flex flex-col justify-center lg:h-full">
+        <h1 className="lg:w-[450px] justify-start text-white text-2xl md:text-4xl font-bold font-['Montserrat'] md:leading-[48px] tracking-tight">
           {carousel[activeIndex].heading}
         </h1>
-        <p className="w-[400px]  mt-[27px] justify-start text-white text-base font-medium font-['Jost'] leading-tight tracking-tight">
+        <p className="lg:w-[400px]  mt-[27px] justify-start text-white text-sm md:text-base font-medium font-['Jost'] md:leading-tight tracking-tight">
           {carousel[activeIndex].text}
         </p>
-        <button className="w-44 mt-[70px] px-10 py-3.5 bg-sky-500 rounded-[5px] inline-flex flex-col justify-start items-center gap-2.5 overflow-hidden">
+        <button className="w-44 mt-[30px] md:mt-[50px] lg:mt-[70px] px-10 py-3.5 bg-sky-500 rounded-[5px] inline-flex flex-col justify-start items-center gap-2.5 overflow-hidden">
           <span className="text-center justify-start text-white text-sm font-bold font-['Montserrat'] underline leading-snug tracking-tight">
             LETS’S TALK
           </span>
         </button>
       </div>
-      <div className=" py-[40px] relative w-full max-w-[46%]">
+      <div className="min-h-[645px] py-[40px] relative w-full lg:max-w-[46%]">
         <div className="relative  h-full">
           <img
             src={`/images/${carousel[activeIndex].image}`}
@@ -87,8 +87,8 @@ const LetsTalk = () => {
           />
         </div> */}
       </div>
-      <div className="absolute h-full right-12 top-0 flex flex-col justify-center items-center gap-20">
-        <div className="flex flex-col gap-3">
+      <div className="absolute lg:h-full right-12  bottom-10  lg:top-0 flex lg:flex-col justify-center items-center gap-20">
+        <div className="flex lg:flex-col gap-3">
           {Array.from({ length: carousel.length }, (_, index) => (
             <div
               className={`h-2 w-2  rounded-full ${
@@ -97,8 +97,8 @@ const LetsTalk = () => {
             ></div>
           ))}
         </div>
-        <div className="border-dashed border h-[250px] w-[1px] border-[#FFFFFF33]"></div>
-        <div className="flex flex-col gap-4">
+        <div className="zr:hidden lg:flex border-dashed border h-[250px] w-[1px] border-[#FFFFFF33]"></div>
+        <div className="flex lg:flex-col gap-4">
           <button
             className={`p-2 rounded-full  ${
               activeIndex === 0 ? "bg-[#FFFFFF33]" : "bg-secondaryBlue"

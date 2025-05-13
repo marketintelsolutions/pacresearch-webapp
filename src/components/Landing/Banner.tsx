@@ -11,14 +11,14 @@ const Banner = () => {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
       }}
-      className=" w-full h-[670px] relative z-[2] max-w-max mx-auto flex -translate-y-32 "
+      className=" w-full lg:h-[670px] pb-10 px-6 lg:px-0 relative z-[2] max-w-max mx-auto flex -translate-y-32 "
     >
       <div className="w-full max-w-[287px] absolute -bottom-[179px] -left-[156px] z-[4] ">
         <img src="/images/bubble.svg" alt="bubble" className="w-full " />
       </div>
 
-      <div className="w-full max-w-[575px] h-full  flex items-end">
-        <div className="w-full max-w-[575px] -translate-x-[77px] translate-y-[194px]">
+      <div className="zr:hidden lg:flex w-full max-w-[575px] h-full  flex items-end">
+        <div className=" w-full max-w-[575px] -translate-x-[77px] translate-y-[194px]">
           <img
             src="/images/bannerimage.svg"
             alt="bannerimage"
@@ -26,11 +26,11 @@ const Banner = () => {
           />
         </div>
       </div>
-      <div className="h-full mt-[209px] flex flex-col gap-[35px]">
-        <h1 className="self-stretch justify-start text-white text-5xl font-extrabold font-['Montserrat'] leading-[58px] tracking-tight">
+      <div className="h-full justify-center md:justify-start   mt-[209px] flex flex-col gap-[35px]">
+        <h1 className="self-stretch justify-start text-white text-4xl md:text-5xl font-extrabold font-['Montserrat'] lg:leading-[58px] tracking-tight">
           Deliver Thorough And Impactful Services
         </h1>
-        <p className="justify-start text-white text-xl font-medium font-['Montserrat'] leading-loose tracking-tight">
+        <p className="justify-start text-white text-base md:text-lg lg:text-xl font-medium font-['Montserrat'] leading-loose tracking-tight">
           Deep understanding of industries across economies <br />
           and leading through on diverse subjects.
         </p>

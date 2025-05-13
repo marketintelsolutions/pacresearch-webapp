@@ -2,12 +2,12 @@ import React from "react";
 
 const CustomResearch = () => {
   return (
-    <section className="w-full max-w-max mx-auto mt-20 flex justify-between">
-      <div className="flex flex-col gap-[50px] w-full max-w-[598px]">
-        <h2 className="w-96  justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-10">
+    <section className="w-full max-w-max mx-auto mt-20 px-6 xl:px-0 flex flex-wrap xl:flex-nowrap gap-10 justify-between">
+      <div className="flex flex-col gap-[50px] w-full lg:max-w-[598px]">
+        <h2 className="lg:w-96  justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-10">
           CUSTOM RESEARCH SERVICES
         </h2>
-        <p className="self-stretch  text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-snug tracking-tight">
+        <p className="w-full self-stretch  text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-snug tracking-tight">
           At PAC Research we specialize in providing tailored research solutions
           designed to meet your unique business and individual needs. Whether
           you’re seeking in-depth market analysis, industry insights, or
@@ -31,7 +31,7 @@ const CustomResearch = () => {
           decision-making.
         </p>
       </div>
-      <div className="h-[619px] min-w-96 p-8 bg-sky-950/90 rounded-[39.51px] outline outline-4 outline-offset-[-3.95px] outline-sky-700/25 inline-flex flex-col justify-center items-start gap-4">
+      <div className="h-[619px] min-w-96 w-full lg:w-fit p-8 bg-sky-950/90 rounded-[39.51px] outline outline-4 outline-offset-[-3.95px] outline-sky-700/25 inline-flex flex-col justify-center items-center gap-4">
         <div
           data-has-description="false"
           data-has-error="false"

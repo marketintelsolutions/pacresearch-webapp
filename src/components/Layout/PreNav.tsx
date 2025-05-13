@@ -10,8 +10,8 @@ import {
 
 const PreNav = () => {
   return (
-    <div className="w-full max-w-max mx-auto pt-[35px] flex justify-between">
-      <div className="flex gap-[50px]">
+    <div className="zr:hidden md:flex w-full max-w-max mx-auto px-6 xl:px-0 pt-[35px] flex justify-between">
+      <div className="flex flex-wrap gap-[50px]">
         <div className="flex gap-2.5 items-center">
           <span className=" text-primaryBlue">
             <Phone size={20} />
@@ -38,7 +38,7 @@ const PreNav = () => {
           </p>
         </div>
       </div>
-      <div className="flex gap-[22px] text-[#15BFFD]">
+      <div className="zr:hidden lg:flex  gap-[22px] text-[#15BFFD]">
         <span>
           <Facebook size={20} />
         </span>
