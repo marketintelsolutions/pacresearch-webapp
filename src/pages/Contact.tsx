@@ -1,10 +1,17 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import React from "react";
 import PageBanner from "../components/Layout/PageBanner";
+import { Helmet } from "react-helmet-async";
 
 const Contact = () => {
   return (
     <>
+      {/* <Helmet>
+        <title>contactdd</title>
+        <meta name="description" content="test content" data-rh="true" />
+        <link rel="canonical" href="/about" />
+      </Helmet> */}
+
       <PageBanner text="CONTACT US" />
 
       <section>

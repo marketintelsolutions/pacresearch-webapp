@@ -16,7 +16,7 @@ const WhoWeAre = () => {
         <img src="/images/guy.png" alt="guy" className="-translate-y-0" />
       </div>
       <div className="relative z-[2] flex flex-col pb-[50px] justify-center">
-        <h2 className="w-[453px] justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
+        <h2 className="lg:w-[453px] justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
           Who We Are
         </h2>
         <p className="w-full lg:max-w-[637px] mt-6 mb-20 text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-relaxed tracking-tight">
