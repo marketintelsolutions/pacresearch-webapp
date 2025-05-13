@@ -16,7 +16,7 @@ const MainLayout = ({
   }, [pathname]);
 
   return (
-    <div className=" bg-[#eef5fe]   pb-20">
+    <div className=" bg-[#eef5fe]  pb-20">
       <Navbar />
       <div className="relative z-[2]">{children}</div>
       <Footer />

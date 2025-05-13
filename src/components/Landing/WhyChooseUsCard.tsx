@@ -15,12 +15,12 @@ const WhyChooseUsCard: React.FC<WhyChooseUsCardProps> = ({
 }) => {
   return (
     <div
-      className={`relative w-full max-w-[520px] rounded-[12px] py-[5px] px-[5px] transition-all duration-500 ${
+      className={`relative w-full xl:max-w-[520px] rounded-[12px] py-[5px] px-[5px] transition-all duration-500 ${
         isActive ? " shadow-lg" : ""
       }`}
     >
       <div
-        className={`absolute h-full flex items-center ${
+        className={`zr:hidden xl:flex absolute h-full items-center ${
           right ? "-left-[92px]" : "-right-[92px]"
         }`}
       >

@@ -86,12 +86,12 @@ const footerData: FooterItem[] = [
 const Footer = () => {
   return (
     <>
-      <footer className="relative z-[10] w-full max-w-max mx-auto bg-primaryBlue rounded-[30px] pt-[113px] pb-[115px] mt-10">
-        <div className="w-full max-w-[1050px] mx-auto flex gap-40">
+      <footer className="relative z-[10] w-full max-w-max mx-auto px-6 xl:px-0 bg-primaryBlue rounded-[30px] pt-[113px] pb-[115px] mt-10">
+        <div className="w-full max-w-[1050px] mx-auto flex flex-wrap md:flex-nowrap gap-10 md:gap-20 lg:gap-40">
           <div>
             <img src="/logowhite.svg" alt="logowhite" />
           </div>
-          <div className="w-full max-w-[65%] flex gap-10 justify-between">
+          <div className="w-full lg:max-w-[65%] flex flex-wrap md:flex-nowrap gap-10 justify-between">
             {footerData.map((item, index) => (
               <div key={index} className="flex flex-col gap-5">
                 <h3 className="justify-start text-secondaryBlue text-base font-bold font-['Montserrat'] leading-normal tracking-tight">

@@ -105,13 +105,16 @@ const WhyChooseUs: React.FC = () => {
   const rightColumnCards = whyChooseUsData.slice(3, 6);
 
   return (
-    <section ref={sectionRef} className="w-full max-w-max mx-auto mt-20">
+    <section
+      ref={sectionRef}
+      className="w-full px-6 xl:px-0 max-w-max mx-auto mt-20"
+    >
       <h2 className="h-14 text-center justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
         Why Choose Us?
       </h2>
 
-      <div className="mt-[60px] flex justify-between">
-        <div className="flex flex-col gap-[126px]">
+      <div className="mt-[60px] max-w-[700px] lg:max-w-full mx-auto flex flex-wrap gap-10 justify-between">
+        <div className="flex flex-col gap-[40px] lg:gap-[60px] xl:gap-[126px]">
           {leftColumnCards.map((item, index) => (
             <div
               key={index}
@@ -126,8 +129,8 @@ const WhyChooseUs: React.FC = () => {
             </div>
           ))}
         </div>
-        <div className="mt-[105px] w-1 bg-primaryBlue h-[807px]"></div>
-        <div className="flex flex-col gap-[126px] mt-[125px]">
+        <div className="zr:hidden xl:flex mt-[105px] w-1 bg-primaryBlue h-[807px]"></div>
+        <div className="flex flex-col gap-[40px] lg:gap-[60px] xlgap-[126px] lg:mt-[125px]">
           {rightColumnCards.map((item, index) => {
             const globalIndex = index + 3;
             return (
@@ -152,11 +155,11 @@ const WhyChooseUs: React.FC = () => {
           TRUSTED BY
         </h2>
 
-        <div className="flex gap-10 justify-center mt-[7px]">
+        <div className="flex flex-col md:flex-row items-center gap-10 justify-center mt-[37px]">
           {["pacam", "PACCapital", "PACR", "pacs"].map((item, index) => (
             <div
               key={index}
-              className="w-[200px] h-[200px] rounded-full  flex justify-center items-center p-2"
+              className="w-[200px]  flex justify-center items-center p-2"
             >
               <img src={`/images/${item}.png`} alt={item} className="w-full" />
             </div>

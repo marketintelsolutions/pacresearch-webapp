@@ -2,8 +2,8 @@ import React from "react";
 
 const WhyChooseUs = () => {
   return (
-    <section className="flex gap-[67px] w-full max-w-max mx-auto mt-[50px] items-center">
-      <div className="w-full max-w-[445px]">
+    <section className="flex flex-wrap lg:flex-nowrap gap-[67px] w-full max-w-max mx-auto mt-[50px] px-6 xl:px-0 items-center">
+      <div className="w-full lg:max-w-[445px]">
         <img
           src="/images/whychooseus.png"
           alt="whychooseus"
@@ -11,7 +11,7 @@ const WhyChooseUs = () => {
         />
       </div>
       <div>
-        <h3 className="max-w-[551px] h-14 justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
+        <h3 className="w-full lg:max-w-[551px] h-14 justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
           Why Choose Us?
         </h3>
         <p className="self-stretch mt-6  text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-snug tracking-tight">

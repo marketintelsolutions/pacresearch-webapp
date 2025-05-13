@@ -81,8 +81,8 @@ const EquityMarketTable = () => {
   };
 
   return (
-    <div className="w-full">
-      <h2 className="w-[686px] justify-start text-blue-950 text-2xl font-semibold font-['Jost'] leading-10">
+    <div className="w-full ">
+      <h2 className=" justify-start text-blue-950 text-2xl font-semibold font-['Jost'] leading-10">
         EQUITY MARKET{" "}
       </h2>
 
@@ -92,7 +92,7 @@ const EquityMarketTable = () => {
             activeTab === "gainers"
               ? "border-b-[3px] border-primaryBlue text-PAC-Blue"
               : "text-secondaryBlue"
-          } text-center justify-start text-base font-medium font-['Jost'] cursor-pointer`}
+          } text-center justify-start text-sm md:text-base font-medium font-['Jost'] cursor-pointer`}
           onClick={() => setActiveTab("gainers")}
         >
           Top 5 gainers
@@ -102,82 +102,87 @@ const EquityMarketTable = () => {
             activeTab === "losers"
               ? "border-b-[3px] border-primaryBlue text-PAC-Blue"
               : "text-secondaryBlue"
-          } text-base font-medium font-['Jost'] cursor-pointer`}
+          } text-sm md:text-base font-medium font-['Jost'] cursor-pointer`}
           onClick={() => setActiveTab("losers")}
         >
           Top 5 losers
         </p>
       </div>
 
-      <table className="w-full mt-[48px] bg-[#FFFFFF] rounded-[30px] ">
-        <thead>
-          <tr>
-            <th className="justify-start text-left px-6 py-5 text-secondaryBlue text-base font-medium font-['Jost']">
-              <span className="inline-flex w-[30px]"></span>
-            </th>
-            <th className="justify-start text-left px-6 py-5 text-secondaryBlue text-base font-medium font-['Jost']">
-              STOCK{" "}
-            </th>
-            <th className="justify-start text-left px-6 py-5 text-secondaryBlue text-base font-medium font-['Jost']">
-              PREVIOUS DAY CLOSE{" "}
-            </th>
-            <th className="justify-start text-left px-6 py-5 text-secondaryBlue text-base font-medium font-['Jost']">
-              CURRENT DAY CLOSE{" "}
-            </th>
-            <th className="justify-start text-left px-6 py-5 text-secondaryBlue text-base font-medium font-['Jost']">
-              CHANGE{" "}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {loading ? (
+      <div className="w-full overflow-x-scroll">
+        <table className="min-w-[600px] w-full mt-[48px] bg-[#FFFFFF] rounded-[30px] ">
+          <thead>
             <tr>
-              <td colSpan={5} className="text-center py-8">
-                Loading...
-              </td>
+              <th className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-secondaryBlue text-sm md:text-base font-medium font-['Jost']">
+                <span className="inline-flex w-[30px]"></span>
+              </th>
+              <th className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-secondaryBlue text-sm md:text-base font-medium font-['Jost']">
+                STOCK{" "}
+              </th>
+              <th className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-secondaryBlue text-sm md:text-base font-medium font-['Jost']">
+                PREVIOUS DAY CLOSE{" "}
+              </th>
+              <th className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-secondaryBlue text-sm md:text-base font-medium font-['Jost']">
+                CURRENT DAY CLOSE{" "}
+              </th>
+              <th className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-secondaryBlue text-sm md:text-base font-medium font-['Jost']">
+                CHANGE{" "}
+              </th>
             </tr>
-          ) : (
-            (activeTab === "gainers" ? topGainers : topLosers).map((stock) => (
-              <tr key={stock.id} className="border-t border-[#E6EFF5]">
-                <td className="px-6 py-5">
-                  <img
-                    src={
-                      stock.change >= 0
-                        ? "/images/rounduparrow.svg"
-                        : "/images/rounddownarrow.svg"
-                    }
-                    alt={stock.change >= 0 ? "up arrow" : "down arrow"}
-                  />
-                </td>
-                <td className="justify-start text-left px-6 py-5 text-neutral-800 text-base font-normal font-['Jost']">
-                  {stock.symbol}
-                </td>
-                <td className="justify-start text-left px-6 py-5 text-neutral-800 text-base font-normal font-['Jost']">
-                  {formatNumber(stock.previousDayClose)}
-                </td>
-                <td className="justify-start text-left px-6 py-5 text-neutral-800 text-base font-normal font-['Jost']">
-                  {formatNumber(stock.currentDayClose)}
-                </td>
-                <td
-                  className={`justify-start text-left px-6 py-5 ${
-                    stock.change >= 0 ? "text-green-500" : "text-[#F44336]"
-                  } text-base font-normal font-['Jost']`}
-                >
-                  {stock.change}%
-                </td>
-              </tr>
-            ))
-          )}
-          {!loading &&
-            (activeTab === "gainers" ? topGainers : topLosers).length === 0 && (
+          </thead>
+          <tbody>
+            {loading ? (
               <tr>
                 <td colSpan={5} className="text-center py-8">
-                  No data available
+                  Loading...
                 </td>
               </tr>
+            ) : (
+              (activeTab === "gainers" ? topGainers : topLosers).map(
+                (stock) => (
+                  <tr key={stock.id} className="border-t border-[#E6EFF5]">
+                    <td className="px-3 md:px-6 py-5 md:py-5">
+                      <img
+                        src={
+                          stock.change >= 0
+                            ? "/images/rounduparrow.svg"
+                            : "/images/rounddownarrow.svg"
+                        }
+                        alt={stock.change >= 0 ? "up arrow" : "down arrow"}
+                      />
+                    </td>
+                    <td className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-neutral-800 text-sm md:text-base font-normal font-['Jost']">
+                      {stock.symbol}
+                    </td>
+                    <td className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-neutral-800 text-sm md:text-base font-normal font-['Jost']">
+                      {formatNumber(stock.previousDayClose)}
+                    </td>
+                    <td className="justify-start text-left px-3 md:px-6 py-5 md:py-5 text-neutral-800 text-sm md:text-base font-normal font-['Jost']">
+                      {formatNumber(stock.currentDayClose)}
+                    </td>
+                    <td
+                      className={`justify-start text-left px-3 md:px-6 py-5 md:py-5 ${
+                        stock.change >= 0 ? "text-green-500" : "text-[#F44336]"
+                      } text-sm md:text-base font-normal font-['Jost']`}
+                    >
+                      {stock.change}%
+                    </td>
+                  </tr>
+                )
+              )
             )}
-        </tbody>
-      </table>
+            {!loading &&
+              (activeTab === "gainers" ? topGainers : topLosers).length ===
+                0 && (
+                <tr>
+                  <td colSpan={5} className="text-center py-8">
+                    No data available
+                  </td>
+                </tr>
+              )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

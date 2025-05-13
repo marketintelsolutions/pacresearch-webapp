@@ -5,7 +5,7 @@ import DirectorsItems from "./DirectorsItems";
 
 const DirectorsSummary = () => {
   return (
-    <section className="w-full max-w-max  mx-auto mt-40">
+    <section className="w-full max-w-max px-6 xl:px-0 mx-auto mt-40">
       <h2 className=" text-center justify-start">
         <span className="text-primaryBlue text-3xl font-bold font-['Inter'] capitalize leading-10">
           OUR BOARD
