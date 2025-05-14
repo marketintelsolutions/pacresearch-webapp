@@ -34,9 +34,19 @@ const metadata = {
     description:
       "Plot 8A, Elsie Femi Pearse Street, Off Adeola Odeku, Victoria Island, Lagos P.O. Box 70823, Victoria Island, Lagos, Nigeria.",
   },
+  admin: {
+    title: "",
+    description: "",
+  },
 };
 
-type PageName = "home" | "about" | "services" | "resources" | "contact";
+type PageName =
+  | "home"
+  | "about"
+  | "services"
+  | "resources"
+  | "contact"
+  | "admin";
 
 const MainLayout = ({
   children,
@@ -51,6 +61,8 @@ const MainLayout = ({
 
   const pageName =
     pathname === "/" ? "home" : (pathname.split("/")[1] as PageName);
+
+  console.log(pageName);
 
   return (
     <>
