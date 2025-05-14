@@ -13,7 +13,7 @@ const services = [
     heading: "Survey Services",
     text:
       "We design and execute customized surveys to collect accurate, relevant, and timely data. Our surveys are tailored to address specific client objectives, whether understanding consumer behavior, assessing employee engagement, or gauging market sentiment. By leveraging advanced methodologies and tools, we ensure that the data we provide is reliable and actionable. ",
-    image: "workspace",
+    image: "survey",
   },
   {
     heading: "Consulting Services",
