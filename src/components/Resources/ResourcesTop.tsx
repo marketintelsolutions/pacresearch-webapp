@@ -16,7 +16,7 @@ const ResourcesTop = () => {
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
         }}
-        className="relative min-w-[305px] h-[277px] flex flex-col justify-end pb-[70px]"
+        className="relative zr:hidden md:flex min-w-[305px] h-[277px] flex flex-col justify-end pb-[70px]"
       >
         <div className="absolute top-0 left-0 w-full flex justify-center">
           <div className=" py-[29px] px-[26px] rounded-full bg-[#D9D9D9] w-fit -translate-y-[29px]">
@@ -42,8 +42,8 @@ const ResourcesTop = () => {
         </p> */}
       </div>
       <div>
-        <h2 className="text-[80px] leading-[110px] text-white font-bold">
-          PAC Research <br /> Resources
+        <h2 className="text-[60px] sm:text-[70px] lg:text-[80px] lg:leading-[110px] text-white font-bold">
+          PAC Research Resources
         </h2>
       </div>
       {/* <div className="w-full grid grid-cols-2 ">

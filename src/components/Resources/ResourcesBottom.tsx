@@ -5,6 +5,7 @@ import {
   fetchFiles,
   setSelectedCategory,
 } from "../../store/resourcesSlice";
+import { Menu } from "lucide-react";
 
 const ResourcesBottom: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -87,8 +88,11 @@ const ResourcesBottom: React.FC = () => {
   }
 
   return (
-    <section className="w-full max-w-max mx-auto mt-[60px] flex gap-[25px]">
-      <div className="flex flex-col gap-[25px] w-full max-w-[384px]">
+    <section className="w-full px-6 xl:px-0 max-w-max mx-auto mt-[60px] flex flex-wrap lg:flex-nowrap gap-[25px]">
+      {/* <span>
+        <Menu />
+      </span> */}
+      <div className=" flex flex-wrap lg:flex-nowrap lg:flex-col gap-[25px] w-full lg:max-w-[384px]">
         {categories.map((category) => (
           <div
             key={category.id}
@@ -97,7 +101,7 @@ const ResourcesBottom: React.FC = () => {
               backgroundSize: "contain",
               backgroundRepeat: "no-repeat",
             }}
-            className={`flex items-center justify-between w-full max-w-[384px] h-[94px] pl-[25px] pr-[50px] py-[19px] cursor-pointer ${
+            className={`flex items-center justify-between w-full max-w-[250px] md:max-w-[384px] h-[65px] md:h-[94px] px-2 md:pl-[25px] pr-[50px] py-0 md:py-[19px] cursor-pointer ${
               selectedCategory === category.id
                 ? "opacity-100"
                 : "opacity-70 hover:opacity-100"
@@ -105,26 +109,28 @@ const ResourcesBottom: React.FC = () => {
             onClick={() => handleCategoryClick(category.id)}
           >
             <div className="flex items-center gap-4">
-              <div className="p-[15px] bg-[#15BFFD] rounded-full">
+              <div className="zr:hidden md:flex p-[15px] bg-[#15BFFD] rounded-full">
                 <img
                   // src={`/images/${getCategoryIcon(category.id)}.svg`}
                   src={`/images/uploadwhite.svg`}
                   alt={category.name}
                 />
               </div>
-              <p className="justify-start uppercase text-white text-base font-bold font-['Inter'] leading-normal">
+              <p className="justify-start uppercase text-white text-xs md:text-base font-bold font-['Inter'] leading-normal">
                 {category.name}
               </p>
             </div>
-            {selectedCategory === category.id ? (
-              <span>
-                <img src="/images/downwhite.svg" alt="selected" />
-              </span>
-            ) : (
-              <p className="text-center justify-start text-secondaryBlue text-xl font-medium font-['Inter'] underline leading-loose">
-                view
-              </p>
-            )}
+            <div className="zr:hidden md:flex">
+              {selectedCategory === category.id ? (
+                <span>
+                  <img src="/images/downwhite.svg" alt="selected" />
+                </span>
+              ) : (
+                <p className="text-center justify-start text-secondaryBlue text-xl font-medium font-['Inter'] underline leading-loose">
+                  view
+                </p>
+              )}
+            </div>
           </div>
         ))}
         {/* <div className="w-40 self-end h-12 px-8 py-6 bg-[#15284A] rounded-3xl outline outline-1 outline-offset-[-1px] outline-[#15284A] inline-flex justify-center items-center cursor-pointer">
@@ -138,10 +144,9 @@ const ResourcesBottom: React.FC = () => {
         <div
           style={{
             backgroundImage: "url(/images/whitecutbg.svg)",
-            backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
           }}
-          className="relative w-full py-[77px] px-[31px] max-w-[801px] h-[680px] mt-[48px]"
+          className="relative w-full py-[77px] px-[31px] max-w-[801px] bg-cover md:bg-contain h-[680px] mt-[48px]"
         >
           <div
             style={{
@@ -182,7 +187,7 @@ const ResourcesBottom: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-[25px] mt-[43px] max-h-[450px] overflow-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[25px] mt-[43px] max-h-[450px] overflow-auto">
             {loading.files ? (
               Array.from({ length: 4 }, (_, index) => (
                 <div
@@ -200,7 +205,7 @@ const ResourcesBottom: React.FC = () => {
               files.map((file) => (
                 <div
                   key={file.id}
-                  className="relative p-[1px] w-full max-w-[354px] overflow-hidden"
+                  className="relative p-[1px]  mx-auto w-full max-w-[354px] overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#15BFFD] to-[#9C37FD] rounded-[5px]"></div>
                   <div className="absolute z-[2] -bottom-10 -right-10 w-[70px] h-[70px] rotate-[50deg] border border-[#9C37FD] bg-white"></div>

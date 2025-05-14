@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowLeftIcon, ArrowRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { BiLeftArrow, BiRightArrow } from "react-icons/bi";
+import { Link } from "react-router-dom";
 
 const carousel = [
   {
@@ -8,18 +9,21 @@ const carousel = [
     text:
       "Partnering with You to Deliver Tailored Insights for Sustainable Market Success ",
     image: "building.png",
+    link: "/contact",
   },
   {
     heading: "Empowering smarter decisions with cleaner data.",
     text:
       "We draw on cleaner and richer data to help our customers gain greater insight, fuel innovation and effectively navigate this time of unequalled change.",
     image: "caro1.jpg",
+    link: "/services",
   },
   {
     heading: "PAC Research Analytics",
     text:
       "We deploy the latest analytical methods to identify patterns, trends, and insights that can help businesses make informed decisions and gain a competitive advantage.",
     image: "caro2.jpg",
+    link: "/services",
   },
 ];
 
@@ -35,7 +39,7 @@ const LetsTalk = () => {
           }
           return prev + 1;
         }),
-      3000
+      6000
     );
 
     return () => clearTimeout(timeout);
@@ -50,11 +54,14 @@ const LetsTalk = () => {
         <p className="lg:w-[400px]  mt-[27px] justify-start text-white text-sm md:text-base font-medium font-['Jost'] md:leading-tight tracking-tight">
           {carousel[activeIndex].text}
         </p>
-        <button className="w-44 mt-[30px] md:mt-[50px] lg:mt-[70px] px-10 py-3.5 bg-sky-500 rounded-[5px] inline-flex flex-col justify-start items-center gap-2.5 overflow-hidden">
+        <Link
+          to={carousel[activeIndex].link}
+          className="w-44 mt-[30px] md:mt-[50px] lg:mt-[70px] px-10 py-3.5 bg-sky-500 rounded-[5px] inline-flex flex-col justify-start items-center gap-2.5 overflow-hidden"
+        >
           <span className="text-center justify-start text-white text-sm font-bold font-['Montserrat'] underline leading-snug tracking-tight">
             LETS’S TALK
           </span>
-        </button>
+        </Link>
       </div>
       <div className="min-h-[645px] py-[40px] relative w-full lg:max-w-[46%]">
         <div className="relative  h-full">
