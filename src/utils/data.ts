@@ -13,17 +13,6 @@ export const directorsData = [
     ],
   },
   {
-    image: "eric",
-    iamgeBig: "ericBig",
-    name: "Eric Okoruwa",
-    role: "DIRECTOR",
-    desc: [
-      "Eric holds a master’s degree in marketing and a bachelor’s degree in business administration from the University of Lagos. He is a member of the Nigerian Institute of Management. Prior to joining PanAfrican Capital Holdings, he was actively involved in various high-profile projects, capital raising exercise and advisory mandates in the private sector as well as privatization programme of both the State and Federal governments at Profound Securities Limited, Fountain Trust Bank Plc and Refuge Home Savings and Loans Limited.",
-
-      "He has industry experience close to 20 years in Investment Banking & Structured Finance. He has been involved in raising capital in excess of N200 billion in the Nigerian markets and excess of $1 billion dollars from foreign institutions for project execution. He has attended various international and local courses on company Valuation and Issues Pricing, Managing and Packaging Issues, Mergers & Acquisitions, Bonds & Derivatives, Asset Backed Securities & Structured Finance.",
-    ],
-  },
-  {
     image: "sina",
     iamgeBig: "sinaBig",
     name: "Sina Alimi",
@@ -34,6 +23,18 @@ export const directorsData = [
       "He is also a Fellow of the Institute of Chartered Accountants of Nigeria (ICAN) and Chartered Institute of Taxation of Nigeria (CITN). He joined the Investment Banking Division of Fountain Trust Bank Plc in 1997 and subsequently served as Group Head, Corporate Finance and Head, Investment Banking Group. While in Corporate Finance, he was actively involved in high profile projects and advisory mandates in the private sector as well as the privatization programme of the Federal Government of Nigeria.",
     ],
   },
+  {
+    image: "eric",
+    iamgeBig: "ericBig",
+    name: "Eric Okoruwa",
+    role: "DIRECTOR",
+    desc: [
+      "Eric holds a master’s degree in marketing and a bachelor’s degree in business administration from the University of Lagos. He is a member of the Nigerian Institute of Management. Prior to joining PanAfrican Capital Holdings, he was actively involved in various high-profile projects, capital raising exercise and advisory mandates in the private sector as well as privatization programme of both the State and Federal governments at Profound Securities Limited, Fountain Trust Bank Plc and Refuge Home Savings and Loans Limited.",
+
+      "He has industry experience close to 20 years in Investment Banking & Structured Finance. He has been involved in raising capital in excess of N200 billion in the Nigerian markets and excess of $1 billion dollars from foreign institutions for project execution. He has attended various international and local courses on company Valuation and Issues Pricing, Managing and Packaging Issues, Mergers & Acquisitions, Bonds & Derivatives, Asset Backed Securities & Structured Finance.",
+    ],
+  },
+
   {
     image: "nentok",
     iamgeBig: "nentokBig",

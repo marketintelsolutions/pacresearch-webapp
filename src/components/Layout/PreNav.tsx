@@ -2,6 +2,7 @@ import React from "react";
 import {
   Facebook,
   Instagram,
+  Linkedin,
   Mail,
   MapPin,
   Phone,
@@ -10,7 +11,7 @@ import {
 
 const PreNav = () => {
   return (
-    <div className="zr:hidden md:flex w-full max-w-max mx-auto px-6 xl:px-0 pt-[35px] flex justify-between">
+    <div className="relative z-[4] zr:hidden md:flex w-full max-w-max mx-auto px-6 xl:px-0 pt-[35px] flex justify-between">
       <div className="flex flex-wrap gap-[50px]">
         <div className="flex gap-2.5 items-center">
           <span className=" text-primaryBlue">
@@ -39,15 +40,15 @@ const PreNav = () => {
         </div>
       </div>
       <div className="zr:hidden lg:flex  gap-[22px] text-[#15BFFD]">
-        <span>
-          <Facebook size={20} />
-        </span>
-        <span>
+        <a target="_blank" href="https://www.instagram.com/pacresearchorg/">
           <Instagram size={20} />
-        </span>
-        <span>
-          <Twitter size={20} />
-        </span>
+        </a>
+        <a
+          href="https://www.linkedin.com/company/pac-research-org/"
+          target="_blank"
+        >
+          <Linkedin size={20} />
+        </a>
       </div>
     </div>
   );

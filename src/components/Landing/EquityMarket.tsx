@@ -121,7 +121,7 @@ const EquityMarket: React.FC = () => {
             <div className="h-[169px] w-[211px] mt-5 bg-gray-200 animate-pulse rounded"></div>
           </>
         ) : (
-          <div className="flex flex-wrap lg:flex-col gap-6 mt-5">
+          <div className="relative z-[2] flex flex-wrap lg:flex-col gap-6 mt-5">
             {fgnData.map((fgn) => (
               <FgnCard key={fgn.id} data={fgn} />
             ))}

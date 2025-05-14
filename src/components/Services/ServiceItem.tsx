@@ -9,7 +9,7 @@ const ServiceItem: React.FC<{
 }> = ({ heading, text, image, index }) => {
   return (
     <div
-      className={`relative z-[2] w-full  mx-auto  flex items-center gap-[70px] ${
+      className={`relative z-[2] w-full  mx-auto  flex flex-wrap lg:flex-nowrap justify-center items-center gap-10 md:gap-[70px] ${
         index % 2 === 0 ? "flex-row" : "flex-row-reverse"
       }`}
     >
@@ -26,10 +26,9 @@ const ServiceItem: React.FC<{
         <div
           style={{
             backgroundImage: "url(/images/servicebg.svg)",
-            backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
           }}
-          className="relative z-[2] w-full h-[387px] flex items-center justify-center"
+          className="relative z-[2] w-full md:h-[387px] bg-contain md:bg-cover flex items-center justify-center"
         >
           <div className="w-full">
             <img
@@ -42,16 +41,16 @@ const ServiceItem: React.FC<{
             <img
               src={`/images/${image}.png`}
               alt={image}
-              className="w-full max-w-[300px]"
+              className="w-full max-w-[200px] md:max-w-[300px]"
             />
           </div>
         </div>
       </div>
-      <div className="w-full max-w-[541px] flex flex-col gap-6">
-        <h2 className="self-stretch justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] leading-[42px]">
+      <div className="w-full max-w-[541px] flex flex-col gap-5 md:gap-6">
+        <h2 className="self-stretch justify-start text-PAC-Blue text-2xl md:text-4xl font-bold font-['Inter'] md:leading-[42px]">
           {heading}
         </h2>
-        <p className="self-stretch text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-[26px] tracking-tight">
+        <p className="self-stretch text-justify justify-start text-PAC-Blue text-sm md:text-base font-medium font-['Inter'] md:leading-[26px] tracking-tight">
           {text}
         </p>
         <Link
