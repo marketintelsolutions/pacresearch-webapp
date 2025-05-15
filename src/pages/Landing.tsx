@@ -16,7 +16,7 @@ const Landing = () => {
       <MacroEco />
       <LetsTalk />
       <WhyChooseUs />
-      <NewsCommentary />
+      {/* <NewsCommentary /> */}
       {/* <SendMessage /> */}
       <NewsletterForm />
     </>

@@ -41,7 +41,7 @@ const Objectives = () => {
           <h3 className="self-stretch mt-5 md:mt-6 lg:mt-7 xl:mt-9 mb-[10px] justify-start text-primaryBlue text-3xl lg::text-4xl font-bold font-['Montserrat'] leading-loose tracking-tight">
             {item.heading}
           </h3>
-          <div className="self-stretch  justify-start text-PAC-Blue text-sm font-medium font-['Montserrat'] leading-snug tracking-tight">
+          <div className="self-stretch  justify-start text-primaryBlue text-sm font-medium font-['Montserrat'] leading-snug tracking-tight">
             {item.text}
           </div>
         </div>

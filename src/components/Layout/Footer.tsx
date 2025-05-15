@@ -34,13 +34,8 @@ const footerData: FooterItem[] = [
         icon: null,
       },
       {
-        text: "Resources",
-        path: "/resources",
-        icon: null,
-      },
-      {
-        text: "News",
-        path: "/news",
+        text: "Contact",
+        path: "/contact",
         icon: null,
       },
     ],
@@ -49,13 +44,13 @@ const footerData: FooterItem[] = [
     heading: "Resources",
     links: [
       {
-        text: "Services",
-        path: "/services",
+        text: "Resources",
+        path: "/resources",
         icon: null,
       },
       {
-        text: "Resources",
-        path: "/resources",
+        text: "News",
+        path: "#",
         icon: null,
       },
     ],

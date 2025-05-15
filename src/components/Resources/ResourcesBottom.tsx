@@ -231,13 +231,13 @@ const ResourcesBottom: React.FC = () => {
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="self-stretch  break-words justify-center text-PAC-Blue text-base font-bold font-['Inter'] capitalize hover:underline"
+                        className="self-stretch  break-words justify-center text-primaryBlue text-base font-bold font-['Inter'] capitalize hover:underline"
                       >
                         {file.name}
                       </a>
                       <div className="flex justify-between">
                         <img src="/images/calendar.svg" alt="calendar" />
-                        <span className="justify-center text-PAC-Blue text-sm font-normal font-['Inter']">
+                        <span className="justify-center text-primaryBlue text-sm font-normal font-['Inter']">
                           {formatDate(file.uploadDate)}
                         </span>
                       </div>

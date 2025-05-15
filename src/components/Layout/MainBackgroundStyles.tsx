@@ -46,9 +46,11 @@ const MainBackgroundStyles = () => {
       </div>
 
       {/* stroke */}
-      <div className="w-full max-w-[512px] absolute top-[280px] right-[0px] ">
-        <img src="/images/stroke.svg" alt="star" className="w-full " />
-      </div>
+      {pathname !== "/about" && (
+        <div className="w-full max-w-[512px] absolute top-[280px] right-[0px] ">
+          <img src="/images/stroke.svg" alt="stroke" className="w-full " />
+        </div>
+      )}
       {/* blue patch right one */}
       <div className="w-full max-w-[356px] absolute top-[882px] -right-[0px] ">
         <img

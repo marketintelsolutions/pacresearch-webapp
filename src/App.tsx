@@ -12,6 +12,7 @@ import AdminLayout from "./components/Layout/AdminLayout";
 import Macroeconomics from "./pages/Admin/Macroeconomics";
 import EquityMarket from "./pages/Admin/EquityMarket";
 import AdminResources from "./pages/Admin/AdminResources";
+import Director from "./pages/Director";
 
 function App() {
   const router = createBrowserRouter([
@@ -36,6 +37,14 @@ function App() {
       element: (
         <MainLayout>
           <Directors />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/about/director/:id",
+      element: (
+        <MainLayout>
+          <Director />
         </MainLayout>
       ),
     },

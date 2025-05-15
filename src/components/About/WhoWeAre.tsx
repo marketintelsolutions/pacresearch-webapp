@@ -3,23 +3,27 @@ import { Link } from "react-router-dom";
 
 const WhoWeAre = () => {
   return (
-    <section className="w-full px-6 xl:px-0 relative z-[2] max-w-max mx-auto mt-[90px] flex ">
+    <section className="w-full px-6 xl:px-0 relative z-[2] max-w-max mx-auto mt-[90px] flex gap-10 ">
       <div className="w-full max-w-[287px] absolute -bottom-[90px] -left-[136px]  ">
         <img src="/images/bubble.svg" alt="bubble" className="w-full " />
       </div>
-      <div className="zr:hidden lg:flex relative w-full  items-end max-w-[620px]">
-        <img
+      <div className="zr:hidden lg:flex relative w-full  items-center max-w-[600px]">
+        {/* <img
           src="/images/workspace.png"
           alt="workspace"
           className="absolute -top-[200px] left-0"
+        /> */}
+        <img
+          src="/images/aboutbanner.jpg"
+          alt="aboutbanner"
+          className="rounded-[16px] w-full"
         />
-        <img src="/images/guy.png" alt="guy" className="-translate-y-0" />
       </div>
       <div className="relative z-[2] flex flex-col pb-[50px] justify-center">
-        <h2 className="lg:w-[453px] justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
-          Who We Are
+        <h2 className="lg:w-[453px] justify-start text-primaryBlue text-3xl font-bold font-['Inter'] capitalize leading-[60px]">
+          WHO WE ARE
         </h2>
-        <p className="w-full lg:max-w-[637px] mt-6 mb-20 text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-relaxed tracking-tight">
+        <p className="w-full lg:max-w-[637px] mt-6 mb-20 text-justify justify-start text-primaryBlue text-base font-medium font-['Inter'] leading-relaxed tracking-tight">
           PAC Research is a subsidiary of Pan African Capital Holdings, a
           proprietary investment firm focused on value creation across diverse
           sectors in Africa and beyond. We power businesses across marketplaces

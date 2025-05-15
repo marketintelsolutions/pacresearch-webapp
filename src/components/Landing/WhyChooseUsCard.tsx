@@ -15,7 +15,7 @@ const WhyChooseUsCard: React.FC<WhyChooseUsCardProps> = ({
 }) => {
   return (
     <div
-      className={`relative w-full xl:max-w-[520px] rounded-[12px] py-[5px] px-[5px] transition-all duration-500 ${
+      className={`relative w-full md:max-w-[520px] rounded-[12px] py-[5px] px-[5px] transition-all duration-500 ${
         isActive ? " shadow-lg" : ""
       }`}
     >
@@ -62,7 +62,7 @@ const WhyChooseUsCard: React.FC<WhyChooseUsCardProps> = ({
           <div className={`transition-all duration-500 ${isActive ? "" : ""}`}>
             <img src={`/images/${icon}.svg`} alt={icon} />
           </div>
-          <p className="self-stretch text-justify justify-start text-PAC-Blue text-base font-medium font-['Inter'] leading-snug tracking-tight">
+          <p className="self-stretch text-justify min-h-[100px] md:min-h-[230px] lg:min-h-fit justify-start text-primaryBlue text-sm md:text-base font-medium font-['Inter'] leading-snug tracking-tight">
             {text}
           </p>
         </div>

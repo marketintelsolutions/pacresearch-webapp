@@ -14,6 +14,7 @@ const Directors = () => {
           {directorsData.map((item, index) => (
             <div
               key={index}
+              id={item.image}
               className="bg-[#FFFFFFE8] py-[76px] px-6 md:px-[50px] lg:px-[90px] rounded-[30px] flex flex-wrap lg:flex-nowrap gap-11"
             >
               <div className="w-full max-w-[384px]">
@@ -25,10 +26,10 @@ const Directors = () => {
                   />
                 </div>
                 <div className="lg:w-52 justify-start mt-[30px]">
-                  <span className="text-PAC-Blue text-3xl font-bold font-['Inter'] capitalize leading-10">
+                  <span className="text-primaryBlue text-3xl font-bold font-['Inter'] capitalize leading-10">
                     {item.role} <br />
                   </span>
-                  <span className="text-PAC-Blue text-3xl font-normal font-['Inter'] capitalize leading-10">
+                  <span className="text-primaryBlue text-3xl font-normal font-['Inter'] capitalize leading-10">
                     {item.name}{" "}
                   </span>
                 </div>
@@ -37,7 +38,7 @@ const Directors = () => {
                 {item.desc.map((item, index) => (
                   <p
                     key={index}
-                    className="lg:w-[577px] text-justify justify-start text-PAC-Blue text-sm md:text-base font-medium font-['Inter'] leading-relaxed tracking-tight"
+                    className="lg:w-[577px] text-justify justify-start text-primaryBlue text-sm md:text-base font-medium font-['Inter'] leading-relaxed tracking-tight"
                   >
                     {item}
                   </p>
