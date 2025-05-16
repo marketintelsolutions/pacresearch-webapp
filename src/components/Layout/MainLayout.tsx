@@ -11,8 +11,8 @@ import { useParams } from "react-router-dom";
 
 const metadata = {
   home: {
-    title: "Research companies in Nigeria",
-    description: "Innovative research products",
+    title: "PAC Research | Research companies in Nigeria",
+    description: "Research companies in Nigeria | Innovative research products",
   },
   about: {
     title: "About Research organization",
