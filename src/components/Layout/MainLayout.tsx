@@ -70,7 +70,7 @@ const MainLayout = ({
         <meta name="description" content={metadata[pageName].description} />
         <link rel="canonical" href={pathname} />
         {/* do not crawl for admin pages */}
-        {pageName === "admin" && <meta name="robots" content="noindex" />}
+        {/* {pageName === "admin" && <meta name="robots" content="noindex" />} */}
       </Helmet>
 
       <div className=" bg-[#eef5fe]  pb-20">

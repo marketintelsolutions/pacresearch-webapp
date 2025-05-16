@@ -1,7 +1,4 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow: /admin/login
-Disallow: /admin/macroeconomics
-Disallow: /admin/equity-market
-Disallow: /admin/resources
+
 
