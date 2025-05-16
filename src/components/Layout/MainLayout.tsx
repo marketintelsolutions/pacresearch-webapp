@@ -1,7 +1,6 @@
 import React, { JSX, useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import SendMessage from "./SendMessage";
 import MainBackgroundStyles from "./MainBackgroundStyles";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
@@ -64,14 +63,14 @@ const MainLayout = ({
   const pageName =
     pathname === "/" ? "home" : (pathname.split("/")[1] as PageName);
 
-  console.log(pageName);
-
   return (
     <>
       <Helmet>
         <title>{metadata[pageName].title}</title>
         <meta name="description" content={metadata[pageName].description} />
         <link rel="canonical" href={pathname} />
+        {/* do not crawl for admin pages */}
+        {pageName === "admin" && <meta name="robots" content="noindex" />}
       </Helmet>
 
       <div className=" bg-[#eef5fe]  pb-20">
