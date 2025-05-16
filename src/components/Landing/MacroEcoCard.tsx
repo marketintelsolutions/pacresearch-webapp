@@ -38,7 +38,7 @@ const MacroEcoCard: React.FC<MacroEcoCardProps> = ({
       </div>
       <p
         className={`text-right justify-start ${
-          isPositive ? "text-green-500" : "text-red-500"
+          percentage > 0 ? "text-green-500" : "text-red-500"
         } text-base font-medium font-['Jost']`}
       >
         {percentage}%
