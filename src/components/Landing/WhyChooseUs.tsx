@@ -109,12 +109,12 @@ const WhyChooseUs: React.FC = () => {
       ref={sectionRef}
       className="w-full px-6 xl:px-0 max-w-max mx-auto mt-20"
     >
-      <h2 className="h-14 text-center justify-start text-PAC-Blue text-4xl font-bold font-['Inter'] capitalize leading-[60px]">
-        Why Choose Us?
+      <h2 className="h-14 text-center justify-start text-primaryBlue text-3xl font-bold font-['Inter'] capitalize leading-[60px]">
+        WHY CHOOSE US?
       </h2>
 
-      <div className="mt-[60px] max-w-[700px] lg:max-w-full mx-auto flex flex-wrap gap-10 justify-between">
-        <div className="flex flex-col gap-[40px] lg:gap-[60px] xl:gap-[126px]">
+      <div className="mt-[60px] max-w-full mx-auto flex flex-wrap md:flex-nowrap gap-10 justify-between">
+        <div className="flex flex-col  gap-[40px] lg:gap-[60px] xl:gap-[126px]">
           {leftColumnCards.map((item, index) => (
             <div
               key={index}
@@ -129,8 +129,8 @@ const WhyChooseUs: React.FC = () => {
             </div>
           ))}
         </div>
-        <div className="zr:hidden xl:flex mt-[105px] w-1 bg-primaryBlue h-[807px]"></div>
-        <div className="flex flex-col gap-[40px] lg:gap-[60px] xlgap-[126px] lg:mt-[125px]">
+        <div className="zr:hidden xl:flex mt-[105px] w-1 bg-primaryBlue h-[887px]"></div>
+        <div className="flex flex-col   gap-[40px] lg:gap-[60px] xl:gap-[126px] lg:mt-[185px]">
           {rightColumnCards.map((item, index) => {
             const globalIndex = index + 3;
             return (
@@ -138,6 +138,7 @@ const WhyChooseUs: React.FC = () => {
                 key={index}
                 ref={(el) => (cardRefs.current[globalIndex] = el)}
                 data-index={globalIndex.toString()}
+                className=""
               >
                 <WhyChooseUsCard
                   {...item}
@@ -150,16 +151,16 @@ const WhyChooseUs: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full rounded-[30px] min-h-[208px] py-[29px] bg-secondaryBlue mt-[105px]">
-        <h2 className="self-stretch  text-center justify-start text-primaryBlue text-2xl font-bold font-['Inter'] leading-snug tracking-tight">
+      <div className="w-full rounded-[30px] min-h-[208px] px-6  py-[29px] bg-secondaryBlue mt-[105px]">
+        <h2 className="self-stretch  text-center justify-start text-primaryBlue text-3xl font-bold font-['Inter'] leading-snug tracking-tight">
           TRUSTED BY
         </h2>
 
-        <div className="flex flex-col md:flex-row items-center gap-10 justify-center mt-[37px]">
+        <div className="flex flex-wrap md:flex-nowrap items-center gap-10 justify-center mt-[37px]">
           {["pacam", "PACCapital", "PACR", "pacs"].map((item, index) => (
             <div
               key={index}
-              className="w-[200px]  flex justify-center items-center p-2"
+              className="w-full max-w-[230px]  flex justify-center bg-white rounded-[10px] items-center p-6"
             >
               <img src={`/images/${item}.png`} alt={item} className="w-full" />
             </div>

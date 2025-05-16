@@ -3,10 +3,10 @@ import React from "react";
 const NewsCommentary = () => {
   return (
     <section className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto">
-      <h1 className="text-center justify-start text-PAC-Blue text-2xl md:text-4xl font-bold font-['Montserrat'] leading-[57px] tracking-tight">
+      <h1 className="text-center justify-start text-primaryBlue text-2xl md:text-4xl font-bold font-['Montserrat'] leading-[57px] tracking-tight">
         NEWS COMMENTARY
       </h1>
-      <p className="self-stretch mt-[18px] text-center justify-start text-PAC-Blue text-sm md:text-base font-normal font-['Montserrat'] leading-normal tracking-tight">
+      <p className="self-stretch mt-[18px] text-center justify-start text-primaryBlue text-sm md:text-base font-normal font-['Montserrat'] leading-normal tracking-tight">
         At PAC Research, we go beyond headlines. Our expert team dissects key
         news stories and market developments, offering deeper insights into how
         they affect industries, businesses, and investments. Whether it's a

@@ -41,16 +41,16 @@ const ServiceItem: React.FC<{
             <img
               src={`/images/${image}.png`}
               alt={image}
-              className="w-full max-w-[200px] md:max-w-[300px]"
+              className="w-full max-w-[200px] md:max-w-[300px] rounded-[20px] object-cover"
             />
           </div>
         </div>
       </div>
       <div className="w-full max-w-[541px] flex flex-col gap-5 md:gap-6">
-        <h2 className="self-stretch justify-start text-PAC-Blue text-2xl md:text-4xl font-bold font-['Inter'] md:leading-[42px]">
+        <h2 className="self-stretch justify-start text-primaryBlue text-2xl md:text-4xl font-bold font-['Inter'] md:leading-[42px]">
           {heading}
         </h2>
-        <p className="self-stretch text-justify justify-start text-PAC-Blue text-sm md:text-base font-medium font-['Inter'] md:leading-[26px] tracking-tight">
+        <p className="self-stretch text-justify justify-start text-primaryBlue text-sm md:text-base font-medium font-['Inter'] md:leading-[26px] tracking-tight">
           {text}
         </p>
         <Link

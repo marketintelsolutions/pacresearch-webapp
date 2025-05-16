@@ -34,13 +34,8 @@ const footerData: FooterItem[] = [
         icon: null,
       },
       {
-        text: "Resources",
-        path: "/resources",
-        icon: null,
-      },
-      {
-        text: "News",
-        path: "/news",
+        text: "Contact",
+        path: "/contact",
         icon: null,
       },
     ],
@@ -49,13 +44,13 @@ const footerData: FooterItem[] = [
     heading: "Resources",
     links: [
       {
-        text: "Services",
-        path: "/services",
+        text: "Resources",
+        path: "/resources",
         icon: null,
       },
       {
-        text: "Resources",
-        path: "/resources",
+        text: "News",
+        path: "#",
         icon: null,
       },
     ],
@@ -86,7 +81,7 @@ const footerData: FooterItem[] = [
 const Footer = () => {
   return (
     <>
-      <footer className="relative z-[10] w-full max-w-max mx-auto px-6 xl:px-0 bg-primaryBlue rounded-[30px] pt-[113px] pb-[115px] mt-10">
+      <footer className="relative z-[3] w-full max-w-max mx-auto px-6 xl:px-0 bg-primaryBlue rounded-[30px] pt-[113px] pb-[115px] mt-10">
         <div className="w-full max-w-[1050px] mx-auto flex flex-wrap md:flex-nowrap gap-10 md:gap-20 lg:gap-40">
           <div>
             <img src="/logowhite.svg" alt="logowhite" />
@@ -125,7 +120,7 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-      <div className="relative z-[11] bg-[#A4A4A4] flex justify-between w-full max-w-[1050px] mx-auto -translate-y-[50%] py-[25px] px-[45px] rounded-[30px]">
+      <div className="relative z-[4] bg-[#A4A4A4] flex justify-between w-full max-w-[1050px] mx-auto -translate-y-[50%] py-[25px] px-[45px] rounded-[30px]">
         <p className="justify-start text-white text-sm font-semibold font-['Montserrat'] leading-normal tracking-tight">
           © PAC Research Nigeria Copyright 2025
         </p>

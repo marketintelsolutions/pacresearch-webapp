@@ -63,7 +63,7 @@ const MacroEco: React.FC = () => {
 
   return (
     <section className="mt-[94px] px-6 lg:px-0 w-full max-w-[1110px] mx-auto">
-      <h2 className="self-stretch justify-start text-PAC-Blue text-2xl font-semibold font-['Jost']">
+      <h2 className="self-stretch justify-start text-primaryBlue text-3xl font-semibold font-['Jost']">
         MACROECONOMICS{" "}
       </h2>
 
@@ -110,7 +110,7 @@ const MacroEco: React.FC = () => {
           <span className="text-cyan-400 text-sm font-normal font-['Jost']">
             Exchange Rate{" "}
           </span>
-          <span className="text-PAC-Blue text-sm font-normal font-['Jost']">
+          <span className="text-primaryBlue text-sm font-normal font-['Jost']">
             {loading || !exchangeRate
               ? "Loading..."
               : `N${formatExchangeRate(exchangeRate.price)}/$`}

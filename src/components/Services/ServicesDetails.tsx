@@ -37,8 +37,8 @@ const services = [
 
 const ServicesDetails = () => {
   return (
-    <div className="px-6 xl:px-0 mt-[50px]">
-      <p className="w-full text-center max-w-[995px] mx-auto text-PAC-Blue text-lg sm:text-xl md:text-2xl font-medium font-['Inter'] md:leading-[35px] tracking-tight">
+    <div className="px-6 xl:px-0 mt-[50px] mb-40">
+      <p className="w-full text-center max-w-[995px] mx-auto text-primaryBlue text-lg sm:text-xl md:text-2xl font-medium font-['Inter'] md:leading-[35px] tracking-tight">
         At PAC Research, we specialize in providing comprehensive and tailored
         solutions to support businesses and organizations in navigating today’s
         dynamic financial and economic landscape. Our suite of services is

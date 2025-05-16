@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { directorsData } from "../../utils/data";
+import { Link } from "react-router-dom";
 
 const DirectorsItems = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -30,7 +31,8 @@ const DirectorsItems = () => {
       className={`flex flex-wrap lg:flex-nowrap  justify-center items-center`}
     >
       {directorsData.map((item, index) => (
-        <div
+        <Link
+          to={`/about/director/${item.name}`}
           key={index}
           style={!isMobile ? { translate: `-${index * 40}px 0px` } : {}}
           className={`min-w-[259px] mt-12`}
@@ -50,7 +52,7 @@ const DirectorsItems = () => {
               </span>
             </div>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );

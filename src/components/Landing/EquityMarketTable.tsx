@@ -82,7 +82,7 @@ const EquityMarketTable = () => {
 
   return (
     <div className="w-full ">
-      <h2 className=" justify-start text-blue-950 text-2xl font-semibold font-['Jost'] leading-10">
+      <h2 className=" justify-start text-primaryBlue text-3xl font-semibold font-['Jost'] leading-10">
         EQUITY MARKET{" "}
       </h2>
 
@@ -90,7 +90,7 @@ const EquityMarketTable = () => {
         <p
           className={`self-stretch pb-1 ${
             activeTab === "gainers"
-              ? "border-b-[3px] border-primaryBlue text-PAC-Blue"
+              ? "border-b-[3px] border-primaryBlue text-primaryBlue"
               : "text-secondaryBlue"
           } text-center justify-start text-sm md:text-base font-medium font-['Jost'] cursor-pointer`}
           onClick={() => setActiveTab("gainers")}
@@ -100,7 +100,7 @@ const EquityMarketTable = () => {
         <p
           className={`justify-start ${
             activeTab === "losers"
-              ? "border-b-[3px] border-primaryBlue text-PAC-Blue"
+              ? "border-b-[3px] border-primaryBlue text-primaryBlue"
               : "text-secondaryBlue"
           } text-sm md:text-base font-medium font-['Jost'] cursor-pointer`}
           onClick={() => setActiveTab("losers")}

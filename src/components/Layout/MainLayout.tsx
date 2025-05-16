@@ -1,9 +1,9 @@
 import React, { JSX, useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import SendMessage from "./SendMessage";
 import MainBackgroundStyles from "./MainBackgroundStyles";
 import { Helmet } from "react-helmet-async";
+import { useParams } from "react-router-dom";
 
 // Telephone: +234 (1) 2716892, +234 (1) 2718630
 // Website: https://pacresearch.org/
@@ -54,15 +54,14 @@ const MainLayout = ({
   children: React.ReactNode;
 }>) => {
   const { pathname } = window.location;
+  const params = useParams();
 
   useEffect(() => {
     window.scroll(0, 0);
-  }, [pathname]);
+  }, [pathname, params]);
 
   const pageName =
     pathname === "/" ? "home" : (pathname.split("/")[1] as PageName);
-
-  console.log(pageName);
 
   return (
     <>
@@ -70,6 +69,8 @@ const MainLayout = ({
         <title>{metadata[pageName].title}</title>
         <meta name="description" content={metadata[pageName].description} />
         <link rel="canonical" href={pathname} />
+        {/* do not crawl for admin pages */}
+        {/* {pageName === "admin" && <meta name="robots" content="noindex" />} */}
       </Helmet>
 
       <div className=" bg-[#eef5fe]  pb-20">
