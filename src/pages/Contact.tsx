@@ -67,14 +67,14 @@ const Contact = () => {
           </div>
         </div>
 
-        <div className="mb-[52px] justify-center flex gap-5 w-full max-w-max mx-auto">
+        <div className="mb-[52px] justify-center flex flex-col md:flex-row gap-5 w-full max-w-max mx-auto">
           <div className="relative h-full">
             <img src="/images/woman.png" alt="woman" className="h-full" />
             <div className="absolute top-0 left-0 w-full h-full bg-[#15bffd72] rounded-[30px]"></div>
           </div>
 
           <div
-            className="flex flex-col gap-10 justify-between py-10 px-[54px] w-full max-w-[50%] rounded-[20px] h-max"
+            className="flex flex-col gap-10 justify-between py-10 px-6 md:px-[54px] w-full md:max-w-[50%] rounded-[20px] h-max"
             style={{
               backgroundImage: `url(/images/onlinecontact.png)`,
               backgroundRepeat: "no-repeat",
@@ -82,12 +82,12 @@ const Contact = () => {
               backgroundPosition: "20% 0%",
             }}
           >
-            <p className="max-w-[356px] h-[78px] text-[#f8f8f8] text-lg font-medium font-light font-['Inter'] leading-relaxed">
+            <p className="max-w-[356px] h-[78px] text-[#f8f8f8] text-lg font-medium  font-['Inter'] leading-relaxed">
               Fill out our online contact form, and our team will respond within
               24 hours.
             </p>
 
-            <div className="w-[100%]  bg-[#D9D5D5] py-8 px-[34px] rounded-[30px] flex flex-col gap-2.5 ">
+            <div className="w-[100%]  bg-[#D9D5D5] py-8 px-3 md:px-[34px] rounded-[30px] flex flex-col gap-2.5 ">
               <input
                 type="text"
                 name="name"
@@ -112,7 +112,7 @@ const Contact = () => {
               <textarea
                 name=""
                 id=""
-                className="h-[200px] p-[15px]"
+                className="h-[100px] md:h-[200px] p-[15px]"
                 placeholder="Message"
               ></textarea>
 

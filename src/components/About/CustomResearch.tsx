@@ -31,14 +31,14 @@ const CustomResearch = () => {
           decision-making.
         </p>
       </div>
-      <div className=" min-w-96 w-full lg:max-w-[500px] px-8 py-12 bg-primaryBlue rounded-[39.51px]  inline-flex flex-col justify-center items-center gap-4">
+      <div className=" md:min-w-96 w-full lg:max-w-[500px] px-4 md:px-8 py-8 md:py-12 bg-primaryBlue rounded-[20px] md:rounded-[39.51px]  inline-flex flex-col justify-center items-center gap-4">
         <div
           data-has-description="false"
           data-has-error="false"
           data-has-label="true"
           data-state="Default"
           data-value-type="Placeholder"
-          className="w-96 flex flex-col justify-start items-start gap-2.5"
+          className="w-full md:w-96 flex flex-col justify-start items-start gap-2.5"
         >
           <p className="self-stretch justify-start text-secondaryBlue text-xl font-normal font-['Inter'] leading-7">
             Name
@@ -56,7 +56,7 @@ const CustomResearch = () => {
           data-has-label="true"
           data-state="Default"
           data-value-type="Placeholder"
-          className="w-96 flex flex-col justify-start items-start gap-2.5"
+          className="w-full md:w-96 flex flex-col justify-start items-start gap-2.5"
         >
           <p className="self-stretch justify-start text-secondaryBlue text-xl font-normal font-['Inter'] leading-7">
             Phone No.
@@ -65,7 +65,7 @@ const CustomResearch = () => {
             type="tel"
             name="phone"
             id="phone"
-            className="self-stretch min-w-80 px-5 py-4 bg-white rounded-xl outline outline-[1.32px] outline-offset-[-0.66px] outline-Border-Default-Default inline-flex justify-start items-center overflow-hidden"
+            className="self-stretch md:min-w-80 px-5 py-4 bg-white rounded-xl outline outline-[1.32px] outline-offset-[-0.66px] outline-Border-Default-Default inline-flex justify-start items-center overflow-hidden"
           />
         </div>
         <div
@@ -74,7 +74,7 @@ const CustomResearch = () => {
           data-has-label="true"
           data-state="Default"
           data-value-type="Placeholder"
-          className="w-96 flex flex-col justify-start items-start gap-2.5"
+          className="w-full md:w-96 flex flex-col justify-start items-start gap-2.5"
         >
           <p className="self-stretch justify-start text-secondaryBlue text-xl font-normal font-['Inter'] leading-7">
             Email
@@ -83,7 +83,7 @@ const CustomResearch = () => {
             type="email"
             name="email"
             id="email"
-            className="self-stretch min-w-80 px-5 py-4 bg-white rounded-xl outline outline-[1.32px] outline-offset-[-0.66px] outline-Border-Default-Default inline-flex justify-start items-center overflow-hidden"
+            className="self-stretch md:min-w-80 px-5 py-4 bg-white rounded-xl outline outline-[1.32px] outline-offset-[-0.66px] outline-Border-Default-Default inline-flex justify-start items-center overflow-hidden"
           />
         </div>
         <div
@@ -92,7 +92,7 @@ const CustomResearch = () => {
           data-has-label="true"
           data-state="Default"
           data-value-type="Placeholder"
-          className="w-96 flex flex-col justify-start items-start gap-2.5"
+          className="w-full md:w-96 flex flex-col justify-start items-start gap-2.5"
         >
           <p className="self-stretch justify-start text-secondaryBlue text-xl font-normal font-['Inter'] leading-7">
             Message
@@ -100,16 +100,16 @@ const CustomResearch = () => {
           <textarea
             name="message"
             id="message"
-            className="self-stretch min-w-80 min-h-28 px-5 py-4 relative bg-white rounded-xl outline outline-[1.32px] outline-offset-[-0.66px] outline-Border-Default-Default inline-flex justify-start items-start overflow-hidden"
+            className="self-stretch md:min-w-80 min-h-28 px-5 py-4 relative bg-white rounded-xl outline outline-[1.32px] outline-offset-[-0.66px] outline-Border-Default-Default inline-flex justify-start items-start overflow-hidden"
           ></textarea>
         </div>
         <div
           data-align="Justify"
           data-button-end="true"
           data-button-start="false"
-          className="w-96 inline-flex justify-start items-center gap-5"
+          className="w-full md:w-96 inline-flex justify-start items-center gap-5"
         >
-          <button className="flex-1 p-4 bg-secondaryBlue mt-5 hover:bg-transparent border-2 border-secondaryBlue hover:text-secondaryBlue text-white rounded-xl flex justify-center items-center">
+          <button className="w-full flex-1 p-4 bg-secondaryBlue mt-5 hover:bg-transparent border-2 border-secondaryBlue hover:text-secondaryBlue text-white rounded-xl flex justify-center items-center">
             <span className="justify-start  text-xl font-normal font-['Inter'] leading-snug">
               Submit
             </span>

@@ -46,7 +46,7 @@ const LetsTalk = () => {
   }, [activeIndex]);
 
   return (
-    <section className=" pb-40 pt-20 lg:pt-0  lg:h-[649px] px-6 md:px-[50px] lg:px-[101px] flex flex-wrap lg:flex-nowrap justify-between rounded-[30px] relative z-[2] bg-primaryBlue w-full max-w-max mx-auto mt-[163px]">
+    <section className=" pb-20 md:pb-24 lg:pb-40 pt-20 lg:pt-0  lg:h-[649px] px-6 md:px-[50px] lg:px-[101px] flex flex-wrap lg:flex-nowrap justify-between md:rounded-[30px] relative z-[2] bg-primaryBlue w-full max-w-max mx-auto mt-[163px]">
       <div className="flex flex-col justify-center lg:h-full">
         <h1 className="lg:w-[450px] justify-start text-white text-2xl md:text-4xl font-bold font-['Montserrat'] md:leading-[48px] tracking-tight">
           {carousel[activeIndex].heading}
@@ -63,7 +63,7 @@ const LetsTalk = () => {
           </span>
         </Link>
       </div>
-      <div className="min-h-[645px] py-[40px] relative w-full lg:max-w-[46%]">
+      <div className="min-h-[400px] md:min-h-[645px] py-[40px] relative w-full lg:max-w-[46%]">
         <div className="relative  h-full">
           <img
             src={`/images/${carousel[activeIndex].image}`}
@@ -72,18 +72,18 @@ const LetsTalk = () => {
           />
           <img
             src="/images/darklay.png"
-            alt="building"
-            className="w-full absolute top-5 left-5 max-w-[390px]"
+            alt="darklay"
+            className="h-full w-full absolute top-2 md:top-5 left-2 md:left-5 max-w-[390px]"
           />
           <img
             src="/images/darklay.png"
-            alt="building"
-            className="w-full absolute top-10 left-10 max-w-[390px]"
+            alt="darklay"
+            className="zr:hidden md:flex w-full absolute top-10 left-10 max-w-[390px]"
           />
           <img
             src="/images/darklay.png"
-            alt="building"
-            className="w-full absolute top-[60px] left-[60px] max-w-[390px]"
+            alt="darklay"
+            className="zr:hidden md:flex w-full absolute top-[60px] left-[60px] max-w-[390px]"
           />
         </div>
         {/* <div>
