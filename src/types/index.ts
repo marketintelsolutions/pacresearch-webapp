@@ -25,9 +25,8 @@ export interface ASIData {
 }
 
 export interface FGNTenure {
-  days: number;
-  rate: number;
-  label: string;
+  label: string; // For bonds: "5-YEAR", "10-YEAR", etc. For T-bills: "91-DAY", "182-DAY", etc.
+  rate: number; // Interest rate percentage
 }
 
 export interface FGNData {
@@ -59,4 +58,20 @@ export interface ResourceCategory {
   id: string;
   name: string;
   displayOrder: number;
+}
+
+export interface TopStock {
+  id: string;
+  symbol: string;
+  previousDayClose: number;
+  currentDayClose: number;
+  change: number;
+  displayOrder: number;
+}
+
+export interface EquityMarketList {
+  id: string;
+  type: "gainers" | "losers";
+  stocks: TopStock[];
+  lastUpdated: string;
 }

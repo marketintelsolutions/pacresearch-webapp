@@ -46,7 +46,8 @@ const MainBackgroundStyles = () => {
       </div>
 
       {/* stroke */}
-      {pathname !== "/about" && (
+      {/* do not show on about and services */}
+      {pathname !== "/about" && pathname !== "/services" && (
         <div className="w-full max-w-[512px] absolute top-[280px] right-[0px] ">
           <img src="/images/stroke.svg" alt="stroke" className="w-full " />
         </div>

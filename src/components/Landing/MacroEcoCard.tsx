@@ -28,7 +28,7 @@ const MacroEcoCard: React.FC<MacroEcoCardProps> = ({
           <img src={iconSrc} alt={title.toLowerCase()} />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="h-6 justify-start text-white text-base font-medium font-['Jost']">
+          <p className="h-6 68,147,196 justify-start text-white text-base font-medium font-['Jost']">
             {title}
           </p>
           <p className="justify-start text-secondaryBlue text-base font-normal font-['Jost']">

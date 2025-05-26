@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { FGNData, FGNTenure } from "../../types";
+import { defaultFGNBonds, defaultFGNTBills } from "../../utils/fileIcons";
 
 const FGNEditor: React.FC = () => {
-  // Initialize with three default tenures for each
-  const defaultTenures: FGNTenure[] = [
-    { days: 91, rate: 0, label: "91-DAY" },
-    { days: 182, rate: 0, label: "182-DAY" },
-    { days: 364, rate: 0, label: "364-DAY" },
-  ];
-
   const [fgnBonds, setFgnBonds] = useState<FGNData>({
     type: "BONDS",
-    tenures: [...defaultTenures],
+    tenures: [...defaultFGNBonds],
   });
 
   const [fgnTBills, setFgnTBills] = useState<FGNData>({
     type: "T-BILLS",
-    tenures: [...defaultTenures],
+    tenures: [...defaultFGNTBills],
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -71,9 +65,9 @@ const FGNEditor: React.FC = () => {
   ): void => {
     const newTenures = [...fgnBonds.tenures];
 
-    if (field === "rate" || field === "days") {
+    if (field === "rate") {
       newTenures[index][field] =
-        typeof value === "string" ? parseFloat(value) || 0 : value;
+        typeof value === "string" ? parseFloat(value) : value;
     } else {
       newTenures[index][field] = value.toString();
     }
@@ -91,9 +85,9 @@ const FGNEditor: React.FC = () => {
   ): void => {
     const newTenures = [...fgnTBills.tenures];
 
-    if (field === "rate" || field === "days") {
+    if (field === "rate") {
       newTenures[index][field] =
-        typeof value === "string" ? parseFloat(value) || 0 : value;
+        typeof value === "string" ? parseFloat(value) : value;
     } else {
       newTenures[index][field] = value.toString();
     }
@@ -107,7 +101,7 @@ const FGNEditor: React.FC = () => {
   const addBondsTenure = (): void => {
     setFgnBonds({
       ...fgnBonds,
-      tenures: [...fgnBonds.tenures, { days: 0, rate: 0, label: "NEW-DAY" }],
+      tenures: [...fgnBonds.tenures, { label: "NEW-YEAR", rate: 0 }],
     });
   };
 
@@ -124,7 +118,7 @@ const FGNEditor: React.FC = () => {
   const addTBillsTenure = (): void => {
     setFgnTBills({
       ...fgnTBills,
-      tenures: [...fgnTBills.tenures, { days: 0, rate: 0, label: "NEW-DAY" }],
+      tenures: [...fgnTBills.tenures, { label: "NEW-DAY", rate: 0 }],
     });
   };
 
@@ -179,7 +173,7 @@ const FGNEditor: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-[30px] shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold mb-4">Edit Fixed Income Market</h2>
 
       {message.text && (
@@ -199,7 +193,7 @@ const FGNEditor: React.FC = () => {
           {/* FGN Bonds */}
           <div className="border rounded-md p-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-medium">FGN Bonds</h3>
+              <h3 className="text-lg font-medium">FGN Bonds (Years)</h3>
               <button
                 type="button"
                 onClick={addBondsTenure}
@@ -225,17 +219,13 @@ const FGNEditor: React.FC = () => {
                     </button>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                        htmlFor={`bonds-label-${index}`}
-                      >
-                        Tenure Label
+                      <label className="block text-xs h-10 font-medium text-gray-700 mb-1">
+                        Tenure Label (e.g., "5-YEAR", "10-YEAR")
                       </label>
                       <input
                         type="text"
-                        id={`bonds-label-${index}`}
                         value={tenure.label}
                         onChange={(e) =>
                           handleBondsTenureChange(
@@ -245,39 +235,17 @@ const FGNEditor: React.FC = () => {
                           )
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., 5-YEAR"
                         required
                       />
                     </div>
 
                     <div>
-                      <label
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                        htmlFor={`bonds-days-${index}`}
-                      >
-                        Days
+                      <label className="block text-xs h-10 font-medium text-gray-700 mb-1">
+                        Rate (%)
                       </label>
                       <input
                         type="number"
-                        id={`bonds-days-${index}`}
-                        value={tenure.days}
-                        onChange={(e) =>
-                          handleBondsTenureChange(index, "days", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                        htmlFor={`bonds-rate-${index}`}
-                      >
-                        Rate
-                      </label>
-                      <input
-                        type="number"
-                        id={`bonds-rate-${index}`}
                         value={tenure.rate}
                         onChange={(e) =>
                           handleBondsTenureChange(index, "rate", e.target.value)
@@ -296,7 +264,7 @@ const FGNEditor: React.FC = () => {
           {/* FGN T-Bills */}
           <div className="border rounded-md p-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-medium">FGN T-Bills</h3>
+              <h3 className="text-lg font-medium">FGN T-Bills (Days)</h3>
               <button
                 type="button"
                 onClick={addTBillsTenure}
@@ -322,17 +290,13 @@ const FGNEditor: React.FC = () => {
                     </button>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                        htmlFor={`tbills-label-${index}`}
-                      >
-                        Tenure Label
+                      <label className="block text-xs h-10 font-medium text-gray-700 mb-1">
+                        Tenure Label (e.g., "91-DAY", "182-DAY")
                       </label>
                       <input
                         type="text"
-                        id={`tbills-label-${index}`}
                         value={tenure.label}
                         onChange={(e) =>
                           handleTBillsTenureChange(
@@ -342,43 +306,17 @@ const FGNEditor: React.FC = () => {
                           )
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., 91-DAY"
                         required
                       />
                     </div>
 
                     <div>
-                      <label
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                        htmlFor={`tbills-days-${index}`}
-                      >
-                        Days
+                      <label className="block text-xs h-10 font-medium text-gray-700 mb-1">
+                        Rate (%)
                       </label>
                       <input
                         type="number"
-                        id={`tbills-days-${index}`}
-                        value={tenure.days}
-                        onChange={(e) =>
-                          handleTBillsTenureChange(
-                            index,
-                            "days",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                        htmlFor={`tbills-rate-${index}`}
-                      >
-                        Rate
-                      </label>
-                      <input
-                        type="number"
-                        id={`tbills-rate-${index}`}
                         value={tenure.rate}
                         onChange={(e) =>
                           handleTBillsTenureChange(

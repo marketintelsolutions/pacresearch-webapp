@@ -1,3 +1,5 @@
+import { FGNTenure } from "../types";
+
 // Utility file for file icon management
 export const fileIcons = [
   { value: "pdf", label: "PDF Document", extension: ".svg" },
@@ -30,3 +32,16 @@ export const getFileIconByType = (fileType: string): string => {
     return "zip";
   return "file";
 };
+
+export const defaultFGNBonds = [
+  { label: "5-YEAR", rate: 12.5 },
+  { label: "10-YEAR", rate: 13.25 },
+  { label: "15-YEAR", rate: 13.75 },
+  { label: "20-YEAR", rate: 14.0 },
+];
+
+export const defaultFGNTBills = [
+  { label: "91-DAY", rate: 10.5 },
+  { label: "182-DAY", rate: 11.25 },
+  { label: "364-DAY", rate: 12.0 },
+];
