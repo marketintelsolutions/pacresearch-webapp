@@ -81,7 +81,7 @@ const footerData: FooterItem[] = [
 const Footer = () => {
   return (
     <>
-      <footer className="relative z-[3] w-full max-w-max mx-auto px-6 xl:px-0 bg-primaryBlue rounded-[30px] pt-[113px] pb-[115px] mt-10">
+      <footer className="relative z-[2] w-full max-w-max mx-auto px-6 xl:px-0 bg-primaryBlue rounded-[30px] pt-[113px] pb-[115px] mt-10">
         <div className="w-full max-w-[1050px] mx-auto flex flex-wrap md:flex-nowrap gap-10 md:gap-20 lg:gap-40">
           <div>
             <img src="/logowhite.svg" alt="logowhite" />

@@ -4,13 +4,34 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import EquityMarketTable from "./EquityMarketTable";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { fetchTopGainers, fetchTopLosers } from "../../store/equityMarketSlice";
 import { ASIData, FGNData } from "../../types";
 
 const EquityMarket: React.FC = () => {
+  const dispatch = useAppDispatch();
+
+  // Get equity market data from Redux
+  const { gainers, losers, loading: equityLoading } = useAppSelector(
+    (state) => ({
+      gainers: state.equityMarket.gainers,
+      losers: state.equityMarket.losers,
+      loading: state.equityMarket.loading,
+    })
+  );
+
+  // Local state for ASI and FGN data
   const [asiData, setAsiData] = useState<ASIData | null>(null);
   const [fgnData, setFgnData] = useState<FGNData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Fetch equity market data from Redux
+  useEffect(() => {
+    dispatch(fetchTopGainers());
+    dispatch(fetchTopLosers());
+  }, [dispatch]);
+
+  // Fetch ASI and FGN data directly from Firebase
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
       setLoading(true);
@@ -128,7 +149,13 @@ const EquityMarket: React.FC = () => {
           </div>
         )}
       </div>
-      <EquityMarketTable />
+
+      {/* Pass the Redux data to EquityMarketTable */}
+      <EquityMarketTable
+        gainers={gainers}
+        losers={losers}
+        loading={equityLoading}
+      />
     </div>
   );
 };

@@ -12,7 +12,7 @@ const FgnCard: React.FC<FgnCardProps> = ({ data }) => {
         backgroundImage: "url(/images/fgnbg.png)",
         backgroundRepeat: "no-repeat",
       }}
-      className="h-[169px] w-[211px] "
+      className="h-[169px] w-[211px] mt-5"
     >
       <h3 className="pt-2 text-center justify-start text-secondaryBlue text-base font-bold font-['Jost']">
         FGN {data.type}{" "}
@@ -28,7 +28,7 @@ const FgnCard: React.FC<FgnCardProps> = ({ data }) => {
         <div className="justify-start text-white text-base font-semibold font-['Jost'] leading-7">
           {data.tenures.map((tenure, index) => (
             <React.Fragment key={index}>
-              {tenure.rate.toFixed(2)}
+              {tenure.rate.toFixed(2)}%
               <br />
             </React.Fragment>
           ))}
