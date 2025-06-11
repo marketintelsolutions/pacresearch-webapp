@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import MainBackgroundStyles from "./MainBackgroundStyles";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
+import NewsletterForm from "../Landing/NewsletterForm";
 
 // Telephone: +234 (1) 2716892, +234 (1) 2718630
 // Website: https://pacresearch.org/
@@ -77,6 +78,7 @@ const MainLayout = ({
         <Navbar />
         <div className="relative z-[2]">{children}</div>
         <Footer />
+        <NewsletterForm />
         <MainBackgroundStyles />
       </div>
     </>

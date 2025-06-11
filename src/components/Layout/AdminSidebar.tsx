@@ -14,10 +14,10 @@ const links = [
     text: "Resources",
     path: "/admin/resources",
   },
-  // {
-  //   text: "News",
-  //   path: "/admin/news",
-  // },
+  {
+    text: "News",
+    path: "/admin/news",
+  },
 ];
 
 const AdminSidebar = () => {

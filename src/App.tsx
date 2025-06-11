@@ -13,6 +13,7 @@ import Macroeconomics from "./pages/Admin/Macroeconomics";
 import EquityMarket from "./pages/Admin/EquityMarket";
 import AdminResources from "./pages/Admin/AdminResources";
 import Director from "./pages/Director";
+import NewsCommentary from "./pages/Admin/NewsCommentary";
 
 function App() {
   const router = createBrowserRouter([
@@ -106,6 +107,16 @@ function App() {
         <MainLayout>
           <AdminLayout>
             <AdminResources />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/news",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <NewsCommentary />
           </AdminLayout>
         </MainLayout>
       ),

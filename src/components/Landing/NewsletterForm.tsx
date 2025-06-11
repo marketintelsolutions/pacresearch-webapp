@@ -21,7 +21,7 @@ const NewsletterForm = () => {
     <div
       className={`${
         isOpen ? "static" : "hidden"
-      } bg-[#FFFFFFBF] fixed rounded-[30px] pt-[37px] pb-[25px] px-[28px]  right-[51px] z-[4] bottom-[36px] w-full max-w-[302px]`}
+      } bg-[#FFFFFFBF] fixed rounded-[30px] pt-[37px] pb-[25px] px-[28px]  right-[51px] z-[99] bottom-[36px] w-full max-w-[302px]`}
     >
       <button onClick={close} className="absolute top-5 right-5 ">
         <X />
