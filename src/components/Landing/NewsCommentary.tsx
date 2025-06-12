@@ -55,7 +55,7 @@ const NewsCommentary: React.FC = () => {
     const videoId = url.match(
       /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
     )?.[1];
-    console.log("video id", videoId);
+
     if (videoId) {
       return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
     }
@@ -110,7 +110,7 @@ const NewsCommentary: React.FC = () => {
                 key={item.id}
                 style={{
                   backgroundImage: `url(${
-                    getYouTubeThumbnail(item.videoUrl) || item.thumbnailUrl
+                    item.thumbnailUrl || getYouTubeThumbnail(item.videoUrl)
                   })`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -118,7 +118,7 @@ const NewsCommentary: React.FC = () => {
                 className="h-[452px] w-full md:max-w-[331px] rounded-[30px] cursor-pointer transition-transform hover:scale-105"
                 onClick={() => handleVideoClick(item.videoUrl)}
               >
-                <div className="h-full flex items-end px-5 pb-8 rounded-[30px] bg-gradient-to-b to-[#00000027] from-[#38383886]">
+                <div className="h-full flex items-end px-5 pb-8 rounded-[30px] bg-gradient-to-b to-[#00000042] from-[#383838fe]">
                   <div className="flex flex-col gap-[15px]">
                     <div className="h-1.5 w-[65%] bg-white rounded-full"></div>
                     <p className="justify-start text-white text-xl font-medium font-['Montserrat'] leading-loose tracking-tight [text-shadow:_0px_13px_19px_rgb(0_0_0_/_0.24)]">

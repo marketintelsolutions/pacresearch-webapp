@@ -43,6 +43,17 @@ const NewsCommentaryManager: React.FC = () => {
   );
   const [showForm, setShowForm] = useState(false);
 
+  // YouTube thumbnail helper
+  const getYouTubeThumbnail = (url: string): string => {
+    const videoId = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
+    )?.[1];
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    }
+    return "";
+  };
+
   // Initialize empty item
   const createEmptyItem = (): NewsCommentaryItem => ({
     title: "",
@@ -145,8 +156,8 @@ const NewsCommentaryManager: React.FC = () => {
       // Delete from Firestore
       await deleteDoc(doc(db, "newsCommentary", itemId));
 
-      // Delete thumbnail from Storage if it exists
-      if (thumbnailUrl) {
+      // Delete custom thumbnail from Storage if it exists and is not YouTube auto-generated
+      if (thumbnailUrl && !thumbnailUrl.includes("img.youtube.com")) {
         try {
           const thumbnailRef = ref(storage, thumbnailUrl);
           await deleteObject(thumbnailRef);
@@ -256,84 +267,117 @@ const NewsCommentaryManager: React.FC = () => {
         <div className="text-center py-4">Loading...</div>
       ) : (
         <div className="space-y-4">
-          {items.map((item, index) => (
-            <div
-              key={item.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, item.id!)}
-              onDragEnd={handleDragEnd}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, item.id!)}
-              className={`p-4 border rounded-lg ${
-                item.id === draggedItem
-                  ? "opacity-40"
-                  : "bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className="cursor-move text-gray-500">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <circle cx="8" cy="6" r="1" />
-                    <circle cx="15" cy="6" r="1" />
-                    <circle cx="8" cy="12" r="1" />
-                    <circle cx="15" cy="12" r="1" />
-                    <circle cx="8" cy="18" r="1" />
-                    <circle cx="15" cy="18" r="1" />
-                  </svg>
-                </div>
+          {items.map((item, index) => {
+            const displayThumbnail =
+              item.thumbnailUrl || getYouTubeThumbnail(item.videoUrl);
+            const isAutoThumbnail =
+              item.thumbnailUrl === getYouTubeThumbnail(item.videoUrl) ||
+              (!item.thumbnailUrl && item.videoUrl);
 
-                <div className="text-lg font-medium text-gray-600 w-8">
-                  #{index + 1}
-                </div>
+            return (
+              <div
+                key={item.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, item.id!)}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, item.id!)}
+                className={`p-4 border rounded-lg ${
+                  item.id === draggedItem
+                    ? "opacity-40"
+                    : "bg-white hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="cursor-move text-gray-500">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <circle cx="8" cy="6" r="1" />
+                      <circle cx="15" cy="6" r="1" />
+                      <circle cx="8" cy="12" r="1" />
+                      <circle cx="15" cy="12" r="1" />
+                      <circle cx="8" cy="18" r="1" />
+                      <circle cx="15" cy="18" r="1" />
+                    </svg>
+                  </div>
 
-                <div className="flex-grow">
-                  <div className="flex items-center gap-4 mb-2">
-                    {item.thumbnailUrl && (
-                      <img
-                        src={item.thumbnailUrl}
-                        alt={item.title}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    )}
-                    <div className="flex-grow">
-                      <h3 className="font-medium">{item.title}</h3>
-                      <p className="text-sm text-gray-600">
-                        by {item.interviewer}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                        {item.description}
-                      </p>
+                  <div className="text-lg font-medium text-gray-600 w-8">
+                    #{index + 1}
+                  </div>
+
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-4 mb-2">
+                      {displayThumbnail && (
+                        <div className="relative">
+                          <img
+                            src={displayThumbnail}
+                            alt={item.title}
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                          <div className="absolute -bottom-1 -right-1">
+                            {isAutoThumbnail ? (
+                              <div
+                                className="w-3 h-3 bg-blue-500 rounded-full border border-white"
+                                title="Auto-generated thumbnail"
+                              ></div>
+                            ) : (
+                              <div
+                                className="w-3 h-3 bg-green-500 rounded-full border border-white"
+                                title="Custom thumbnail"
+                              ></div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex-grow">
+                        <h3 className="font-medium">{item.title}</h3>
+                        <p className="text-sm text-gray-600">
+                          by {item.interviewer}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                          {item.description}
+                        </p>
+                        {item.videoUrl && (
+                          <a
+                            href={item.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:underline"
+                          >
+                            View Video
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setEditingItem(item);
-                      setShowForm(true);
-                    }}
-                    className="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() =>
-                      handleDeleteItem(item.id!, item.thumbnailUrl)
-                    }
-                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingItem(item);
+                        setShowForm(true);
+                      }}
+                      className="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleDeleteItem(item.id!, item.thumbnailUrl)
+                      }
+                      className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -349,6 +393,7 @@ const NewsCommentaryManager: React.FC = () => {
             }}
             onFileUpload={handleFileUpload}
             saving={saving}
+            getYouTubeThumbnail={getYouTubeThumbnail}
           />
         </div>
       )}
@@ -363,6 +408,7 @@ interface NewsCommentaryFormProps {
   onCancel: () => void;
   onFileUpload: (file: File) => Promise<string>;
   saving: boolean;
+  getYouTubeThumbnail: (url: string) => string;
 }
 
 const NewsCommentaryForm: React.FC<NewsCommentaryFormProps> = ({
@@ -371,12 +417,27 @@ const NewsCommentaryForm: React.FC<NewsCommentaryFormProps> = ({
   onCancel,
   onFileUpload,
   saving,
+  getYouTubeThumbnail,
 }) => {
   const [formData, setFormData] = useState(item);
   const [uploading, setUploading] = useState(false);
+  const [autoThumbnail, setAutoThumbnail] = useState<string>("");
 
   const handleInputChange = (field: keyof NewsCommentaryItem, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Auto-generate thumbnail when video URL changes
+    if (field === "videoUrl" && value) {
+      const generatedThumbnail = getYouTubeThumbnail(value);
+      setAutoThumbnail(generatedThumbnail);
+      // Set auto-generated thumbnail if no custom thumbnail exists
+      if (
+        !formData.thumbnailUrl ||
+        formData.thumbnailUrl.includes("img.youtube.com")
+      ) {
+        setFormData((prev) => ({ ...prev, thumbnailUrl: generatedThumbnail }));
+      }
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -394,10 +455,31 @@ const NewsCommentaryForm: React.FC<NewsCommentaryFormProps> = ({
     }
   };
 
+  const useAutoThumbnail = () => {
+    if (autoThumbnail) {
+      setFormData((prev) => ({ ...prev, thumbnailUrl: autoThumbnail }));
+    }
+  };
+
+  // Initialize auto-thumbnail on component mount
+  useEffect(() => {
+    if (formData.videoUrl) {
+      const generatedThumbnail = getYouTubeThumbnail(formData.videoUrl);
+      setAutoThumbnail(generatedThumbnail);
+    }
+  }, [formData.videoUrl, getYouTubeThumbnail]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
   };
+
+  const currentThumbnail = formData.thumbnailUrl || autoThumbnail;
+  const isUsingAutoThumbnail =
+    formData.thumbnailUrl === autoThumbnail ||
+    formData.thumbnailUrl.includes("img.youtube.com");
+  const isCustomThumbnail =
+    formData.thumbnailUrl && !formData.thumbnailUrl.includes("img.youtube.com");
 
   return (
     <div className="bg-gray-50 rounded-lg p-6">
@@ -461,21 +543,83 @@ const NewsCommentaryForm: React.FC<NewsCommentaryFormProps> = ({
           <label className="block text-sm font-medium mb-1">
             Thumbnail Image
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {uploading && (
-            <p className="text-sm text-gray-500 mt-1">Uploading...</p>
+
+          {/* Show auto-generated thumbnail option */}
+          {autoThumbnail && (
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-medium text-blue-700">
+                  Auto-generated from YouTube
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <img
+                  src={autoThumbnail}
+                  alt="Auto-generated thumbnail"
+                  className="w-24 h-16 object-cover rounded border"
+                />
+                <button
+                  type="button"
+                  onClick={useAutoThumbnail}
+                  className={`text-sm px-3 py-1 rounded transition-colors ${
+                    isUsingAutoThumbnail
+                      ? "bg-blue-100 text-blue-700 cursor-default"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                  disabled={isUsingAutoThumbnail}
+                >
+                  {isUsingAutoThumbnail
+                    ? "Currently Using"
+                    : "Use Auto-Generated"}
+                </button>
+              </div>
+            </div>
           )}
-          {formData.thumbnailUrl && (
-            <img
-              src={formData.thumbnailUrl}
-              alt="Thumbnail preview"
-              className="mt-2 w-32 h-20 object-cover rounded"
+
+          {/* Custom upload section */}
+          <div className="space-y-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-xs text-gray-500">
+              Upload a custom thumbnail or use the auto-generated YouTube
+              thumbnail above
+            </p>
+          </div>
+
+          {uploading && (
+            <div className="mt-2 text-sm text-blue-600">
+              Uploading custom thumbnail...
+            </div>
+          )}
+
+          {/* Show current thumbnail preview */}
+          {currentThumbnail && (
+            <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm font-medium">Current Thumbnail:</span>
+                {isCustomThumbnail ? (
+                  <span className="inline-flex items-center gap-1 text-sm text-green-700">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    Custom Upload
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-sm text-blue-700">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    Auto-Generated
+                  </span>
+                )}
+              </div>
+              <img
+                src={currentThumbnail}
+                alt="Current thumbnail preview"
+                className="w-40 h-24 object-cover rounded border"
+              />
+            </div>
           )}
         </div>
 
