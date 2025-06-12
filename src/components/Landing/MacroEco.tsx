@@ -106,7 +106,7 @@ const MacroEco: React.FC = () => {
       )}
 
       <div className="flex justify-end w-full pb-2.5 border-b border-secondaryBlue mt-[45px] mb-[27px]">
-        <p className="w-40 h-5 justify-start">
+        <p className=" h-5 flex gap-5 justify-start">
           <span className="text-cyan-400 text-sm font-normal font-['Jost']">
             Exchange Rate{" "}
           </span>
