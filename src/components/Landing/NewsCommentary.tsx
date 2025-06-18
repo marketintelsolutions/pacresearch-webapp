@@ -119,7 +119,7 @@ const NewsCommentary: React.FC = () => {
                 onClick={() => handleVideoClick(item.videoUrl)}
               >
                 <div className="h-full flex items-end  rounded-[30px] ">
-                  <div className="flex flex-col rounded-[30px] gap-[15px] px-5 py-8 bg-gradient-to-b to-[#00000042] from-[#383838fe]">
+                  <div className="flex flex-col rounded-[30px] gap-[15px] px-5 py-8 bg-gradient-to-b to-[#3c486c42] from-[#062644]">
                     <div className="h-1.5 w-[65%] bg-white rounded-full"></div>
                     <p className="justify-start text-white text-xl font-medium font-['Montserrat'] leading-loose tracking-tight [text-shadow:_0px_13px_19px_rgb(0_0_0_/_0.24)]">
                       {item.title} - <span>{item.interviewer}</span>
