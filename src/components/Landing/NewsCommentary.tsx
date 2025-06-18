@@ -17,6 +17,8 @@ const NewsCommentary: React.FC = () => {
   const [newsItems, setNewsItems] = useState<NewsCommentaryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 3;
 
   useEffect(() => {
     const fetchNewsItems = async () => {
@@ -34,7 +36,7 @@ const NewsCommentary: React.FC = () => {
           items.push({ id: doc.id, ...doc.data() } as NewsCommentaryItem);
         });
 
-        setNewsItems(items.slice(0, 3)); // Limit to 3 items
+        setNewsItems(items);
       } catch (err) {
         console.error("Error fetching news commentary:", err);
         setError("Failed to load news commentary");
@@ -51,7 +53,6 @@ const NewsCommentary: React.FC = () => {
   };
 
   const getYouTubeThumbnail = (url: string): string => {
-    // Extract video ID from YouTube URL and get high quality thumbnail
     const videoId = url.match(
       /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
     )?.[1];
@@ -59,8 +60,34 @@ const NewsCommentary: React.FC = () => {
     if (videoId) {
       return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
     }
-    return url; // Fallback to custom thumbnail
+    return url;
   };
+
+  const totalPages = Math.ceil(newsItems.length / itemsPerPage);
+  const startIndex = currentPage * itemsPerPage;
+  const currentItems = newsItems.slice(startIndex, startIndex + itemsPerPage);
+
+  const nextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Always show exactly 3 slots
+  const displayItems = [];
+  for (let i = 0; i < 3; i++) {
+    displayItems.push(currentItems[i] || null);
+  }
 
   if (loading) {
     return (
@@ -103,11 +130,75 @@ const NewsCommentary: React.FC = () => {
         with our timely updates and expert takes.
       </p>
 
-      <div className="mt-10 flex flex-wrap md:flex-nowrap gap-5 justify-between">
-        {newsItems.length > 0
-          ? newsItems.map((item) => (
+      {/* Navigation Controls */}
+      {newsItems.length > itemsPerPage && (
+        <div className="mt-8 flex items-center justify-between">
+          <button
+            onClick={prevPage}
+            disabled={currentPage === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-primaryBlue text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Previous
+          </button>
+
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => goToPage(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  currentPage === index
+                    ? "bg-primaryBlue"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={nextPage}
+            disabled={currentPage === totalPages - 1}
+            className="flex items-center gap-2 px-4 py-2 bg-primaryBlue text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
+          >
+            Next
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      <div className="mt-10 flex gap-5 justify-between">
+        {displayItems.map((item, index) => (
+          <div
+            key={item?.id || `placeholder-${index}`}
+            className="w-full md:max-w-[331px]"
+          >
+            {item ? (
               <div
-                key={item.id}
                 style={{
                   backgroundImage: `url(${
                     item.thumbnailUrl || getYouTubeThumbnail(item.videoUrl)
@@ -115,11 +206,11 @@ const NewsCommentary: React.FC = () => {
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
-                className="h-[452px] w-full md:max-w-[331px] rounded-[30px] cursor-pointer transition-transform hover:scale-105"
+                className="h-[452px] w-full rounded-[30px] cursor-pointer transition-transform hover:scale-105"
                 onClick={() => handleVideoClick(item.videoUrl)}
               >
-                <div className="h-full flex items-end  rounded-[30px] ">
-                  <div className="flex flex-col rounded-[30px] gap-[15px] px-5 py-8 bg-gradient-to-b to-[#3c486c42] from-[#062644]">
+                <div className="h-full flex items-end rounded-[30px]">
+                  <div className="w-full flex flex-col rounded-[30px] gap-[15px] px-5 py-8 bg-gradient-to-b to-[#00000042] from-[#383838fe]">
                     <div className="h-1.5 w-[65%] bg-white rounded-full"></div>
                     <p className="justify-start text-white text-xl font-medium font-['Montserrat'] leading-loose tracking-tight [text-shadow:_0px_13px_19px_rgb(0_0_0_/_0.24)]">
                       {item.title} - <span>{item.interviewer}</span>
@@ -138,16 +229,13 @@ const NewsCommentary: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ))
-          : // Fallback for when no items are available
-            Array.from({ length: 3 }, (_, index) => (
+            ) : (
               <div
-                key={index}
                 style={{
                   backgroundImage: "url(/images/watchthisspace.jpg)",
                   backgroundSize: "cover",
                 }}
-                className="h-[452px] w-full md:max-w-[331px] rounded-[30px]"
+                className="h-[452px] w-full rounded-[30px]"
               >
                 <div className="h-full flex items-end px-5 pb-8 rounded-[30px] bg-gradient-to-b to-[#00000042] from-[#383838fe]">
                   <div className="flex flex-col gap-[15px]">
@@ -163,8 +251,17 @@ const NewsCommentary: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            )}
+          </div>
+        ))}
       </div>
+
+      {/* Page indicator text */}
+      {newsItems.length > itemsPerPage && (
+        <div className="mt-6 text-center text-gray-600 text-sm">
+          Page {currentPage + 1} of {totalPages}
+        </div>
+      )}
     </section>
   );
 };
