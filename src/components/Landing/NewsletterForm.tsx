@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface FormData {
   email: string;
@@ -126,6 +126,16 @@ const NewsletterForm: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  const isNewsLetter = JSON.parse(
+    localStorage.getItem("isNewsLetter") as string
+  );
+
+  useEffect(() => {
+    if (isNewsLetter === "closed") {
+      setIsOpen(false);
+    }
+  }, []);
 
   if (!isOpen) return null;
 
