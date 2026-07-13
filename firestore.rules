@@ -1,0 +1,158 @@
+rules_version = '2';
+
+// =============================================================================
+// PAC Research — Firestore Security Rules
+// -----------------------------------------------------------------------------
+// IMPORTANT: No rules file previously existed in this repo; the live rules were
+// managed only in the Firebase console. Before deploying, reconcile this file
+// with whatever is currently live so you do not regress existing behavior.
+//
+// Model:
+//   - Report Archive payment-sensitive data (transactions, purchases) is
+//     WRITE-ONLY via Cloud Functions (Admin SDK bypasses these rules).
+//   - Admin-managed catalogue content is writable by active adminUsers docs.
+//   - Legacy collections keep their previous "public read / authed write"
+//     behavior so the existing site keeps working after this file is deployed.
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- helpers ----------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid))
+        && get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.active == true;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Membership of the organization that owns a purchase/record.
+    function myOrgId() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/customers/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/customers/$(request.auth.uid)).data.organizationId
+        : null;
+    }
+
+    // ========================= REPORT ARCHIVE ==============================
+
+    // Public catalogue content — anyone may read published items; only active
+    // admins may write (admin CRUD is client-side, mirroring resourcesSlice).
+    match /reportCategories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reports/{id} {
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /reportEditions/{id} {
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Private file-path metadata — never exposed to customers. Admin + functions.
+    match /reportEditionFiles/{id} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Customer profiles. A customer may read & maintain their own profile;
+    // admins may read all. Purchase-driven fields (purchasedReportIds,
+    // totalSpend, status) are written by Cloud Functions via the Admin SDK.
+    match /customers/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create, update: if isSelf(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Organizations — corporate seat model. Members read; primary contact may
+    // create their org at signup; seat changes happen via functions (Admin SDK).
+    match /organizations/{id} {
+      allow read: if isAdmin()
+        || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+      allow create: if isSignedIn()
+        && request.resource.data.primaryContactUid == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Organization invites are created/managed by Cloud Functions only.
+    match /organizationInvites/{id} {
+      allow read: if isAdmin()
+        || (isSignedIn() && request.auth.token.email == resource.data.email);
+      allow write: if false;
+    }
+
+    // Entitlements — read your own or your org's; writes only via functions.
+    match /purchases/{id} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.customerUid == request.auth.uid)
+        || (resource.data.organizationId != null
+            && resource.data.organizationId == myOrgId());
+      allow write: if false;
+    }
+
+    // Payment records — read your own or admin; writes only via functions.
+    match /transactions/{id} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.customerUid == request.auth.uid);
+      allow write: if false;
+    }
+
+    // Config singletons — publicly readable (checkout needs discount/seat price),
+    // admin-writable.
+    match /loyaltyConfig/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /orgConfig/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin roster — a user may read their own admin doc (to self-verify);
+    // admins may read all. Writes happen via console / functions only.
+    match /adminUsers/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if false;
+    }
+
+    // Audit + analytics — admin read; functions write.
+    match /auditLogs/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+    match /analyticsRollups/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // In-app notifications live under each customer.
+    match /customers/{uid}/notifications/{noteId} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow update: if isSelf(uid); // mark-as-read
+      allow create, delete: if false; // functions only
+    }
+
+    // ========================= LEGACY / EXISTING ===========================
+    // Preserve prior behavior: public read, any signed-in user may write.
+    // (Matches how the current admin area operates today. Tighten later by
+    //  moving these behind isAdmin() once real admin roles are seeded.)
+    match /resourceCategories/{id} { allow read: if true; allow write: if isSignedIn(); }
+    match /resourceFiles/{id}      { allow read: if true; allow write: if isSignedIn(); }
+    match /macroeconomics/{id}     { allow read: if true; allow write: if isSignedIn(); }
+    match /marketIndices/{id}      { allow read: if true; allow write: if isSignedIn(); }
+    match /equityMarket/{id}       { allow read: if true; allow write: if isSignedIn(); }
+    match /stocks/{id}             { allow read: if true; allow write: if isSignedIn(); }
+    match /newsCommentary/{id}     { allow read: if true; allow write: if isSignedIn(); }
+  }
+}

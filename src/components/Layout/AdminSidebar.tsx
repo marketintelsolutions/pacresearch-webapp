@@ -18,6 +18,26 @@ const links = [
     text: "News",
     path: "/admin/news",
   },
+  {
+    text: "Report Archive",
+    path: "/admin/report-archive",
+  },
+  {
+    text: "Customers",
+    path: "/admin/customers",
+  },
+  {
+    text: "Transactions",
+    path: "/admin/transactions",
+  },
+  {
+    text: "Loyalty",
+    path: "/admin/loyalty",
+  },
+  {
+    text: "Analytics",
+    path: "/admin/analytics",
+  },
 ];
 
 const AdminSidebar = () => {

@@ -17,6 +17,7 @@
     "install": "^0.13.0",
     "lucide-react": "^0.488.0",
     "npm": "^11.3.0",
+    "pdfjs-dist": "^3.11.174",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-helmet": "^6.1.0",

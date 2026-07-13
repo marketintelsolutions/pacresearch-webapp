@@ -60,6 +60,141 @@ export interface ResourceCategory {
   displayOrder: number;
 }
 
+// ---- Report Archive ---------------------------------------------------------
+
+export interface ReportCategory {
+  id: string;
+  name: string;
+  displayOrder: number;
+}
+
+export type ReportStatus = "draft" | "published" | "archived";
+
+export interface Report {
+  id: string;
+  title: string;
+  slug: string;
+  categoryId: string;
+  summary: string;
+  description: string;
+  coverImageUrl: string; // public cover art; "" if none
+  currentEditionId: string | null; // latest purchasable edition
+  status: ReportStatus;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export type EditionType = "major" | "minor";
+
+export interface ReportEdition {
+  id: string;
+  reportId: string;
+  editionLabel: string; // e.g. "2026 Edition"
+  editionType: EditionType;
+  predecessorEditionId: string | null; // for the loyalty successor discount
+  price: number; // naira, sticker price
+  currency: string; // "NGN"
+  pageCount: number | null;
+  status: ReportStatus;
+  changeNotes: string;
+  purchaseCount: number;
+  viewCount: number;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Private file-path metadata for an edition (admin/function-readable only).
+export interface ReportEditionFile {
+  editionId: string;
+  reportId: string;
+  storagePath: string;
+  fileType: string;
+  updatedAt: string;
+}
+
+export type CustomerType = "individual" | "corporate";
+
+export interface Customer {
+  uid: string;
+  type: CustomerType;
+  email: string;
+  name: string;
+  phone: string;
+  location: string;
+  organizationId: string | null;
+  status: "active" | "suspended";
+  purchasedReportIds?: string[];
+  totalSpend?: number;
+  lastLoginAt?: string;
+  createdAt?: string;
+}
+
+export interface Organization {
+  id: string;
+  orgName: string;
+  industry: string;
+  primaryContactUid: string;
+  memberUids: string[];
+  seatLimit: number;
+  createdAt?: string;
+}
+
+export interface Purchase {
+  id: string;
+  ownerType: CustomerType;
+  customerUid: string;
+  organizationId: string | null;
+  reportId: string;
+  editionId: string;
+  transactionId: string;
+  price: number;
+  loyaltyDiscountApplied: boolean;
+  loyaltyDiscountPercent: number;
+  status: "active" | "revoked";
+  purchasedAt?: string;
+}
+
+export type TransactionStatus =
+  | "pending"
+  | "success"
+  | "failed"
+  | "abandoned"
+  | "refunded";
+
+export interface Transaction {
+  id: string;
+  paystackReference: string;
+  purchaseKind: "report" | "seatAddon";
+  customerUid: string;
+  ownerType: CustomerType;
+  organizationId: string | null;
+  reportId: string | null;
+  editionId: string | null;
+  amount: number;
+  paystackFee: number;
+  netAmount: number;
+  splitPacResearch: number;
+  splitZiltch1: number;
+  currency: string;
+  status: TransactionStatus;
+  paymentChannel: string | null;
+  loyaltyDiscountApplied: boolean;
+  loyaltyDiscountPercent: number;
+  failureReason: string | null;
+  initiatedAt?: { seconds: number } | null;
+  verifiedAt?: { seconds: number } | null;
+}
+
+export interface LoyaltyConfig {
+  discountPercent: number;
+  enabled: boolean;
+  eligibility?: string;
+}
+
 export interface TopStock {
   id: string;
   symbol: string;

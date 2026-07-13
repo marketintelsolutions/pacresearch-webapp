@@ -35,6 +35,15 @@ const metadata = {
     description:
       "Plot 8A, Elsie Femi Pearse Street, Off Adeola Odeku, Victoria Island, Lagos P.O. Box 70823, Victoria Island, Lagos, Nigeria.",
   },
+  "report-archive": {
+    title: "Report Archive | PAC Research",
+    description:
+      "Purchase and securely read PAC Research premium research reports online.",
+  },
+  account: {
+    title: "My Account | PAC Research",
+    description: "Manage your PAC Research reports, purchases and organisation.",
+  },
   admin: {
     title: "",
     description: "",
@@ -47,6 +56,8 @@ type PageName =
   | "services"
   | "resources"
   | "contact"
+  | "report-archive"
+  | "account"
   | "admin";
 
 const MainLayout = ({

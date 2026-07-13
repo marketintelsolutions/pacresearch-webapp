@@ -14,6 +14,23 @@ import EquityMarket from "./pages/Admin/EquityMarket";
 import AdminResources from "./pages/Admin/AdminResources";
 import Director from "./pages/Director";
 import NewsCommentary from "./pages/Admin/NewsCommentary";
+import AdminReportArchive from "./pages/Admin/AdminReportArchive";
+import AdminReportEditions from "./pages/Admin/AdminReportEditions";
+import AdminCustomers from "./pages/Admin/AdminCustomers";
+import AdminTransactions from "./pages/Admin/AdminTransactions";
+import AdminLoyalty from "./pages/Admin/AdminLoyalty";
+import AdminAnalytics from "./pages/Admin/AdminAnalytics";
+import ReportArchive from "./pages/ReportArchive";
+import ReportDetails from "./pages/ReportDetails";
+import CustomerAuthListener from "./components/Layout/CustomerAuthListener";
+import CustomerAuthGuard from "./components/Layout/CustomerAuthGuard";
+import Login from "./pages/Account/Login";
+import Signup from "./pages/Account/Signup";
+import Account from "./pages/Account/Account";
+import AcceptInvite from "./pages/Account/AcceptInvite";
+import Checkout from "./pages/Account/Checkout";
+import PaymentCallback from "./pages/Account/PaymentCallback";
+import SecureViewer from "./pages/Account/SecureViewer";
 
 function App() {
   const router = createBrowserRouter([
@@ -74,6 +91,86 @@ function App() {
       ),
     },
     {
+      path: "/report-archive",
+      element: (
+        <MainLayout>
+          <ReportArchive />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/report-archive/payment-callback",
+      element: (
+        <MainLayout>
+          <CustomerAuthGuard>
+            <PaymentCallback />
+          </CustomerAuthGuard>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/report-archive/:reportId",
+      element: (
+        <MainLayout>
+          <ReportDetails />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/report-archive/:reportId/checkout",
+      element: (
+        <MainLayout>
+          <CustomerAuthGuard>
+            <Checkout />
+          </CustomerAuthGuard>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/login",
+      element: (
+        <MainLayout>
+          <Login />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/signup",
+      element: (
+        <MainLayout>
+          <Signup />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/accept-invite",
+      element: (
+        <MainLayout>
+          <AcceptInvite />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account",
+      element: (
+        <MainLayout>
+          <CustomerAuthGuard>
+            <Account />
+          </CustomerAuthGuard>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/report/:editionId/view",
+      element: (
+        <MainLayout>
+          <CustomerAuthGuard requireEntitlement>
+            <SecureViewer />
+          </CustomerAuthGuard>
+        </MainLayout>
+      ),
+    },
+    {
       path: "/admin/login",
       element: (
         <MainLayout>
@@ -121,9 +218,70 @@ function App() {
         </MainLayout>
       ),
     },
+    {
+      path: "/admin/report-archive",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminReportArchive />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/report-archive/:reportId/editions",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminReportEditions />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/customers",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminCustomers />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/transactions",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminTransactions />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/loyalty",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminLoyalty />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/analytics",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminAnalytics />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
   ]);
   return (
     <>
+      <CustomerAuthListener />
       <RouterProvider router={router} />
     </>
   );

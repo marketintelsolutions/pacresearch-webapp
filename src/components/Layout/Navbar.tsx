@@ -19,6 +19,10 @@ const links = [
     text: "Resources",
   },
   {
+    path: "/report-archive",
+    text: "Report Archive",
+  },
+  {
     path: "/contact",
     text: "Contact",
   },
