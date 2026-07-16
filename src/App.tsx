@@ -19,7 +19,6 @@ import AdminReportEditions from "./pages/Admin/AdminReportEditions";
 import AdminCustomers from "./pages/Admin/AdminCustomers";
 import AdminTransactions from "./pages/Admin/AdminTransactions";
 import AdminLoyalty from "./pages/Admin/AdminLoyalty";
-import AdminAnalytics from "./pages/Admin/AdminAnalytics";
 import ReportArchive from "./pages/ReportArchive";
 import ReportDetails from "./pages/ReportDetails";
 import CustomerAuthListener from "./components/Layout/CustomerAuthListener";
@@ -31,6 +30,10 @@ import AcceptInvite from "./pages/Account/AcceptInvite";
 import Checkout from "./pages/Account/Checkout";
 import PaymentCallback from "./pages/Account/PaymentCallback";
 import SecureViewer from "./pages/Account/SecureViewer";
+
+// Lazy-loaded so recharts is split into its own chunk and kept out of the
+// bundle that public visitors download.
+const AdminAnalytics = React.lazy(() => import("./pages/Admin/AdminAnalytics"));
 
 function App() {
   const router = createBrowserRouter([
@@ -273,7 +276,15 @@ function App() {
       element: (
         <MainLayout>
           <AdminLayout>
-            <AdminAnalytics />
+            <React.Suspense
+              fallback={
+                <div className="container mx-auto px-4 py-16 text-center text-gray-500">
+                  Loading analytics…
+                </div>
+              }
+            >
+              <AdminAnalytics />
+            </React.Suspense>
           </AdminLayout>
         </MainLayout>
       ),
