@@ -1,6 +1,22 @@
 {
   "indexes": [
     {
+      "collectionGroup": "newsCommentary",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "displayOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "resourceFiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "category", "order": "ASCENDING" },
+        { "fieldPath": "uploadDate", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "reportEditions",
       "queryScope": "COLLECTION",
       "fields": [
