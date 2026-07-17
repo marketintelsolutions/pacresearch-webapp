@@ -30,6 +30,10 @@ import AcceptInvite from "./pages/Account/AcceptInvite";
 import Checkout from "./pages/Account/Checkout";
 import PaymentCallback from "./pages/Account/PaymentCallback";
 import SecureViewer from "./pages/Account/SecureViewer";
+import ProfileSettings from "./pages/Account/ProfileSettings";
+import Invoices from "./pages/Account/Invoices";
+import NewInvoice from "./pages/Account/NewInvoice";
+import AdminInvoices from "./pages/Admin/AdminInvoices";
 
 // Lazy-loaded so recharts is split into its own chunk and kept out of the
 // bundle that public visitors download.
@@ -164,6 +168,36 @@ function App() {
       ),
     },
     {
+      path: "/account/profile",
+      element: (
+        <MainLayout>
+          <CustomerAuthGuard>
+            <ProfileSettings />
+          </CustomerAuthGuard>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/invoices",
+      element: (
+        <MainLayout>
+          <CustomerAuthGuard>
+            <Invoices />
+          </CustomerAuthGuard>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/invoices/new",
+      element: (
+        <MainLayout>
+          <CustomerAuthGuard>
+            <NewInvoice />
+          </CustomerAuthGuard>
+        </MainLayout>
+      ),
+    },
+    {
       path: "/account/report/:editionId/view",
       element: (
         <MainLayout>
@@ -267,6 +301,16 @@ function App() {
         <MainLayout>
           <AdminLayout>
             <AdminLoyalty />
+          </AdminLayout>
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/admin/invoices",
+      element: (
+        <MainLayout>
+          <AdminLayout>
+            <AdminInvoices />
           </AdminLayout>
         </MainLayout>
       ),

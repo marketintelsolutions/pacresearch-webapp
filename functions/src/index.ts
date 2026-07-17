@@ -15,6 +15,12 @@ export { getOrgRoster } from "./org/getOrgRoster";
 
 // ---- Secure viewer (Phase 5) ------------------------------------------------
 export { issueSecureViewStream } from "./reports/issueSecureViewStream";
+export { previewReport } from "./reports/previewReport";
+
+// ---- Invoices (pro-forma quotes) --------------------------------------------
+export { requestInvoice } from "./invoices/requestInvoice";
+export { invoicePdf } from "./invoices/invoicePdf";
+export { cancelInvoice } from "./invoices/cancelInvoice";
 
 // ---- Admin, refunds, notifications (Phase 6) --------------------------------
 export { processRefund } from "./payments/processRefund";

@@ -65,7 +65,8 @@ const SecureViewer = () => {
           `${STREAM_URL}?editionId=${encodeURIComponent(editionId || "")}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        if (res.status === 403) throw new Error("You don't have access to this report.");
+        if (res.status === 403)
+          throw new Error("You don't have access to this report.");
         if (!res.ok) throw new Error("Could not load this report.");
 
         const bytes = await res.arrayBuffer();
@@ -80,7 +81,9 @@ const SecureViewer = () => {
         if (!cancelled) setLoading(false);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load report.");
+          setError(
+            err instanceof Error ? err.message : "Failed to load report."
+          );
           setLoading(false);
         }
       }
@@ -134,7 +137,7 @@ const SecureViewer = () => {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <Link
             to="/account"
-            className="text-secondaryBlue hover:underline text-sm font-['Inter']"
+            className="text-secondaryBlue border border-secondaryBlue px-4 py-2 rounded-[16px] hover:underline text-sm font-['Inter']"
           >
             ← Back to my account
           </Link>

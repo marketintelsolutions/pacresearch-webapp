@@ -35,7 +35,7 @@ const Navbar = () => {
     <>
       <PreNav />
       <nav
-        className={`sticky z-[999] w-full max-w-[1063px] mx-auto bg-[#FFFFFF] rounded-[30px] mt-[74px] top-0 md:top-[20px] py-5 px-[37px] flex justify-between items-center ${
+        className={`sticky z-[99] w-full max-w-[1063px] mx-auto bg-[#FFFFFF] rounded-[30px] mt-[74px] top-0 md:top-[20px] py-5 px-[37px] flex justify-between items-center ${
           isMenu && "rounded-b-none"
         }`}
       >

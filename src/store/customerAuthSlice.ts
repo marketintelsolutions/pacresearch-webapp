@@ -180,6 +180,35 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
+// ---- update own profile details --------------------------------------------
+export const updateMyProfile = createAsyncThunk(
+  "customerAuth/updateMyProfile",
+  async (
+    data: { name: string; phone: string; location: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const current = auth.currentUser;
+      if (!current) throw new Error("Not signed in");
+      // Self-update is allowed by the customers/{uid} security rule.
+      await setDoc(
+        doc(db, "customers", current.uid),
+        {
+          name: data.name,
+          phone: data.phone,
+          location: data.location,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+      await updateProfile(current, { displayName: data.name });
+      return data;
+    } catch (err) {
+      return rejectWithValue(authErrorMessage(err));
+    }
+  }
+);
+
 // ---- load profile (+ organization) for the current user ---------------------
 export const loadProfile = createAsyncThunk(
   "customerAuth/loadProfile",
@@ -289,6 +318,20 @@ const customerAuthSlice = createSlice({
       state.profile = action.payload.profile;
       state.organization = action.payload.organization;
     });
+
+    builder.addCase(updateMyProfile.pending, pending);
+    builder.addCase(updateMyProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      if (state.profile) {
+        state.profile = {
+          ...state.profile,
+          name: action.payload.name,
+          phone: action.payload.phone,
+          location: action.payload.location,
+        };
+      }
+    });
+    builder.addCase(updateMyProfile.rejected, rejected);
 
     builder.addCase(resetPassword.rejected, rejected);
   },

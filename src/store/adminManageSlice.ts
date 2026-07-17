@@ -7,9 +7,11 @@ import {
   callSetPurchaseStatus,
   callUpdateLoyaltyConfig,
   callSendCustomerPasswordReset,
+  callCancelInvoice,
 } from "../firebase/functions";
 import {
   Customer,
+  Invoice,
   LoyaltyConfig,
   Organization,
   Purchase,
@@ -21,11 +23,13 @@ interface AdminManageState {
   organizations: Organization[];
   transactions: Transaction[];
   purchases: Purchase[];
+  invoices: Invoice[];
   loyalty: LoyaltyConfig;
   loading: {
     customers: boolean;
     transactions: boolean;
     loyalty: boolean;
+    invoices: boolean;
   };
   error: string | null;
   success: string | null;
@@ -36,8 +40,14 @@ const initialState: AdminManageState = {
   organizations: [],
   transactions: [],
   purchases: [],
+  invoices: [],
   loyalty: { discountPercent: 30, enabled: true },
-  loading: { customers: false, transactions: false, loyalty: false },
+  loading: {
+    customers: false,
+    transactions: false,
+    loyalty: false,
+    invoices: false,
+  },
   error: null,
   success: null,
 };
@@ -149,6 +159,37 @@ export const setPurchaseStatus = createAsyncThunk(
       return args;
     } catch (err) {
       return rejectWithValue(errMsg(err, "Failed to update access"));
+    }
+  }
+);
+
+// ---- Invoices --------------------------------------------------------------
+
+export const fetchInvoices = createAsyncThunk(
+  "adminManage/fetchInvoices",
+  async (_, { rejectWithValue }) => {
+    try {
+      const snap = await getDocs(collection(db, "invoices"));
+      const invoices: Invoice[] = [];
+      snap.forEach((d) => invoices.push({ id: d.id, ...d.data() } as Invoice));
+      invoices.sort(
+        (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+      );
+      return invoices;
+    } catch (err) {
+      return rejectWithValue(errMsg(err, "Failed to load invoices"));
+    }
+  }
+);
+
+export const cancelInvoice = createAsyncThunk(
+  "adminManage/cancelInvoice",
+  async (invoiceId: string, { rejectWithValue }) => {
+    try {
+      await callCancelInvoice({ invoiceId });
+      return invoiceId;
+    } catch (err) {
+      return rejectWithValue(errMsg(err, "Could not cancel invoice"));
     }
   }
 );
@@ -268,6 +309,28 @@ const adminManageSlice = createSlice({
           : "Access restored.";
     });
     builder.addCase(setPurchaseStatus.rejected, (state, action) => {
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(fetchInvoices.pending, (state) => {
+      state.loading.invoices = true;
+      state.error = null;
+    });
+    builder.addCase(fetchInvoices.fulfilled, (state, action) => {
+      state.invoices = action.payload;
+      state.loading.invoices = false;
+    });
+    builder.addCase(fetchInvoices.rejected, (state, action) => {
+      state.loading.invoices = false;
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(cancelInvoice.fulfilled, (state, action) => {
+      const i = state.invoices.findIndex((inv) => inv.id === action.payload);
+      if (i !== -1) state.invoices[i].status = "cancelled";
+      state.success = "Invoice cancelled.";
+    });
+    builder.addCase(cancelInvoice.rejected, (state, action) => {
       state.error = action.payload as string;
     });
 

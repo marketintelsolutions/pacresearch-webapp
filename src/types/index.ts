@@ -195,6 +195,41 @@ export interface LoyaltyConfig {
   eligibility?: string;
 }
 
+export interface InvoiceLineItem {
+  editionId: string;
+  reportId: string;
+  reportTitle: string;
+  editionLabel: string;
+  unitPrice: number;
+  loyaltyDiscountPercent: number;
+  loyaltyDiscountAmount: number;
+  lineTotal: number;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  customerUid: string;
+  ownerType: CustomerType;
+  organizationId: string | null;
+  status: "issued" | "cancelled";
+  lineItems: InvoiceLineItem[];
+  subtotal: number;
+  discountTotal: number;
+  total: number;
+  currency: string;
+  notes: string;
+  billTo: {
+    name: string;
+    email: string;
+    phone: string;
+    organizationName: string;
+    location: string;
+  };
+  createdAt?: { seconds: number } | null;
+  expiresAt?: { seconds: number } | null;
+}
+
 export interface TopStock {
   id: string;
   symbol: string;

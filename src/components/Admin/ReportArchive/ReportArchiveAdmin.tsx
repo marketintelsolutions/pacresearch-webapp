@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { clearError, clearSuccess } from "../../../store/reportsAdminSlice";
-import ReportCategoryManager from "./ReportCategoryManager";
 import ReportManager from "./ReportManager";
 
 const ReportArchiveAdmin: React.FC = () => {
@@ -22,20 +21,26 @@ const ReportArchiveAdmin: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Report Archive Management</h1>
+      <h1 className="text-2xl font-bold text-primaryBlue mb-6">
+        Report Archive
+      </h1>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
-      )}
-      {success && (
-        <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
-          {success}
-        </div>
-      )}
+      {/* Toasts */}
+      <div className="fixed top-4 right-4 z-50 space-y-2 w-[320px]">
+        {error && (
+          <div className="p-3 rounded-lg bg-red-600 text-white text-sm shadow-lg">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="p-3 rounded-lg bg-green-600 text-white text-sm shadow-lg">
+            {success}
+          </div>
+        )}
+      </div>
 
-      <div className="space-y-8">
+      <div className="max-w-[1000px]">
         <ReportManager />
-        <ReportCategoryManager />
       </div>
     </div>
   );

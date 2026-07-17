@@ -108,6 +108,20 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Pro-forma invoices — read your own or your org's; writes only via functions.
+    match /invoices/{id} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.customerUid == request.auth.uid)
+        || (resource.data.organizationId != null
+            && resource.data.organizationId == myOrgId());
+      allow write: if false;
+    }
+
+    // Internal counters (invoice numbering) — functions only.
+    match /counters/{id} {
+      allow read, write: if false;
+    }
+
     // Config singletons — publicly readable (checkout needs discount/seat price),
     // admin-writable.
     match /loyaltyConfig/{id} {
