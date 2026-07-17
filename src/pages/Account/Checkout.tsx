@@ -60,6 +60,13 @@ const Checkout = () => {
     <>
       <PageBanner text="CHECKOUT" />
       <section className="w-full px-6 max-w-[640px] mx-auto mt-[60px] mb-20">
+        <Link
+          to={reportId ? `/report-archive/${reportId}` : "/report-archive"}
+          className="inline-block mb-6 text-secondaryBlue border border-secondaryBlue px-4 py-2 rounded-[16px] hover:underline text-sm font-['Inter']"
+        >
+          ← Back to report
+        </Link>
+
         {loading.details ? (
           <div className="h-[400px] bg-white rounded-2xl animate-pulse" />
         ) : !activeReport || !edition ? (

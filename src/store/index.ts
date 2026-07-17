@@ -6,6 +6,7 @@ import reportArchiveReducer from "./reportArchiveSlice";
 import customerAuthReducer from "./customerAuthSlice";
 import purchasesReducer from "./purchasesSlice";
 import adminManageReducer from "./adminManageSlice";
+import invoicesReducer from "./invoicesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     customerAuth: customerAuthReducer,
     purchases: purchasesReducer,
     adminManage: adminManageReducer,
+    invoices: invoicesReducer,
   },
 });
 

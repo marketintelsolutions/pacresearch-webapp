@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { Eye, LogOut } from "lucide-react";
+import { Eye, LogOut, Settings, FileText } from "lucide-react";
 import { db } from "../../firebase/firebaseConfig";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { logoutCustomer } from "../../store/customerAuthSlice";
@@ -82,12 +82,26 @@ const Account = () => {
               {organization ? ` • ${organization.orgName}` : ""}
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50"
-          >
-            <LogOut size={16} /> Sign out
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/account/invoices"
+              className="inline-flex items-center gap-2 px-4 py-2 border border-primaryBlue text-primaryBlue rounded-full text-sm hover:bg-primaryBlue hover:text-white transition"
+            >
+              <FileText size={16} /> Invoices
+            </Link>
+            <Link
+              to="/account/profile"
+              className="inline-flex items-center gap-2 px-4 py-2 border border-primaryBlue text-primaryBlue rounded-full text-sm hover:bg-primaryBlue hover:text-white transition"
+            >
+              <Settings size={16} /> Profile
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50"
+            >
+              <LogOut size={16} /> Sign out
+            </button>
+          </div>
         </div>
 
         {/* Purchases */}

@@ -38,6 +38,13 @@ const links = [
     icon: "transactions",
   },
   {
+    text: "Invoices",
+    path: "/admin/invoices",
+    // Reuses the transactions icon; drop an invoices.png in public/images and
+    // change this to "invoices" for a distinct icon.
+    icon: "transactions",
+  },
+  {
     text: "Loyalty",
     path: "/admin/loyalty",
     icon: "loyalty",

@@ -51,3 +51,6 @@ export const ZILTCH1_SHARE = 0.25;
 export const DEFAULT_LOYALTY_DISCOUNT_PERCENT = 30;
 // Corporate seats included with a purchase before add-ons are required.
 export const DEFAULT_INCLUDED_SEATS = 3;
+// How many opening pages a non-purchaser may preview (per-edition override via
+// reportEditions.previewPageCount).
+export const PREVIEW_PAGE_COUNT = 3;

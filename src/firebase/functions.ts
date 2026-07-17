@@ -1,5 +1,5 @@
 import { httpsCallable } from "firebase/functions";
-import { functions } from "./firebaseConfig";
+import { functions, auth } from "./firebaseConfig";
 
 // Typed wrappers around the Report Archive Cloud Functions callables.
 // Names must match the exported function names in functions/src/index.ts.
@@ -86,3 +86,43 @@ export const callSendCustomerPasswordReset = httpsCallable<
   { customerUid: string },
   { email: string; link: string }
 >(functions, "sendCustomerPasswordReset");
+
+// ---- Invoices ---------------------------------------------------------------
+
+export const callRequestInvoice = httpsCallable<
+  { editionIds: string[]; notes?: string },
+  { invoiceId: string; invoiceNumber: string; total: number }
+>(functions, "requestInvoice");
+
+export const callCancelInvoice = httpsCallable<
+  { invoiceId: string },
+  { invoiceId: string; status: string }
+>(functions, "cancelInvoice");
+
+export const INVOICE_PDF_URL =
+  process.env.REACT_APP_INVOICE_PDF_URL ||
+  "https://us-central1-pacresearch-feb77.cloudfunctions.net/invoicePdf";
+
+/** Fetch the invoice PDF (auth-checked) and trigger a browser download. */
+export async function downloadInvoicePdf(
+  invoiceId: string,
+  invoiceNumber: string
+): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Sign in required.");
+  const token = await user.getIdToken();
+  const res = await fetch(
+    `${INVOICE_PDF_URL}?invoiceId=${encodeURIComponent(invoiceId)}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if (!res.ok) throw new Error("Could not download the invoice.");
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${invoiceNumber}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

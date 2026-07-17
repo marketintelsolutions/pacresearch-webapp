@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Lock, Eye, BadgePercent, ShieldCheck } from "lucide-react";
+import { Lock, Eye, BadgePercent, ShieldCheck, FileText } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { fetchReportDetails } from "../store/reportArchiveSlice";
 import { formatNaira } from "../utils/format";
 import PageBanner from "../components/Layout/PageBanner";
+import ReportPreviewModal from "../components/ReportArchive/ReportPreviewModal";
 
 const ReportDetails = () => {
   const { reportId } = useParams<{ reportId: string }>();
@@ -24,6 +25,8 @@ const ReportDetails = () => {
     if (reportId) dispatch(fetchReportDetails(reportId));
   }, [dispatch, reportId]);
 
+  const [showPreview, setShowPreview] = useState(false);
+
   const currentEdition =
     activeReport?.currentEditionId != null
       ? activeReportEditions.find((e) => e.id === activeReport.currentEditionId)
@@ -38,7 +41,7 @@ const ReportDetails = () => {
       <section className="w-full px-6 xl:px-0 max-w-max mx-auto mt-[60px] mb-16">
         <Link
           to="/report-archive"
-          className="text-secondaryBlue hover:underline text-sm font-['Inter']"
+          className="text-secondaryBlue border border-secondaryBlue px-4 py-2 rounded-[16px] hover:underline text-sm font-['Inter']"
         >
           ← Back to all reports
         </Link>
@@ -56,23 +59,25 @@ const ReportDetails = () => {
               <div className="relative p-[1px] rounded-2xl overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-[#15BFFD] to-[#9C37FD]" />
                 <div className="relative z-[1] bg-white rounded-[15px] overflow-hidden">
-                  <div className="h-[300px] bg-primaryBlue/5 flex items-center justify-center">
+                  <div className="h-[300px] bg-primaryBlue/50 flex items-center justify-center">
                     {activeReport.coverImageUrl ? (
                       <img
                         src={activeReport.coverImageUrl}
                         alt={activeReport.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                       />
                     ) : (
                       <img
                         src="/images/pdf.svg"
                         alt=""
-                        className="w-[72px] opacity-60"
+                        className="w-[72px] opacity-60 object-contain"
                       />
                     )}
                   </div>
                   <div className="p-6">
-                    <p className="text-sm text-gray-500 font-['Inter']">Price</p>
+                    <p className="text-sm text-gray-500 font-['Inter']">
+                      Price
+                    </p>
                     <p className="text-3xl font-bold text-primaryBlue font-['Inter']">
                       {purchasable
                         ? formatNaira(currentEdition!.price)
@@ -92,8 +97,28 @@ const ReportDetails = () => {
                       className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-primaryBlue text-white rounded-full font-semibold hover:opacity-90 disabled:opacity-50"
                     >
                       <Lock size={16} />
-                      {purchasable ? "Buy & Read Securely" : "Not available yet"}
+                      {purchasable
+                        ? "Buy & Read Securely"
+                        : "Not available yet"}
                     </button>
+
+                    {purchasable && (
+                      <button
+                        onClick={() => setShowPreview(true)}
+                        className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-primaryBlue text-primaryBlue rounded-full font-semibold hover:bg-primaryBlue hover:text-white transition"
+                      >
+                        <Eye size={16} /> Preview first pages
+                      </button>
+                    )}
+
+                    {purchasable && (
+                      <Link
+                        to={`/account/invoices/new?edition=${currentEdition!.id}`}
+                        className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm text-gray-600 hover:text-primaryBlue"
+                      >
+                        <FileText size={15} /> Request an invoice
+                      </Link>
+                    )}
 
                     <p className="mt-3 text-xs text-gray-500 text-center">
                       You'll accept the Terms of Use before payment.
@@ -183,6 +208,19 @@ const ReportDetails = () => {
           </div>
         )}
       </section>
+
+      {activeReport && currentEdition && (
+        <ReportPreviewModal
+          open={showPreview}
+          editionId={currentEdition.id}
+          title={activeReport.title}
+          onClose={() => setShowPreview(false)}
+          onBuy={() => {
+            setShowPreview(false);
+            navigate(`/report-archive/${activeReport.id}/checkout`);
+          }}
+        />
+      )}
     </>
   );
 };
