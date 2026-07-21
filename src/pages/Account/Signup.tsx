@@ -9,6 +9,7 @@ import {
 import { CustomerType } from "../../types";
 import PageBanner from "../../components/Layout/PageBanner";
 import PasswordRequirements from "../../components/Account/PasswordRequirements";
+import PasswordInput from "../../components/Account/PasswordInput";
 import { isPasswordValid, passwordError } from "../../utils/passwordPolicy";
 
 const Signup = () => {
@@ -153,12 +154,13 @@ const Signup = () => {
           )}
 
           <div>
-            <Field
+            <PasswordInput
               label="Password"
-              type="password"
               value={form.password}
               onChange={(v) => set("password", v)}
               required
+              autoComplete="new-password"
+              inputClassName="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md"
             />
             <PasswordRequirements value={form.password} />
             {policyError && (

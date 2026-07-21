@@ -53,4 +53,4 @@ export const DEFAULT_LOYALTY_DISCOUNT_PERCENT = 30;
 export const DEFAULT_INCLUDED_SEATS = 3;
 // How many opening pages a non-purchaser may preview (per-edition override via
 // reportEditions.previewPageCount).
-export const PREVIEW_PAGE_COUNT = 3;
+export const PREVIEW_PAGE_COUNT = 1;

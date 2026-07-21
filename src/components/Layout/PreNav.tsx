@@ -82,17 +82,6 @@ const PreNav = () => {
             info@pacresearch.org
           </p>
         </div>
-        {/* <div className="flex gap-2.5 items-center">
-          <span className=" text-primaryBlue ">
-            <MapPin size={20} />
-          </span>
-          <p className="max-w-96 justify-start text-primaryBlue text-xs font-semibold font-['Montserrat'] leading-none tracking-tight">
-            Plot 8A, Elsie Femi Pearse Street, Off Adeola Odeku, Victoria Island
-            Lagos P.O. Box 70823, Victoria Island, Lagos, Nigeria.
-          </p>
-        </div> */}
-      </div>
-      <div className="flex items-center gap-6">
         <div className="zr:hidden lg:flex gap-[22px] text-[#15BFFD]">
           <a
             target="_blank"
@@ -109,6 +98,17 @@ const PreNav = () => {
             <Linkedin size={20} />
           </a>
         </div>
+        {/* <div className="flex gap-2.5 items-center">
+          <span className=" text-primaryBlue ">
+            <MapPin size={20} />
+          </span>
+          <p className="max-w-96 justify-start text-primaryBlue text-xs font-semibold font-['Montserrat'] leading-none tracking-tight">
+            Plot 8A, Elsie Femi Pearse Street, Off Adeola Odeku, Victoria Island
+            Lagos P.O. Box 70823, Victoria Island, Lagos, Nigeria.
+          </p>
+        </div> */}
+      </div>
+      <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
           {mode === "logout" && (
             <button
