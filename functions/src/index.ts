@@ -17,6 +17,9 @@ export { getOrgRoster } from "./org/getOrgRoster";
 export { issueSecureViewStream } from "./reports/issueSecureViewStream";
 export { previewReport } from "./reports/previewReport";
 
+// ---- Auth emails ------------------------------------------------------------
+export { sendPasswordResetLink } from "./auth/sendPasswordResetLink";
+
 // ---- Invoices (pro-forma quotes) --------------------------------------------
 export { requestInvoice } from "./invoices/requestInvoice";
 export { invoicePdf } from "./invoices/invoicePdf";

@@ -122,6 +122,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Password-reset rate limiting — functions only.
+    match /passwordResetThrottle/{id} {
+      allow read, write: if false;
+    }
+
     // Config singletons — publicly readable (checkout needs discount/seat price),
     // admin-writable.
     match /loyaltyConfig/{id} {

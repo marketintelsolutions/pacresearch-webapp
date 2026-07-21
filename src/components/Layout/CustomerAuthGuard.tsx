@@ -25,10 +25,11 @@ const Spinner = () => (
 const CustomerAuthGuard: React.FC<Props> = ({ children, requireEntitlement }) => {
   const location = useLocation();
   const { editionId } = useParams<{ editionId: string }>();
-  const { user, profile, authReady } = useAppSelector((state) => ({
+  const { user, profile, authReady, isAdmin } = useAppSelector((state) => ({
     user: state.customerAuth.user,
     profile: state.customerAuth.profile,
     authReady: state.customerAuth.authReady,
+    isAdmin: state.customerAuth.isAdmin,
   }));
 
   const [entitlementState, setEntitlementState] = useState<
@@ -76,13 +77,18 @@ const CustomerAuthGuard: React.FC<Props> = ({ children, requireEntitlement }) =>
     };
   }, [requireEntitlement, user, editionId, profile?.organizationId]);
 
-  // Wait for Firebase Auth to resolve before deciding.
-  if (!authReady) return <Spinner />;
+  // Wait for Firebase Auth — and the admin-role lookup — to resolve.
+  if (!authReady || (user && isAdmin === null)) return <Spinner />;
 
   if (!user) {
     return (
       <Navigate to="/account/login" replace state={{ from: location.pathname }} />
     );
+  }
+
+  // Administrators belong in the admin area, not the customer dashboard.
+  if (isAdmin) {
+    return <Navigate to="/admin/report-archive" replace />;
   }
 
   if (requireEntitlement) {

@@ -31,6 +31,8 @@ import Checkout from "./pages/Account/Checkout";
 import PaymentCallback from "./pages/Account/PaymentCallback";
 import SecureViewer from "./pages/Account/SecureViewer";
 import ProfileSettings from "./pages/Account/ProfileSettings";
+import ForgotPassword from "./pages/Account/ForgotPassword";
+import ResetPassword from "./pages/Account/ResetPassword";
 import Invoices from "./pages/Account/Invoices";
 import NewInvoice from "./pages/Account/NewInvoice";
 import AdminInvoices from "./pages/Admin/AdminInvoices";
@@ -146,6 +148,22 @@ function App() {
       element: (
         <MainLayout>
           <Signup />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/forgot-password",
+      element: (
+        <MainLayout>
+          <ForgotPassword />
+        </MainLayout>
+      ),
+    },
+    {
+      path: "/account/reset-password",
+      element: (
+        <MainLayout>
+          <ResetPassword />
         </MainLayout>
       ),
     },

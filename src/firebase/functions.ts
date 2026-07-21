@@ -87,6 +87,14 @@ export const callSendCustomerPasswordReset = httpsCallable<
   { email: string; link: string }
 >(functions, "sendCustomerPasswordReset");
 
+// ---- Auth emails ------------------------------------------------------------
+
+/** Sends a branded reset email from PAC Research's own provider. */
+export const callSendPasswordResetLink = httpsCallable<
+  { email: string },
+  { sent: boolean }
+>(functions, "sendPasswordResetLink");
+
 // ---- Invoices ---------------------------------------------------------------
 
 export const callRequestInvoice = httpsCallable<

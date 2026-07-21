@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { LogOut } from "lucide-react";
+import { auth } from "../../firebase/firebaseConfig";
+import { useAppSelector } from "../../hooks/redux";
 
 const links = [
   {
@@ -58,10 +62,19 @@ const links = [
 
 const AdminSidebar = () => {
   const [path, setPath] = useState("");
+  const navigate = useNavigate();
+  const email = useAppSelector((state) => state.customerAuth.user?.email);
 
   const { pathname } = window.location;
 
   useEffect(() => setPath(pathname), [pathname]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    localStorage.removeItem("user");
+    localStorage.removeItem("isAuth");
+    navigate("/admin/login", { replace: true });
+  };
 
   return (
     <div className=" w-full max-w-[350px] ">
@@ -92,6 +105,22 @@ const AdminSidebar = () => {
             </p>
           </Link>
         ))}
+
+        {/* Signed-in admin + logout */}
+        <div className="mt-auto pt-6 pb-10 border-t border-white/10">
+          {email && (
+            <p className="text-white/50 text-xs mb-3 truncate" title={email}>
+              {email}
+            </p>
+          )}
+          <button
+            onClick={handleLogout}
+            className="flex gap-2 items-center text-white/80 hover:text-white transition"
+          >
+            <LogOut size={18} />
+            <span className="font-semibold text-lg">Log out</span>
+          </button>
+        </div>
       </div>
     </div>
   );

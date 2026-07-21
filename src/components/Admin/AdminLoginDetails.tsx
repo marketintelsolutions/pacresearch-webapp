@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { AiOutlineMail } from "react-icons/ai";
-import { BiSolidLockAlt } from "react-icons/bi";
-import { auth } from "../../firebase/firebaseConfig";
+import { auth, db } from "../../firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 import {
   AuthError,
   UserCredential,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { Lock, Mail } from "lucide-react";
@@ -25,33 +25,37 @@ const AdminLoginDetails = () => {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle login logic here
+    setError(null);
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential: UserCredential) => {
-        // Signed in
-        const user = JSON.stringify(userCredential.user);
-        // ...
+    try {
+      const userCredential: UserCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-        // add user details to local storage
-        localStorage.setItem("user", user);
+      // Customers share this Firebase project, so signing in successfully does
+      // not make you an admin — the account needs an active adminUsers doc.
+      const adminSnap = await getDoc(
+        doc(db, "adminUsers", userCredential.user.uid)
+      );
+      if (!adminSnap.exists() || adminSnap.data()?.active !== true) {
+        await signOut(auth);
+        setError(
+          "This account doesn't have administrator access. Use your admin account, or sign in as a customer at /account/login."
+        );
+        return;
+      }
 
-        // set isAuth to true add add to localStorage
-        localStorage.setItem("isAuth", JSON.stringify(true));
-        // setIsAuth(true);
+      localStorage.setItem("user", JSON.stringify(userCredential.user));
+      localStorage.setItem("isAuth", JSON.stringify(true));
 
-        setError(null);
-        navigate("/admin/macroeconomics");
-      })
-      .catch((error: AuthError) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(error);
-
-        setError(error.message);
-      });
+      navigate("/admin/macroeconomics");
+    } catch (err) {
+      setError((err as AuthError).message);
+    }
   };
 
   return (
