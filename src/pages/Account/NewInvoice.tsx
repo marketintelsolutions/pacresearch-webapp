@@ -55,7 +55,7 @@ const NewInvoice = () => {
     });
   };
 
-  const subtotal = invoiceable
+  const total = invoiceable
     .filter((x) => selected.has(x.edition.id))
     .reduce((s, x) => s + x.edition.price, 0);
 
@@ -168,12 +168,9 @@ const NewInvoice = () => {
           <div className="text-sm text-gray-600">
             <span className="font-medium">{selected.size}</span> selected
             <span className="mx-2 text-gray-300">•</span>
-            Subtotal{" "}
+            Total{" "}
             <span className="font-semibold text-primaryBlue">
-              {formatNaira(subtotal)}
-            </span>
-            <span className="block text-xs text-gray-400">
-              Before any loyalty discount
+              {formatNaira(total)}
             </span>
           </div>
           <button

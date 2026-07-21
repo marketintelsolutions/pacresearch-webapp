@@ -1,29 +1,27 @@
-import React, { useEffect, useState } from "react";
-import AdminSidebar from "./AdminSidebar";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase/firebaseConfig";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import Layout from "../Admin/Layout";
-import Dashboard from "../Admin/EquityMarketDashboard";
+import AdminSidebar from "./AdminSidebar";
+import { useAppSelector } from "../../hooks/redux";
 
+/**
+ * Admin route guard. Requires an active adminUsers/{uid} document — being
+ * signed in is NOT enough, since customers share the same Firebase session.
+ * Anyone else (signed out, or signed in as a customer) is sent to the admin
+ * login page.
+ */
 const AdminLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, isAdmin, authReady } = useAppSelector((state) => ({
+    user: state.customerAuth.user,
+    isAdmin: state.customerAuth.isAdmin,
+    authReady: state.customerAuth.authReady,
+  }));
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
+  // Wait for auth and, when signed in, the adminUsers lookup to resolve.
+  if (!authReady || (user && isAdmin === null)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -31,8 +29,8 @@ const AdminLayout = ({
     );
   }
 
-  if (!user) {
-    return <Navigate to={"/admin/login"} />;
+  if (!user || !isAdmin) {
+    return <Navigate to="/admin/login" replace />;
   }
 
   return (
@@ -40,9 +38,6 @@ const AdminLayout = ({
       <AdminSidebar />
       {children}
     </div>
-    // <Layout>
-    //   <Dashboard />
-    // </Layout>
   );
 };
 

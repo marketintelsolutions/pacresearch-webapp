@@ -8,6 +8,8 @@ import {
 } from "../../store/customerAuthSlice";
 import { CustomerType } from "../../types";
 import PageBanner from "../../components/Layout/PageBanner";
+import PasswordRequirements from "../../components/Account/PasswordRequirements";
+import { isPasswordValid, passwordError } from "../../utils/passwordPolicy";
 
 const Signup = () => {
   const dispatch = useAppDispatch();
@@ -39,8 +41,16 @@ const Signup = () => {
 
   const set = (k: string, v: string) => setForm({ ...form, [k]: v });
 
+  const [policyError, setPolicyError] = useState("");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const failure = passwordError(form.password);
+    if (failure) {
+      setPolicyError(failure);
+      return;
+    }
+    setPolicyError("");
     if (type === "individual") {
       dispatch(
         signUpIndividual({
@@ -142,13 +152,19 @@ const Signup = () => {
             />
           )}
 
-          <Field
-            label="Password"
-            type="password"
-            value={form.password}
-            onChange={(v) => set("password", v)}
-            required
-          />
+          <div>
+            <Field
+              label="Password"
+              type="password"
+              value={form.password}
+              onChange={(v) => set("password", v)}
+              required
+            />
+            <PasswordRequirements value={form.password} />
+            {policyError && (
+              <p className="mt-2 text-xs text-red-600">{policyError}</p>
+            )}
+          </div>
 
           {type === "corporate" && (
             <p className="text-xs text-gray-500">
@@ -159,7 +175,7 @@ const Signup = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isPasswordValid(form.password)}
             className="w-full px-4 py-3 bg-primaryBlue text-white rounded-full font-semibold hover:opacity-90 disabled:opacity-60"
           >
             {loading ? "Creating account…" : "Create account"}

@@ -25,6 +25,7 @@ import { Report, ReportCategory, ReportStatus } from "../../../types";
 import CoverImagePicker from "./CoverImagePicker";
 import CategorySelect from "./CategorySelect";
 import CategoryFormModal from "./CategoryFormModal";
+import IconBtn from "./IconBtn";
 
 const emptyForm: Partial<Report> = {
   title: "",
@@ -459,26 +460,5 @@ const ReportManager: React.FC = () => {
     </div>
   );
 };
-
-const IconBtn: React.FC<{
-  title: string;
-  onClick: () => void;
-  danger?: boolean;
-  children: React.ReactNode;
-}> = ({ title, onClick, danger, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    title={title}
-    aria-label={title}
-    className={`w-9 h-9 inline-flex items-center justify-center rounded-lg transition ${
-      danger
-        ? "text-red-500 hover:bg-red-50 hover:text-red-700"
-        : "text-gray-500 hover:bg-gray-100 hover:text-primaryBlue"
-    }`}
-  >
-    {children}
-  </button>
-);
 
 export default ReportManager;

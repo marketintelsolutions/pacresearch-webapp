@@ -8,6 +8,7 @@ import {
   LogOut,
   Mail,
   Phone,
+  ShieldCheck,
   UserRound,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
@@ -17,9 +18,10 @@ const PreNav = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { user, authReady } = useAppSelector((state) => ({
+  const { user, authReady, isAdmin } = useAppSelector((state) => ({
     user: state.customerAuth.user,
     authReady: state.customerAuth.authReady,
+    isAdmin: state.customerAuth.isAdmin,
   }));
 
   // Report Archive section = the catalogue/details/checkout pages and the
@@ -27,9 +29,15 @@ const PreNav = () => {
   const onReportArchive =
     pathname.startsWith("/report-archive") || pathname.startsWith("/account");
 
-  // Resolve the button's mode. Before auth resolves, show a safe public link.
-  const mode: "login" | "logout" | "archive" = !authReady
+  // Wait for the role lookup too, so the button doesn't flip after mount.
+  const roleReady = authReady && (!user || isAdmin !== null);
+
+  // Admins get a link to their own area — the customer dashboard is closed to
+  // them, so offering customer actions here would be misleading.
+  const mode: "login" | "logout" | "archive" | "admin" = !roleReady
     ? "archive"
+    : isAdmin
+    ? "admin"
     : !user
     ? "login"
     : onReportArchive
@@ -37,7 +45,9 @@ const PreNav = () => {
     : "archive";
 
   const handleClick = () => {
-    if (mode === "login") {
+    if (mode === "admin") {
+      navigate("/admin/report-archive");
+    } else if (mode === "login") {
       navigate("/account/login");
     } else if (mode === "logout") {
       dispatch(logoutCustomer()).finally(() => navigate("/report-archive"));
@@ -50,6 +60,7 @@ const PreNav = () => {
     login: { label: "Login", icon: <LogIn size={15} /> },
     logout: { label: "Log out", icon: <LogOut size={15} /> },
     archive: { label: "Report Archive", icon: <Archive size={15} /> },
+    admin: { label: "Admin panel", icon: <ShieldCheck size={15} /> },
   }[mode];
 
   return (

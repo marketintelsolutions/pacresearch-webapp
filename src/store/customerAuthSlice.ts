@@ -4,10 +4,10 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
-  sendPasswordResetEmail,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase/firebaseConfig";
+import { callSendPasswordResetLink } from "../firebase/functions";
 import { Customer, Organization } from "../types";
 
 interface AuthUser {
@@ -20,6 +20,8 @@ interface CustomerAuthState {
   profile: Customer | null;
   organization: Organization | null;
   authReady: boolean; // onAuthStateChanged has fired at least once
+  /** null = still resolving the role; true = active adminUsers doc exists. */
+  isAdmin: boolean | null;
   loading: boolean;
   error: string | null;
 }
@@ -29,6 +31,7 @@ const initialState: CustomerAuthState = {
   profile: null,
   organization: null,
   authReady: false,
+  isAdmin: null,
   loading: false,
   error: null,
 };
@@ -172,7 +175,9 @@ export const resetPassword = createAsyncThunk(
   "customerAuth/resetPassword",
   async (email: string, { rejectWithValue }) => {
     try {
-      await sendPasswordResetEmail(auth, email);
+      // Sent through our own provider (branded) rather than Firebase's
+      // default noreply@<project>.firebaseapp.com sender.
+      await callSendPasswordResetLink({ email });
       return true;
     } catch (err) {
       return rejectWithValue(authErrorMessage(err));
@@ -262,7 +267,13 @@ const customerAuthSlice = createSlice({
       if (!action.payload) {
         state.profile = null;
         state.organization = null;
+        state.isAdmin = false; // signed out — definitively not an admin
+      } else {
+        state.isAdmin = null; // resolving via adminUsers lookup
       }
+    },
+    setIsAdmin: (state, action: PayloadAction<boolean>) => {
+      state.isAdmin = action.payload;
     },
     clearAuthError: (state) => {
       state.error = null;
@@ -312,6 +323,7 @@ const customerAuthSlice = createSlice({
       state.user = null;
       state.profile = null;
       state.organization = null;
+      state.isAdmin = false;
     });
 
     builder.addCase(loadProfile.fulfilled, (state, action) => {
@@ -337,5 +349,6 @@ const customerAuthSlice = createSlice({
   },
 });
 
-export const { setAuthUser, clearAuthError } = customerAuthSlice.actions;
+export const { setAuthUser, setIsAdmin, clearAuthError } =
+  customerAuthSlice.actions;
 export default customerAuthSlice.reducer;
