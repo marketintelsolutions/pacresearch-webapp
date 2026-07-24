@@ -5,7 +5,13 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { auth, db } from "../firebase/firebaseConfig";
 import { callSendPasswordResetLink } from "../firebase/functions";
 import { Customer, Organization } from "../types";
@@ -151,12 +157,13 @@ export const loginCustomer = createAsyncThunk(
         data.email,
         data.password
       );
-      // Best-effort last-login stamp (allowed: own customer doc).
-      await setDoc(
-        doc(db, "customers", cred.user.uid),
-        { lastLoginAt: serverTimestamp() },
-        { merge: true }
-      ).catch(() => {});
+      // Best-effort last-login stamp. updateDoc (not setDoc/merge) on purpose:
+      // merge would CREATE a stub customers doc with no `type` for accounts
+      // that never went through signup, which later breaks anything reading
+      // the profile. If there's no profile yet, silently skip the stamp.
+      await updateDoc(doc(db, "customers", cred.user.uid), {
+        lastLoginAt: serverTimestamp(),
+      }).catch(() => {});
       return { uid: cred.user.uid, email: cred.user.email };
     } catch (err) {
       return rejectWithValue(authErrorMessage(err));

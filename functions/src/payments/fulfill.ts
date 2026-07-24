@@ -1,6 +1,7 @@
 import * as logger from "firebase-functions/logger";
 import { db, FieldValue } from "../lib/firebase";
-import { toKobo } from "../lib/money";
+import { toKobo, fromKobo, computeSplitFromFee } from "../lib/money";
+import { SPLIT_VERSION } from "../config";
 import { notifyCustomer } from "../lib/notify";
 import { PaystackVerifyResponse } from "../types";
 
@@ -36,6 +37,9 @@ export async function fulfillFromVerify(
       reportId: string | null;
       editionId: string | null;
       amount: number;
+      paystackFee: number;
+      splitPacResearch: number;
+      splitZiltch1: number;
       loyaltyDiscountApplied: boolean;
       loyaltyDiscountPercent: number;
     };
@@ -74,11 +78,34 @@ export async function fulfillFromVerify(
       throw new Error(`Amount mismatch for ${reference}; refusing to fulfill.`);
     }
 
+    // ---- Reconcile the fee/split with Paystack's actual settled fee ------
+    // The values written at checkout are an estimate (flat rate). Paystack's
+    // verify response carries the real fee, so recompute the net + 75/25 from
+    // it and keep the original estimate for reference.
+    const settledUpdate: Record<string, unknown> = {
+      splitVersion: SPLIT_VERSION,
+    };
+    if (typeof verify.data.fees === "number") {
+      const actual = computeSplitFromFee(txn.amount, fromKobo(verify.data.fees));
+      settledUpdate.estimatedPaystackFee = txn.paystackFee ?? null;
+      settledUpdate.estimatedSplitPacResearch = txn.splitPacResearch ?? null;
+      settledUpdate.estimatedSplitZiltch1 = txn.splitZiltch1 ?? null;
+      settledUpdate.paystackFee = actual.paystackFee;
+      settledUpdate.netAmount = actual.netAmount;
+      settledUpdate.splitPacResearch = actual.splitPacResearch;
+      settledUpdate.splitZiltch1 = actual.splitZiltch1;
+      settledUpdate.paystackFeeActual = true;
+    } else {
+      // Paystack didn't return a fee — keep the estimate, flag it as such.
+      settledUpdate.paystackFeeActual = false;
+    }
+
     // ---- Mark success + apply side effects -------------------------------
     t.update(txnRef, {
       status: "success",
       paymentChannel: verify.data.channel ?? null,
       verifiedAt: FieldValue.serverTimestamp(),
+      ...settledUpdate,
     });
 
     if (txn.purchaseKind === "report" && txn.editionId) {

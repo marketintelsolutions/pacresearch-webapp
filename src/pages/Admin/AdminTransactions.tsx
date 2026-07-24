@@ -146,6 +146,15 @@ const AdminTransactions = () => {
                       </td>
                       <td className="py-3 pr-3 text-xs text-gray-500">
                         {formatNaira(t.paystackFee)}
+                        {t.status === "success" &&
+                          t.paystackFeeActual === false && (
+                            <span
+                              title="Paystack did not return an actual fee; this is the estimate."
+                              className="ml-1 text-amber-500"
+                            >
+                              est.
+                            </span>
+                          )}
                       </td>
                       <td className="py-3 pr-3 text-xs text-gray-500">
                         {formatNaira(t.splitPacResearch)} /{" "}

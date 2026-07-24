@@ -67,6 +67,11 @@ export const callProcessRefund = httpsCallable<
   { reference: string; status: string }
 >(functions, "processRefund");
 
+export const callReconcileTransactionFees = httpsCallable<
+  void,
+  { checked: number; updated: number; failed: number; remaining: number }
+>(functions, "reconcileTransactionFees");
+
 export const callSetCustomerStatus = httpsCallable<
   { customerUid: string; status: "active" | "suspended"; reason?: string },
   { customerUid: string; status: string }
