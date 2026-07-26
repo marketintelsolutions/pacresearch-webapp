@@ -185,6 +185,9 @@ export interface Transaction {
   loyaltyDiscountApplied: boolean;
   loyaltyDiscountPercent: number;
   failureReason: string | null;
+  /** True once the fee/split reflect Paystack's actual settled fee. */
+  paystackFeeActual?: boolean;
+  estimatedPaystackFee?: number;
   initiatedAt?: { seconds: number } | null;
   verifiedAt?: { seconds: number } | null;
 }

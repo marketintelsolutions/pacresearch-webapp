@@ -27,6 +27,7 @@ export { cancelInvoice } from "./invoices/cancelInvoice";
 
 // ---- Admin, refunds, notifications (Phase 6) --------------------------------
 export { processRefund } from "./payments/processRefund";
+export { reconcileTransactionFees } from "./payments/reconcileTransactionFees";
 export {
   setCustomerStatus,
   setPurchaseStatus,

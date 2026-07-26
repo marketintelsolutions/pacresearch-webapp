@@ -1,4 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as logger from "firebase-functions/logger";
 import { db, FieldValue } from "../lib/firebase";
 import { ownsEdition } from "../lib/entitlement";
 import { round2 } from "../lib/money";
@@ -45,6 +46,14 @@ export const requestInvoice = onCall({ cors: true }, async (request) => {
   };
   const organizationId = cust.organizationId ?? null;
 
+  if (!cust.type) {
+    // An incomplete profile (e.g. an account that never went through signup).
+    // Quote it as individual rather than failing, but make it visible.
+    logger.warn("Customer profile has no type; defaulting to individual", {
+      uid,
+    });
+  }
+
   let organizationName = "";
   if (organizationId) {
     const orgSnap = await db.collection("organizations").doc(organizationId).get();
@@ -79,19 +88,33 @@ export const requestInvoice = onCall({ cors: true }, async (request) => {
 
     let discountPercent = 0;
     if (loyaltyEnabled && loyaltyPct > 0 && ed.predecessorEditionId) {
-      if (await ownsEdition(ed.predecessorEditionId, uid, organizationId)) {
-        discountPercent = loyaltyPct;
+      try {
+        if (await ownsEdition(ed.predecessorEditionId, uid, organizationId)) {
+          discountPercent = loyaltyPct;
+        }
+      } catch (err) {
+        // A loyalty lookup failure must not sink the whole invoice — quote at
+        // full price and record why.
+        logger.error("Loyalty check failed; quoting full price", {
+          editionId,
+          uid,
+          err,
+        });
       }
     }
-    const unitPrice = round2(ed.price);
+
+    // Every value below is defaulted: Firestore rejects any write containing
+    // `undefined`, which would otherwise surface to the caller as INTERNAL.
+    const rawPrice = Number(ed.price);
+    const unitPrice = round2(Number.isFinite(rawPrice) ? rawPrice : 0);
     const loyaltyDiscountAmount = round2((unitPrice * discountPercent) / 100);
     const lineTotal = round2(unitPrice - loyaltyDiscountAmount);
 
     lineItems.push({
       editionId,
-      reportId: ed.reportId,
+      reportId: ed.reportId || "",
       reportTitle,
-      editionLabel: ed.editionLabel,
+      editionLabel: ed.editionLabel || "Edition",
       unitPrice,
       loyaltyDiscountPercent: discountPercent,
       loyaltyDiscountAmount,
@@ -126,29 +149,43 @@ export const requestInvoice = onCall({ cors: true }, async (request) => {
   const invoiceId = `inv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const expiresAt = new Date(Date.now() + VALIDITY_DAYS * 86400000);
 
-  await db.collection("invoices").doc(invoiceId).set({
-    id: invoiceId,
-    invoiceNumber,
-    customerUid: uid,
-    ownerType: cust.type,
-    organizationId,
-    status: "issued",
-    lineItems,
-    subtotal,
-    discountTotal,
-    total,
-    currency: "NGN",
-    notes: notes || "",
-    billTo: {
-      name: cust.name || "",
-      email: email || cust.email || "",
-      phone: cust.phone || "",
-      organizationName,
-      location: cust.location || "",
-    },
-    createdAt: FieldValue.serverTimestamp(),
-    expiresAt,
-  });
+  try {
+    await db.collection("invoices").doc(invoiceId).set({
+      id: invoiceId,
+      invoiceNumber,
+      customerUid: uid,
+      ownerType: cust.type || "individual",
+      organizationId,
+      status: "issued",
+      lineItems,
+      subtotal,
+      discountTotal,
+      total,
+      currency: "NGN",
+      notes: notes || "",
+      billTo: {
+        name: cust.name || "",
+        email: email || cust.email || "",
+        phone: cust.phone || "",
+        organizationName,
+        location: cust.location || "",
+      },
+      createdAt: FieldValue.serverTimestamp(),
+      expiresAt,
+    });
+  } catch (err) {
+    // Surface something diagnosable instead of a bare INTERNAL.
+    logger.error("Failed to write invoice", {
+      uid,
+      invoiceId,
+      editionIds: uniqueIds,
+      err,
+    });
+    throw new HttpsError(
+      "internal",
+      "Could not save the invoice. Please try again, and contact support if it persists."
+    );
+  }
 
   return { invoiceId, invoiceNumber, total };
 });

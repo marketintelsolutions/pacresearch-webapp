@@ -42,11 +42,22 @@ export const EMAIL_FROM = defineString("EMAIL_FROM", {
 });
 
 // ---- Static business constants (from the technical spec) --------------------
-// Paystack transaction fee rate absorbed by the seller (1.5% per the spec).
+// Paystack Nigeria local-card fee estimate: 1.5% + a flat ₦100, where the flat
+// fee is waived below ₦2,500 and the whole fee is capped at ₦2,000. This is
+// only an ESTIMATE for pending transactions — the actual settled fee is taken
+// from Paystack's verify response once a payment succeeds.
 export const PAYSTACK_FEE_RATE = 0.015;
+export const PAYSTACK_FLAT_FEE = 100; // extra ₦100 Paystack adds
+export const PAYSTACK_FLAT_FEE_WAIVER_UNDER = 2500; // flat fee waived below this
+export const PAYSTACK_FEE_CAP = 2000; // total fee capped at ₦2,000
 // Revenue split of the post-fee amount.
 export const PAC_RESEARCH_SHARE = 0.75;
 export const ZILTCH1_SHARE = 0.25;
+// Bump when the split methodology changes; the reconcile backfill reprocesses
+// any transaction stamped with an older version.
+//   v1: 75/25 of net (proportional fee) — superseded
+//   v2: % of gross, fee shared equally (matches Paystack bearer_type "all")
+export const SPLIT_VERSION = 2;
 // Default loyalty discount if the loyaltyConfig/settings doc is missing.
 export const DEFAULT_LOYALTY_DISCOUNT_PERCENT = 30;
 // Corporate seats included with a purchase before add-ons are required.
