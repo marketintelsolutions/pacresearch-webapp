@@ -53,10 +53,17 @@ export const PAYSTACK_FEE_CAP = 2000; // total fee capped at ₦2,000
 // Revenue split of the post-fee amount.
 export const PAC_RESEARCH_SHARE = 0.75;
 export const ZILTCH1_SHARE = 0.25;
-// Bump when the split methodology changes; the reconcile backfill reprocesses
-// any transaction stamped with an older version.
-//   v1: 75/25 of net (proportional fee) — superseded
-//   v2: % of gross, fee shared equally (matches Paystack bearer_type "all")
+// Marks the split methodology a transaction was settled under. The reconcile
+// backfill reprocesses records stamped with an OLDER version by re-pulling the
+// actual fee from Paystack — so ONLY bump this for a retroactive correction to
+// how we compute the split from a given fee, never for a forward-only Paystack
+// config change (that would recompute historical records under a formula
+// Paystack never used for them).
+//   v1: 75/25 of net (proportional fee) — superseded by a compute fix
+//   v2: current. Was "% of gross, fee shared equally" (bearer_type "all") and
+//       is now "PAC bears full fee, Ziltch1 full 25%" (bearer_type "account").
+//       NOT bumped for the bearer change because it applies to new transactions
+//       only; pre-change records keep the values Paystack actually settled.
 export const SPLIT_VERSION = 2;
 // Default loyalty discount if the loyaltyConfig/settings doc is missing.
 export const DEFAULT_LOYALTY_DISCOUNT_PERCENT = 30;
