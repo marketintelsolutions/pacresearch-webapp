@@ -40,6 +40,14 @@ const CustomerAuthGuard: React.FC<Props> = ({ children, requireEntitlement }) =>
     if (!requireEntitlement || !user || !editionId) return;
     let cancelled = false;
 
+    // Fast path: the customer's own profile doc lists the editions they own.
+    // This is a simple self-read (robust against the purchases-query rules) and
+    // covers the common individual case without a collection query.
+    if (profile?.purchasedReportIds?.includes(editionId)) {
+      setEntitlementState("granted");
+      return;
+    }
+
     (async () => {
       try {
         const checks = [
@@ -68,14 +76,28 @@ const CustomerAuthGuard: React.FC<Props> = ({ children, requireEntitlement }) =>
         const owned = snaps.some((s) => !s.empty);
         if (!cancelled) setEntitlementState(owned ? "granted" : "denied");
       } catch {
-        if (!cancelled) setEntitlementState("denied");
+        // Fall back to the profile's owned list if the query is blocked.
+        if (!cancelled) {
+          setEntitlementState(
+            profile?.purchasedReportIds?.includes(editionId)
+              ? "granted"
+              : "denied"
+          );
+        }
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [requireEntitlement, user, editionId, profile?.organizationId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    requireEntitlement,
+    user,
+    editionId,
+    profile?.organizationId,
+    profile?.purchasedReportIds,
+  ]);
 
   // Wait for Firebase Auth — and the admin-role lookup — to resolve.
   if (!authReady || (user && isAdmin === null)) return <Spinner />;

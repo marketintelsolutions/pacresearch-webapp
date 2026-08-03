@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { Eye, LogOut, Settings, FileText } from "lucide-react";
@@ -6,6 +6,7 @@ import { db } from "../../firebase/firebaseConfig";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { logoutCustomer } from "../../store/customerAuthSlice";
 import { fetchMyPurchases } from "../../store/purchasesSlice";
+import { Purchase } from "../../types";
 import {
   callGetOrgRoster,
   callInviteOrgMember,
@@ -29,7 +30,16 @@ const Account = () => {
     loading: state.purchases.loading,
   }));
 
-  const [titles, setTitles] = useState<Record<string, string>>({});
+  // One display row per owned edition.
+  interface OwnedReport {
+    editionId: string;
+    reportId?: string;
+    title: string;
+    price?: number;
+    loyaltyDiscountApplied?: boolean;
+    loyaltyDiscountPercent?: number;
+  }
+  const [owned, setOwned] = useState<OwnedReport[] | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -42,25 +52,66 @@ const Account = () => {
     }
   }, [dispatch, user, profile?.organizationId]);
 
-  // Resolve report titles for the purchased reports.
+  // Ownership comes from the profile's purchasedReportIds (a robust self-read)
+  // UNIONed with any purchases the collection query returned (adds org-owned
+  // items and richer metadata). So a paid report shows even if the purchases
+  // query is blocked by security rules.
+  const ownedEditionIds = useMemo(() => {
+    const set = new Set<string>(profile?.purchasedReportIds || []);
+    myPurchases.forEach((p) => set.add(p.editionId));
+    return Array.from(set);
+  }, [profile?.purchasedReportIds, myPurchases]);
+
+  const purchaseByEdition = useMemo(() => {
+    const map: Record<string, Purchase> = {};
+    myPurchases.forEach((p) => (map[p.editionId] = p));
+    return map;
+  }, [myPurchases]);
+
   useEffect(() => {
-    const missing = Array.from(
-      new Set(myPurchases.map((p) => p.reportId))
-    ).filter((id) => !titles[id]);
-    if (missing.length === 0) return;
+    if (!user) return;
+    if (ownedEditionIds.length === 0) {
+      setOwned([]);
+      return;
+    }
+    let cancelled = false;
     (async () => {
-      const entries: Record<string, string> = {};
-      await Promise.all(
-        missing.map(async (id) => {
-          const snap = await getDoc(doc(db, "reports", id));
-          entries[id] = snap.exists()
-            ? (snap.data().title as string)
-            : "Report";
+      const rows = await Promise.all(
+        ownedEditionIds.map(async (editionId): Promise<OwnedReport> => {
+          const p = purchaseByEdition[editionId];
+          let reportId: string | undefined = p?.reportId;
+          if (!reportId) {
+            const edSnap = await getDoc(
+              doc(db, "reportEditions", editionId)
+            ).catch(() => null);
+            reportId = edSnap?.exists()
+              ? (edSnap.data()?.reportId as string)
+              : undefined;
+          }
+          let title = "Report";
+          if (reportId) {
+            const rSnap = await getDoc(doc(db, "reports", reportId)).catch(
+              () => null
+            );
+            if (rSnap?.exists()) title = rSnap.data()?.title as string;
+          }
+          return {
+            editionId,
+            reportId,
+            title,
+            price: p?.price,
+            loyaltyDiscountApplied: p?.loyaltyDiscountApplied,
+            loyaltyDiscountPercent: p?.loyaltyDiscountPercent,
+          };
         })
       );
-      setTitles((prev) => ({ ...prev, ...entries }));
+      if (!cancelled) setOwned(rows);
     })();
-  }, [myPurchases, titles]);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, ownedEditionIds.join(","), purchaseByEdition]);
 
   const handleLogout = async () => {
     await dispatch(logoutCustomer());
@@ -108,9 +159,9 @@ const Account = () => {
         <h2 className="text-lg font-semibold text-primaryBlue mb-3">
           My Reports
         </h2>
-        {loading ? (
+        {owned === null || (loading && owned.length === 0) ? (
           <p className="text-sm text-gray-500">Loading your reports…</p>
-        ) : myPurchases.length === 0 ? (
+        ) : owned.length === 0 ? (
           <div className="p-8 bg-white rounded-xl border text-center">
             <p className="text-gray-500 mb-3">You haven't purchased any reports yet.</p>
             <Link
@@ -122,24 +173,22 @@ const Account = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {myPurchases.map((p) => (
+            {owned.map((r) => (
               <div
-                key={p.id}
+                key={r.editionId}
                 className="flex items-center justify-between p-4 bg-white rounded-xl border"
               >
                 <div>
-                  <p className="font-medium text-primaryBlue">
-                    {titles[p.reportId] || "Report"}
-                  </p>
+                  <p className="font-medium text-primaryBlue">{r.title}</p>
                   <p className="text-xs text-gray-500">
-                    Purchased {formatNaira(p.price)}
-                    {p.loyaltyDiscountApplied
-                      ? ` • ${p.loyaltyDiscountPercent}% loyalty`
+                    {r.price != null ? `Purchased ${formatNaira(r.price)}` : "Purchased"}
+                    {r.loyaltyDiscountApplied
+                      ? ` • ${r.loyaltyDiscountPercent}% loyalty`
                       : ""}
                   </p>
                 </div>
                 <Link
-                  to={`/account/report/${p.editionId}/view`}
+                  to={`/account/report/${r.editionId}/view`}
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-primaryBlue text-white rounded-full text-sm font-semibold hover:opacity-90"
                 >
                   <Eye size={14} /> Read
