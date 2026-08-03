@@ -20,6 +20,10 @@ const ReportDetails = () => {
       error: state.reportArchive.error,
     })
   );
+  const { user, purchasedReportIds } = useAppSelector((state) => ({
+    user: state.customerAuth.user,
+    purchasedReportIds: state.customerAuth.profile?.purchasedReportIds,
+  }));
 
   useEffect(() => {
     if (reportId) dispatch(fetchReportDetails(reportId));
@@ -33,6 +37,11 @@ const ReportDetails = () => {
       : undefined;
 
   const purchasable = !!currentEdition;
+  // Already owns the current edition? (checked against the customer's profile.)
+  const owned =
+    !!user &&
+    !!currentEdition &&
+    (purchasedReportIds?.includes(currentEdition.id) ?? false);
 
   return (
     <>
@@ -89,40 +98,68 @@ const ReportDetails = () => {
                       </p>
                     )}
 
-                    <button
-                      disabled={!purchasable}
-                      onClick={() =>
-                        navigate(`/report-archive/${activeReport.id}/checkout`)
-                      }
-                      className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-primaryBlue text-white rounded-full font-semibold hover:opacity-90 disabled:opacity-50"
-                    >
-                      <Lock size={16} />
-                      {purchasable
-                        ? "Buy & Read Securely"
-                        : "Not available yet"}
-                    </button>
+                    {owned ? (
+                      <>
+                        <div className="mt-5 flex items-center justify-center gap-2 text-sm text-green-700 bg-green-50 rounded-full py-2">
+                          <ShieldCheck size={16} /> You own this report
+                        </div>
+                        <button
+                          onClick={() =>
+                            navigate(
+                              `/account/report/${currentEdition!.id}/view`
+                            )
+                          }
+                          className="mt-3 w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-primaryBlue text-white rounded-full font-semibold hover:opacity-90"
+                        >
+                          <Eye size={16} /> Read securely
+                        </button>
+                        <Link
+                          to="/account"
+                          className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm text-gray-600 hover:text-primaryBlue"
+                        >
+                          Go to my account
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          disabled={!purchasable}
+                          onClick={() =>
+                            navigate(
+                              `/report-archive/${activeReport.id}/checkout`
+                            )
+                          }
+                          className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-primaryBlue text-white rounded-full font-semibold hover:opacity-90 disabled:opacity-50"
+                        >
+                          <Lock size={16} />
+                          {purchasable
+                            ? "Buy & Read Securely"
+                            : "Not available yet"}
+                        </button>
 
-                    {purchasable && (
-                      <button
-                        onClick={() => setShowPreview(true)}
-                        className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-primaryBlue text-primaryBlue rounded-full font-semibold hover:bg-primaryBlue hover:text-white transition"
-                      >
-                        <Eye size={16} /> Preview first pages
-                      </button>
+                        {purchasable && (
+                          <button
+                            onClick={() => setShowPreview(true)}
+                            className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-primaryBlue text-primaryBlue rounded-full font-semibold hover:bg-primaryBlue hover:text-white transition"
+                          >
+                            <Eye size={16} /> Preview first pages
+                          </button>
+                        )}
+
+                        {purchasable && (
+                          <Link
+                            to={`/account/invoices/new?edition=${currentEdition!.id}`}
+                            className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm text-gray-600 hover:text-primaryBlue"
+                          >
+                            <FileText size={15} /> Request an invoice
+                          </Link>
+                        )}
+
+                        <p className="mt-3 text-xs text-gray-500 text-center">
+                          You'll accept the Terms of Use before payment.
+                        </p>
+                      </>
                     )}
-
-                    {purchasable && (
-                      <Link
-                        to={`/account/invoices/new?edition=${currentEdition!.id}`}
-                        className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm text-gray-600 hover:text-primaryBlue"
-                      >
-                        <FileText size={15} /> Request an invoice
-                      </Link>
-                    )}
-
-                    <p className="mt-3 text-xs text-gray-500 text-center">
-                      You'll accept the Terms of Use before payment.
-                    </p>
                   </div>
                 </div>
               </div>

@@ -3,6 +3,21 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { Purchase } from "../types";
 
+/**
+ * Comparable milliseconds from a Firestore field that may be a Timestamp
+ * ({seconds,...}), an ISO string, or null — so sorting never assumes a type.
+ */
+const toMillis = (v: unknown): number => {
+  if (!v) return 0;
+  if (typeof v === "string") return new Date(v).getTime() || 0;
+  if (typeof v === "object") {
+    const o = v as { seconds?: number; toMillis?: () => number };
+    if (typeof o.toMillis === "function") return o.toMillis();
+    if (typeof o.seconds === "number") return o.seconds * 1000;
+  }
+  return 0;
+};
+
 interface PurchasesState {
   myPurchases: Purchase[];
   loading: boolean;
@@ -25,41 +40,52 @@ export const fetchMyPurchases = createAsyncThunk(
     { uid, organizationId }: { uid: string; organizationId: string | null },
     { rejectWithValue }
   ) => {
-    try {
-      const queries = [
-        getDocs(
-          query(collection(db, "purchases"), where("customerUid", "==", uid))
-        ),
-      ];
-      if (organizationId) {
-        queries.push(
-          getDocs(
-            query(
-              collection(db, "purchases"),
-              where("organizationId", "==", organizationId)
-            )
+    // Run the two reads independently so a failing org-scoped query (e.g. a
+    // rules edge case) can never hide the customer's OWN purchases.
+    const mineQuery = getDocs(
+      query(collection(db, "purchases"), where("customerUid", "==", uid))
+    );
+    const orgQuery = organizationId
+      ? getDocs(
+          query(
+            collection(db, "purchases"),
+            where("organizationId", "==", organizationId)
           )
-        );
-      }
-      const snaps = await Promise.all(queries);
+        )
+      : Promise.resolve(null);
 
-      const byId: Record<string, Purchase> = {};
-      snaps.forEach((snap) =>
-        snap.forEach((d) => {
-          byId[d.id] = { id: d.id, ...d.data() } as Purchase;
-        })
-      );
-      const purchases = Object.values(byId).filter(
-        (p) => p.status === "active"
-      );
-      purchases.sort((a, b) =>
-        (b.purchasedAt || "").localeCompare(a.purchasedAt || "")
-      );
-      return purchases;
-    } catch (err) {
-      console.error("Error fetching purchases:", err);
+    const [mineRes, orgRes] = await Promise.allSettled([mineQuery, orgQuery]);
+
+    const byId: Record<string, Purchase> = {};
+    let anyOk = false;
+
+    if (mineRes.status === "fulfilled" && mineRes.value) {
+      anyOk = true;
+      mineRes.value.forEach((d) => {
+        byId[d.id] = { id: d.id, ...d.data() } as Purchase;
+      });
+    } else if (mineRes.status === "rejected") {
+      console.error("Error fetching own purchases:", mineRes.reason);
+    }
+
+    if (orgRes.status === "fulfilled" && orgRes.value) {
+      anyOk = true;
+      orgRes.value.forEach((d) => {
+        byId[d.id] = { id: d.id, ...d.data() } as Purchase;
+      });
+    } else if (orgRes.status === "rejected") {
+      console.error("Error fetching org purchases:", orgRes.reason);
+    }
+
+    // Only report failure if BOTH reads failed — a partial success still shows
+    // whatever the customer is entitled to.
+    if (!anyOk) {
       return rejectWithValue("Failed to load your purchases");
     }
+
+    const purchases = Object.values(byId).filter((p) => p.status === "active");
+    purchases.sort((a, b) => toMillis(b.purchasedAt) - toMillis(a.purchasedAt));
+    return purchases;
   }
 );
 
