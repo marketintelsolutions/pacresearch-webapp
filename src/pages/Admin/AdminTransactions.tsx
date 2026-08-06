@@ -11,6 +11,17 @@ import {
 import { formatNaira } from "../../utils/format";
 import { TransactionStatus } from "../../types";
 
+const fmtDate = (ts?: { seconds: number } | null) =>
+  ts
+    ? new Date(ts.seconds * 1000).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "—";
+
 const statusStyle: Record<string, string> = {
   success: "bg-green-100 text-green-700",
   pending: "bg-gray-100 text-gray-600",
@@ -116,6 +127,7 @@ const AdminTransactions = () => {
               <thead>
                 <tr className="text-left text-xs uppercase text-gray-500 border-b">
                   <th className="py-2 pr-3">Reference</th>
+                  <th className="py-2 pr-3">Date</th>
                   <th className="py-2 pr-3">Customer</th>
                   <th className="py-2 pr-3">Amount</th>
                   <th className="py-2 pr-3">Fee</th>
@@ -139,6 +151,9 @@ const AdminTransactions = () => {
                             </span>
                           )}
                         </p>
+                      </td>
+                      <td className="py-3 pr-3 text-xs text-gray-500 whitespace-nowrap">
+                        {fmtDate(t.verifiedAt || t.initiatedAt)}
                       </td>
                       <td className="py-3 pr-3 text-xs">{emailOf(t.customerUid)}</td>
                       <td className="py-3 pr-3 font-medium">

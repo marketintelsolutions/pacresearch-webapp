@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { loginCustomer, clearAuthError } from "../../store/customerAuthSlice";
 import PageBanner from "../../components/Layout/PageBanner";
 import PasswordInput from "../../components/Account/PasswordInput";
+import GoogleSignInButton from "../../components/Account/GoogleSignInButton";
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -74,6 +75,13 @@ const Login = () => {
             {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-5">
+          <span className="flex-grow h-px bg-gray-200" />
+          <span className="text-xs text-gray-400">or</span>
+          <span className="flex-grow h-px bg-gray-200" />
+        </div>
+        <GoogleSignInButton />
 
         <div className="mt-4 flex justify-between text-sm">
           <Link

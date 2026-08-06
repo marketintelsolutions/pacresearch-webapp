@@ -1,5 +1,8 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as logger from "firebase-functions/logger";
 import { db, FieldValue } from "../lib/firebase";
+import { sendEmail } from "../lib/notify";
+import { EMAIL_API_KEY, SITE_ORIGIN } from "../config";
 
 interface InviteInput {
   organizationId?: string;
@@ -10,8 +13,11 @@ interface InviteInput {
  * Invite a person (by email) to join an organization. Only the primary contact
  * may invite, and only while there is a free seat (members + pending invites <
  * seatLimit). Seats beyond the included limit require a paid seat add-on.
+ * Emails the invitee an accept link.
  */
-export const inviteOrgMember = onCall({ cors: true }, async (request) => {
+export const inviteOrgMember = onCall(
+  { cors: true, secrets: [EMAIL_API_KEY] },
+  async (request) => {
   const uid = request.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Sign in required.");
 
@@ -26,6 +32,7 @@ export const inviteOrgMember = onCall({ cors: true }, async (request) => {
   if (!orgSnap.exists) throw new HttpsError("not-found", "Organization not found.");
 
   const org = orgSnap.data() as {
+    orgName?: string;
     primaryContactUid: string;
     memberUids: string[];
     seatLimit: number;
@@ -66,6 +73,35 @@ export const inviteOrgMember = onCall({ cors: true }, async (request) => {
     invitedAt: FieldValue.serverTimestamp(),
   });
 
-  // TODO (Phase 6): email the invitee a link to /account/accept-invite?inviteId=...
+  // Email the invitee an accept link. (No-op if EMAIL_API_KEY isn't set — the
+  // invite record still exists either way.)
+  const orgName = org.orgName || "an organisation";
+  const acceptUrl = `${SITE_ORIGIN.value()}/account/accept-invite?inviteId=${inviteId}`;
+  const html = `
+    <div style="font-family:Inter,Arial,sans-serif;color:#15284A">
+      <h2 style="color:#15284A">You've been invited to join ${orgName}</h2>
+      <p style="color:#444;line-height:1.6">
+        You've been invited to join <strong>${orgName}</strong> on PAC Research,
+        which gives you shared access to the organisation's purchased reports.
+      </p>
+      <p>
+        <a href="${acceptUrl}" style="display:inline-block;padding:10px 20px;background:#15284A;color:#fff;border-radius:999px;text-decoration:none">Accept invitation</a>
+      </p>
+      <p style="color:#666;font-size:13px;line-height:1.6">
+        You'll be asked to sign in or create an account with this email address
+        (${normalizedEmail}) to accept.
+      </p>
+      <p style="font-size:12px;color:#888">PAC Research Limited</p>
+    </div>`;
+  try {
+    await sendEmail(
+      normalizedEmail,
+      `You've been invited to join ${orgName} on PAC Research`,
+      html
+    );
+  } catch (err) {
+    logger.warn("Failed to send org invite email", { inviteId, err });
+  }
+
   return { inviteId, email: normalizedEmail };
 });

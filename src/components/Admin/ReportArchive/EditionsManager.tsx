@@ -23,6 +23,7 @@ import {
 } from "../../../store/reportsAdminSlice";
 import { ReportEdition, ReportStatus, EditionType } from "../../../types";
 import { formatNaira } from "../../../utils/format";
+import { EDITION_LABELS, ordinalEditionLabel } from "../../../utils/editionLabels";
 import PdfFilePicker from "./PdfFilePicker";
 import IconBtn from "./IconBtn";
 
@@ -63,6 +64,11 @@ const EditionsManager: React.FC<Props> = ({ reportId }) => {
     dispatch(fetchEditions(reportId));
     if (reports.length === 0) dispatch(fetchReports());
   }, [dispatch, reportId, reports.length]);
+
+  // Default the new-edition label to the next ordinal ("Second Edition", …).
+  useEffect(() => {
+    setLabel(ordinalEditionLabel(editions.length + 1));
+  }, [editions.length]);
 
   // The first edition must be major — there's nothing to update in place yet.
   const effectiveType: EditionType = hasCurrentEdition ? updateType : "major";
@@ -179,12 +185,17 @@ const EditionsManager: React.FC<Props> = ({ reportId }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Edition label
                     </label>
-                    <input
+                    <select
                       value={label}
                       onChange={(e) => setLabel(e.target.value)}
-                      placeholder="e.g. 2026 Edition"
                       className={inputCls}
-                    />
+                    >
+                      {EDITION_LABELS.map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -398,12 +409,21 @@ const EditionRow: React.FC<{ edition: ReportEdition; isCurrent: boolean }> = ({
     return (
       <div className="p-4 rounded-xl border border-primaryBlue/30 bg-primaryBlue/[0.02]">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <input
+          <select
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="Edition label"
             className={inputCls}
-          />
+          >
+            {/* Keep any legacy free-typed label selectable. */}
+            {!EDITION_LABELS.includes(label) && label && (
+              <option value={label}>{label}</option>
+            )}
+            {EDITION_LABELS.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
           <input
             type="number"
             min={0}

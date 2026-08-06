@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Lock, Eye, BadgePercent, ShieldCheck, FileText } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { fetchReportDetails } from "../store/reportArchiveSlice";
 import { formatNaira } from "../utils/format";
 import PageBanner from "../components/Layout/PageBanner";
-import ReportPreviewModal from "../components/ReportArchive/ReportPreviewModal";
+import ReportPreview from "../components/ReportArchive/ReportPreview";
 
 const ReportDetails = () => {
   const { reportId } = useParams<{ reportId: string }>();
@@ -28,8 +28,6 @@ const ReportDetails = () => {
   useEffect(() => {
     if (reportId) dispatch(fetchReportDetails(reportId));
   }, [dispatch, reportId]);
-
-  const [showPreview, setShowPreview] = useState(false);
 
   const currentEdition =
     activeReport?.currentEditionId != null
@@ -138,15 +136,6 @@ const ReportDetails = () => {
                         </button>
 
                         {purchasable && (
-                          <button
-                            onClick={() => setShowPreview(true)}
-                            className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-primaryBlue text-primaryBlue rounded-full font-semibold hover:bg-primaryBlue hover:text-white transition"
-                          >
-                            <Eye size={16} /> Preview first pages
-                          </button>
-                        )}
-
-                        {purchasable && (
                           <Link
                             to={`/account/invoices/new?edition=${currentEdition!.id}`}
                             className="mt-2 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm text-gray-600 hover:text-primaryBlue"
@@ -241,23 +230,28 @@ const ReportDetails = () => {
                   </div>
                 </div>
               )}
+
+              {purchasable && !owned && (
+                <div className="mt-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Eye size={18} className="text-secondaryBlue" />
+                    <h3 className="text-lg font-semibold text-primaryBlue">
+                      Preview
+                    </h3>
+                  </div>
+                  <ReportPreview
+                    editionId={currentEdition!.id}
+                    price={currentEdition!.price}
+                    onBuy={() =>
+                      navigate(`/report-archive/${activeReport.id}/checkout`)
+                    }
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
       </section>
-
-      {activeReport && currentEdition && (
-        <ReportPreviewModal
-          open={showPreview}
-          editionId={currentEdition.id}
-          title={activeReport.title}
-          onClose={() => setShowPreview(false)}
-          onBuy={() => {
-            setShowPreview(false);
-            navigate(`/report-archive/${activeReport.id}/checkout`);
-          }}
-        />
-      )}
     </>
   );
 };

@@ -74,6 +74,15 @@ export const processRefund = onCall(
         revokedAt: FieldValue.serverTimestamp(),
         revokedReason: reason ?? "Refunded",
       });
+      // Drop the edition from the customer's owned-list so the account/viewer
+      // stop showing it.
+      if (txn.editionId) {
+        batch.set(
+          db.collection("customers").doc(txn.customerUid),
+          { purchasedReportIds: FieldValue.arrayRemove(txn.editionId) },
+          { merge: true }
+        );
+      }
     }
     batch.set(db.collection("auditLogs").doc(), {
       actorUid: admin.uid,

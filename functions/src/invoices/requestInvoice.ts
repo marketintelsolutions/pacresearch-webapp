@@ -11,8 +11,6 @@ interface Input {
   notes?: string;
 }
 
-const VALIDITY_DAYS = 14;
-
 /**
  * Auto-issued pro-forma invoice (quote). Computes a line per requested edition
  * with the loyalty discount applied when the customer/org owns the predecessor,
@@ -147,7 +145,6 @@ export const requestInvoice = onCall({ cors: true }, async (request) => {
   const invoiceNumber = `PAC-PI-${year}-${String(seq).padStart(4, "0")}`;
 
   const invoiceId = `inv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const expiresAt = new Date(Date.now() + VALIDITY_DAYS * 86400000);
 
   try {
     await db.collection("invoices").doc(invoiceId).set({
@@ -158,6 +155,9 @@ export const requestInvoice = onCall({ cors: true }, async (request) => {
       organizationId,
       status: "issued",
       lineItems,
+      // Denormalized for querying (e.g. "which invoices contain this edition").
+      editionIds: lineItems.map((l) => l.editionId),
+      downloaded: false,
       subtotal,
       discountTotal,
       total,
@@ -171,7 +171,6 @@ export const requestInvoice = onCall({ cors: true }, async (request) => {
         location: cust.location || "",
       },
       createdAt: FieldValue.serverTimestamp(),
-      expiresAt,
     });
   } catch (err) {
     // Surface something diagnosable instead of a bare INTERNAL.

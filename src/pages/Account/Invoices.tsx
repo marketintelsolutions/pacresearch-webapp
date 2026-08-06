@@ -165,10 +165,7 @@ const Invoices = () => {
                           Note: {inv.notes}
                         </p>
                       )}
-                      <div className="mt-3 flex justify-between text-sm border-t border-gray-100 pt-2">
-                        <span className="text-gray-500">
-                          Valid until {fmtDate(inv.expiresAt)}
-                        </span>
+                      <div className="mt-3 flex justify-end text-sm border-t border-gray-100 pt-2">
                         <span className="font-semibold text-primaryBlue">
                           Total {formatNaira(inv.total)}
                         </span>

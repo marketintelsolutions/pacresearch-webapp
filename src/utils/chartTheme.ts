@@ -27,6 +27,9 @@ export const CATEGORICAL = [
   CHART.violet,
 ];
 
+// Brand colour reserved for Ziltch1 across the admin graphs.
+export const ZILTCH1_COLOR = "rgb(242, 104, 54)";
+
 // Shared recharts axis/tick styling.
 export const axisTick = { fill: CHART.muted, fontSize: 12 };
 export const gridProps = {
