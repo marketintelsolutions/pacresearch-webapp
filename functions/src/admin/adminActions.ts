@@ -95,16 +95,66 @@ export const setPurchaseStatus = onCall(
     const ref = db.collection("purchases").doc(purchaseId);
     const snap = await ref.get();
     if (!snap.exists) throw new HttpsError("not-found", "Purchase not found.");
+    const purchase = snap.data() as {
+      customerUid: string;
+      editionId: string;
+      reportId?: string;
+    };
+
+    const revokedReason = reason?.trim() || "Licensing violation";
 
     await ref.update({
       status,
       revokedAt: status === "revoked" ? FieldValue.serverTimestamp() : null,
-      revokedReason: status === "revoked" ? reason ?? "Licensing violation" : null,
+      revokedReason: status === "revoked" ? revokedReason : null,
     });
+
+    // Keep the customer's owned-list in sync so the account/viewer reflect the
+    // change (they read purchasedReportIds). Remove on revoke, restore on
+    // reinstate.
+    await db
+      .collection("customers")
+      .doc(purchase.customerUid)
+      .set(
+        {
+          purchasedReportIds:
+            status === "revoked"
+              ? FieldValue.arrayRemove(purchase.editionId)
+              : FieldValue.arrayUnion(purchase.editionId),
+        },
+        { merge: true }
+      )
+      .catch(() => undefined);
 
     await audit(admin.uid, admin.email, `purchase.${status}`, "purchase", purchaseId, {
       reason: reason ?? null,
     });
+
+    // Tell the customer — including the reason on a revocation.
+    let reportTitle = "a report";
+    if (purchase.reportId) {
+      const r = await db.collection("reports").doc(purchase.reportId).get();
+      reportTitle = (r.data()?.title as string) || reportTitle;
+    }
+    if (status === "revoked") {
+      await notifyCustomer({
+        customerUid: purchase.customerUid,
+        type: "account_activity",
+        title: "Access to a report has been revoked",
+        body:
+          `Your access to "${reportTitle}" has been revoked. ` +
+          `Reason: ${revokedReason}.`,
+        link: "/account",
+      });
+    } else {
+      await notifyCustomer({
+        customerUid: purchase.customerUid,
+        type: "account_activity",
+        title: "Access to a report has been restored",
+        body: `Your access to "${reportTitle}" has been restored.`,
+        link: "/account",
+      });
+    }
 
     return { purchaseId, status };
   }

@@ -36,3 +36,4 @@ export {
 } from "./admin/adminActions";
 export { onEditionPublished } from "./notifications/onEditionPublished";
 export { onEditionMinorUpdate } from "./notifications/onEditionMinorUpdate";
+export { onEditionPriceChange } from "./notifications/onEditionPriceChange";

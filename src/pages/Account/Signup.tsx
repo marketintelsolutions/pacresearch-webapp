@@ -10,6 +10,7 @@ import { CustomerType } from "../../types";
 import PageBanner from "../../components/Layout/PageBanner";
 import PasswordRequirements from "../../components/Account/PasswordRequirements";
 import PasswordInput from "../../components/Account/PasswordInput";
+import GoogleSignInButton from "../../components/Account/GoogleSignInButton";
 import { isPasswordValid, passwordError } from "../../utils/passwordPolicy";
 
 const Signup = () => {
@@ -147,7 +148,7 @@ const Signup = () => {
 
           {type === "individual" && (
             <Field
-              label="Location"
+              label="City"
               value={form.location}
               onChange={(v) => set("location", v)}
             />
@@ -183,6 +184,19 @@ const Signup = () => {
             {loading ? "Creating account…" : "Create account"}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-5">
+          <span className="flex-grow h-px bg-gray-200" />
+          <span className="text-xs text-gray-400">or</span>
+          <span className="flex-grow h-px bg-gray-200" />
+        </div>
+        <GoogleSignInButton label="Sign up with Google" />
+        {type === "corporate" && (
+          <p className="mt-2 text-xs text-gray-400 text-center">
+            Google sign-up creates an individual account. For a corporate
+            account, use the form above.
+          </p>
+        )}
 
         <p className="mt-4 text-sm text-center">
           Already have an account?{" "}

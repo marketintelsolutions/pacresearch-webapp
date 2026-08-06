@@ -17,7 +17,13 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { fetchCustomers, fetchTransactions } from "../../store/adminManageSlice";
 import { fetchReports, fetchReportCategories } from "../../store/reportsAdminSlice";
 import { formatNaira, formatNairaCompact } from "../../utils/format";
-import { CHART, CATEGORICAL, axisTick, gridProps } from "../../utils/chartTheme";
+import {
+  CHART,
+  CATEGORICAL,
+  ZILTCH1_COLOR,
+  axisTick,
+  gridProps,
+} from "../../utils/chartTheme";
 import ChartCard from "../../components/Admin/analytics/ChartCard";
 
 /**
@@ -172,7 +178,7 @@ const AdminAnalytics = () => {
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-6">
         <Kpi label="Total sales" value={formatNaira(stats.totalSales)} />
         <Kpi label="PAC Research" value={formatNaira(stats.pacShare)} accent={CHART.blue} />
-        <Kpi label="Ziltch1" value={formatNaira(stats.ziltchShare)} accent={CHART.aqua} />
+        <Kpi label="Ziltch1" value={formatNaira(stats.ziltchShare)} accent={ZILTCH1_COLOR} />
         <Kpi
           label="Revenue growth"
           value={`${stats.revenueGrowth > 0 ? "+" : ""}${stats.revenueGrowth}%`}
@@ -236,7 +242,12 @@ const AdminAnalytics = () => {
         </ChartCard>
 
         <ChartCard title="Revenue split" subtitle="After Paystack fees">
-          <Donut data={revenueSplit} money total={stats.pacShare + stats.ziltchShare} />
+          <Donut
+            data={revenueSplit}
+            money
+            total={stats.pacShare + stats.ziltchShare}
+            colors={[CHART.blue, ZILTCH1_COLOR]}
+          />
         </ChartCard>
       </div>
 
@@ -394,10 +405,13 @@ const Donut: React.FC<{
   data: { name: string; value: number }[];
   money?: boolean;
   total: number;
-}> = ({ data, money, total }) => {
+  colors?: string[];
+}> = ({ data, money, total, colors }) => {
   const safeTotal = total || data.reduce((s, d) => s + d.value, 0);
   const hasData = data.some((d) => d.value > 0);
   const fmt = (v: number) => (money ? formatNaira(v) : String(v));
+  const colorAt = (i: number) =>
+    (colors && colors[i]) || CATEGORICAL[i % CATEGORICAL.length];
 
   return (
     <div className="flex flex-col items-center">
@@ -416,10 +430,7 @@ const Donut: React.FC<{
               endAngle={-270}
             >
               {(hasData ? data : [{ name: "none", value: 1 }]).map((_, i) => (
-                <Cell
-                  key={i}
-                  fill={hasData ? CATEGORICAL[i % CATEGORICAL.length] : "#e6e8ee"}
-                />
+                <Cell key={i} fill={hasData ? colorAt(i) : "#e6e8ee"} />
               ))}
             </Pie>
             {hasData && <Tooltip content={<MoneyTip money={money} />} />}
@@ -441,7 +452,7 @@ const Donut: React.FC<{
               <span className="flex items-center gap-2 text-gray-600">
                 <span
                   className="inline-block w-2.5 h-2.5 rounded-sm"
-                  style={{ background: CATEGORICAL[i % CATEGORICAL.length] }}
+                  style={{ background: colorAt(i) }}
                 />
                 {d.name}
               </span>

@@ -1,6 +1,6 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import { db, adminAuth } from "../lib/firebase";
+import { db, adminAuth, FieldValue } from "../lib/firebase";
 import { buildInvoicePdf, InvoiceData } from "../lib/invoicePdf";
 
 /**
@@ -45,11 +45,12 @@ export const invoicePdf = onRequest({ cors: true }, async (req, res) => {
   };
 
   // Authorization: owner, same organization, or an active admin.
-  let allowed = inv.customerUid === uid;
-  if (!allowed && inv.organizationId) {
+  let isOwner = inv.customerUid === uid;
+  if (!isOwner && inv.organizationId) {
     const c = await db.collection("customers").doc(uid).get();
-    allowed = c.data()?.organizationId === inv.organizationId;
+    isOwner = c.data()?.organizationId === inv.organizationId;
   }
+  let allowed = isOwner;
   if (!allowed) {
     const a = await db.collection("adminUsers").doc(uid).get();
     allowed = a.exists && a.data()?.active === true;
@@ -57,6 +58,18 @@ export const invoicePdf = onRequest({ cors: true }, async (req, res) => {
   if (!allowed) {
     res.status(403).send("Not your invoice");
     return;
+  }
+
+  // Record that the customer has the PDF — the price-change notice only goes to
+  // holders who actually downloaded it. (Admin downloads don't count.)
+  if (isOwner) {
+    db.collection("invoices")
+      .doc(invoiceId)
+      .set(
+        { downloaded: true, lastDownloadedAt: FieldValue.serverTimestamp() },
+        { merge: true }
+      )
+      .catch(() => undefined);
   }
 
   try {

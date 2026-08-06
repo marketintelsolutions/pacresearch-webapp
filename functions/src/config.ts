@@ -60,15 +60,16 @@ export const ZILTCH1_SHARE = 0.25;
 // config change (that would recompute historical records under a formula
 // Paystack never used for them).
 //   v1: 75/25 of net (proportional fee) — superseded by a compute fix
-//   v2: current. Was "% of gross, fee shared equally" (bearer_type "all") and
-//       is now "PAC bears full fee, Ziltch1 full 25%" (bearer_type "account").
-//       NOT bumped for the bearer change because it applies to new transactions
-//       only; pre-change records keep the values Paystack actually settled.
+//   v2: current — "% of gross, fee shared equally" (bearer_type "all").
+//       The bearer methodology is NOT tracked by this version: it's a Paystack
+//       config setting that applies to new transactions only, so we never
+//       re-reconcile historical records against a later methodology.
 export const SPLIT_VERSION = 2;
 // Default loyalty discount if the loyaltyConfig/settings doc is missing.
 export const DEFAULT_LOYALTY_DISCOUNT_PERCENT = 30;
 // Corporate seats included with a purchase before add-ons are required.
 export const DEFAULT_INCLUDED_SEATS = 3;
 // How many opening pages a non-purchaser may preview (per-edition override via
-// reportEditions.previewPageCount).
-export const PREVIEW_PAGE_COUNT = 1;
+// reportEditions.previewPageCount). The reader blurs out the lower half of the
+// last previewed page as a teaser.
+export const PREVIEW_PAGE_COUNT = 2;

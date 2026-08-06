@@ -146,13 +146,13 @@ const ProfileSettings = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Location
+                City
               </label>
               <input
                 name="location"
                 value={form.location}
                 onChange={handleChange}
-                placeholder="City, Country"
+                placeholder="City"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-secondaryBlue focus:border-secondaryBlue"
               />
             </div>

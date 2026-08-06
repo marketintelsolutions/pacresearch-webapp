@@ -124,7 +124,9 @@ const AdminCustomers = () => {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-[220px]">
                       <p className="font-medium text-gray-900">
-                        {c.name || "—"}{" "}
+                        {c.type === "corporate"
+                          ? orgName(c.organizationId)
+                          : c.name || "—"}{" "}
                         <span
                           className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
                             c.type === "corporate"
@@ -145,7 +147,7 @@ const AdminCustomers = () => {
                       </p>
                       <p className="text-xs text-gray-500">
                         {c.type === "corporate"
-                          ? orgName(c.organizationId)
+                          ? `Contact: ${c.name || "—"}`
                           : c.location || "—"}
                       </p>
                     </div>

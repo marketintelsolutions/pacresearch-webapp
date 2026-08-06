@@ -10,6 +10,25 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 
+function friendlyAuthError(err: AuthError): string {
+  switch (err?.code) {
+    case "auth/invalid-email":
+      return "Enter a valid email address.";
+    case "auth/user-disabled":
+      return "This account has been disabled.";
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Incorrect email or password.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please wait a few minutes and try again.";
+    case "auth/network-request-failed":
+      return "Network error. Check your connection and try again.";
+    default:
+      return "Could not sign in. Please try again.";
+  }
+}
+
 const AdminLoginDetails = () => {
   const navigate = useNavigate();
 
@@ -55,7 +74,7 @@ const AdminLoginDetails = () => {
 
       navigate("/admin/macroeconomics");
     } catch (err) {
-      setError((err as AuthError).message);
+      setError(friendlyAuthError(err as AuthError));
     }
   };
 

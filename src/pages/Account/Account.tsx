@@ -126,11 +126,15 @@ const Account = () => {
         <div className="flex flex-wrap items-start justify-between gap-4 mb-10">
           <div>
             <h1 className="text-2xl font-bold text-primaryBlue">
-              {profile?.name || user?.email}
+              {profile?.type === "corporate" && organization
+                ? organization.orgName
+                : profile?.name || user?.email}
             </h1>
             <p className="text-sm text-gray-500 capitalize">
               {profile?.type || "customer"} account
-              {organization ? ` • ${organization.orgName}` : ""}
+              {profile?.type === "corporate" && profile?.name
+                ? ` • Contact: ${profile.name}`
+                : ""}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -306,9 +310,13 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
             >
               <span>
                 {m.name || m.email}
-                {m.isPrimary && (
+                {m.isPrimary ? (
                   <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primaryBlue/10 text-primaryBlue">
                     primary
+                  </span>
+                ) : (
+                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                    invited
                   </span>
                 )}
               </span>
@@ -322,7 +330,7 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
             >
               <span>{inv.email}</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
-                invited
+                invite sent
               </span>
             </div>
           ))}

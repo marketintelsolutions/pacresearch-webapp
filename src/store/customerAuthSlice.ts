@@ -4,6 +4,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import {
   doc,
@@ -171,6 +173,48 @@ export const loginCustomer = createAsyncThunk(
   }
 );
 
+// ---- Google sign-in / sign-up ----------------------------------------------
+export const signInWithGoogle = createAsyncThunk(
+  "customerAuth/signInWithGoogle",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const cred = await signInWithPopup(auth, provider);
+      const uid = cred.user.uid;
+
+      // First Google sign-in has no customer profile yet — create an individual
+      // one from the Google account. (Corporate accounts still use email/pass.)
+      const ref = doc(db, "customers", uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        const profile: Customer = {
+          uid,
+          type: "individual",
+          email: cred.user.email || "",
+          name: cred.user.displayName || "",
+          phone: cred.user.phoneNumber || "",
+          location: "",
+          organizationId: null,
+          status: "active",
+          purchasedReportIds: [],
+          totalSpend: 0,
+          createdAt: nowIso(),
+        };
+        await setDoc(ref, { ...profile, lastLoginAt: serverTimestamp() });
+      } else {
+        await updateDoc(ref, { lastLoginAt: serverTimestamp() }).catch(() => {});
+      }
+
+      // Make sure the profile lands in state (the auth listener may have run its
+      // load before the doc existed).
+      dispatch(loadProfile(uid));
+      return { uid, email: cred.user.email };
+    } catch (err) {
+      return rejectWithValue(googleErrorMessage(err));
+    }
+  }
+);
+
 export const logoutCustomer = createAsyncThunk(
   "customerAuth/logout",
   async () => {
@@ -264,6 +308,23 @@ function authErrorMessage(err: unknown): string {
   }
 }
 
+// Returns "" for user-cancelled popups so no error banner is shown.
+function googleErrorMessage(err: unknown): string {
+  const code = (err as { code?: string })?.code || "";
+  switch (code) {
+    case "auth/popup-closed-by-user":
+    case "auth/cancelled-popup-request":
+    case "auth/user-cancelled":
+      return "";
+    case "auth/account-exists-with-different-credential":
+      return "An account already exists with this email. Sign in with your password instead.";
+    case "auth/popup-blocked":
+      return "Your browser blocked the sign-in popup. Allow popups and try again.";
+    default:
+      return "Could not sign in with Google. Please try again.";
+  }
+}
+
 const customerAuthSlice = createSlice({
   name: "customerAuth",
   initialState,
@@ -325,6 +386,18 @@ const customerAuthSlice = createSlice({
       state.user = action.payload;
     });
     builder.addCase(loginCustomer.rejected, rejected);
+
+    builder.addCase(signInWithGoogle.pending, pending);
+    builder.addCase(signInWithGoogle.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(signInWithGoogle.rejected, (state, action) => {
+      state.loading = false;
+      // Empty payload = user cancelled the popup → no error banner.
+      const msg = action.payload as string;
+      if (msg) state.error = msg;
+    });
 
     builder.addCase(logoutCustomer.fulfilled, (state) => {
       state.user = null;
