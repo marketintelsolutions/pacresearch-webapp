@@ -10,6 +10,8 @@ import { Purchase } from "../../types";
 import {
   callGetOrgRoster,
   callInviteOrgMember,
+  callRemoveOrgMember,
+  callCancelOrgInvite,
   callInitializeTransaction,
   OrgRoster,
 } from "../../firebase/functions";
@@ -249,6 +251,35 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     }
   };
 
+  const removeMember = async (memberUid: string, who: string) => {
+    if (!window.confirm(`Remove ${who} from the organisation?`)) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      await callRemoveOrgMember({ organizationId, memberUid });
+      setMsg({ kind: "ok", text: "Member removed." });
+      await load();
+    } catch (err) {
+      setMsg({ kind: "err", text: readableError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const cancelInvite = async (inviteId: string) => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      await callCancelOrgInvite({ inviteId });
+      setMsg({ kind: "ok", text: "Invite cancelled." });
+      await load();
+    } catch (err) {
+      setMsg({ kind: "err", text: readableError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const buySeat = async () => {
     setBusy(true);
     setMsg(null);
@@ -306,9 +337,9 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
           {roster.members.map((m) => (
             <div
               key={m.uid}
-              className="flex items-center justify-between text-sm"
+              className="flex items-center justify-between gap-2 text-sm"
             >
-              <span>
+              <span className="min-w-0">
                 {m.name || m.email}
                 {m.isPrimary ? (
                   <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primaryBlue/10 text-primaryBlue">
@@ -320,17 +351,39 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
                   </span>
                 )}
               </span>
-              <span className="text-gray-400">{m.email}</span>
+              <span className="flex items-center gap-3 shrink-0">
+                <span className="text-gray-400 hidden sm:inline">{m.email}</span>
+                {roster.isPrimaryContact && !m.isPrimary && (
+                  <button
+                    onClick={() => removeMember(m.uid, m.name || m.email)}
+                    disabled={busy}
+                    className="text-red-600 hover:text-red-800 text-xs disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                )}
+              </span>
             </div>
           ))}
           {roster.pendingInvites.map((inv) => (
             <div
               key={inv.id}
-              className="flex items-center justify-between text-sm text-gray-500"
+              className="flex items-center justify-between gap-2 text-sm text-gray-500"
             >
-              <span>{inv.email}</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
-                invite sent
+              <span className="min-w-0 truncate">{inv.email}</span>
+              <span className="flex items-center gap-3 shrink-0">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
+                  invite sent
+                </span>
+                {roster.isPrimaryContact && (
+                  <button
+                    onClick={() => cancelInvite(inv.id)}
+                    disabled={busy}
+                    className="text-red-600 hover:text-red-800 text-xs disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                )}
               </span>
             </div>
           ))}

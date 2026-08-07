@@ -32,15 +32,23 @@ const statusStyle: Record<string, string> = {
 
 const AdminTransactions = () => {
   const dispatch = useAppDispatch();
-  const { transactions, purchases, customers, loading, error, success } =
-    useAppSelector((state) => ({
-      transactions: state.adminManage.transactions,
-      purchases: state.adminManage.purchases,
-      customers: state.adminManage.customers,
-      loading: state.adminManage.loading,
-      error: state.adminManage.error,
-      success: state.adminManage.success,
-    }));
+  const {
+    transactions,
+    purchases,
+    customers,
+    organizations,
+    loading,
+    error,
+    success,
+  } = useAppSelector((state) => ({
+    transactions: state.adminManage.transactions,
+    purchases: state.adminManage.purchases,
+    customers: state.adminManage.customers,
+    organizations: state.adminManage.organizations,
+    loading: state.adminManage.loading,
+    error: state.adminManage.error,
+    success: state.adminManage.success,
+  }));
 
   const [filter, setFilter] = useState<TransactionStatus | "all">("all");
   const [refunding, setRefunding] = useState<string | null>(null);
@@ -61,6 +69,8 @@ const AdminTransactions = () => {
 
   const emailOf = (uid: string) =>
     customers.find((c) => c.uid === uid)?.email || uid;
+  const orgNameOf = (orgId: string | null) =>
+    organizations.find((o) => o.id === orgId)?.orgName || "";
 
   const visible = useMemo(
     () =>
@@ -144,7 +154,13 @@ const AdminTransactions = () => {
                       <td className="py-3 pr-3">
                         <p className="font-mono text-xs">{t.paystackReference}</p>
                         <p className="text-xs text-gray-500">
-                          {t.purchaseKind === "seatAddon" ? "seat add-on" : "report"}
+                          {t.purchaseKind === "seatAddon"
+                            ? `seat add-on${
+                                orgNameOf(t.organizationId)
+                                  ? ` • ${orgNameOf(t.organizationId)}`
+                                  : ""
+                              }`
+                            : "report"}
                           {t.loyaltyDiscountApplied && (
                             <span className="ml-1 text-green-700">
                               −{t.loyaltyDiscountPercent}%

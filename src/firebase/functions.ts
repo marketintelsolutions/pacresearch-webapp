@@ -40,6 +40,16 @@ export const callAcceptOrgInvite = httpsCallable<
   { organizationId: string }
 >(functions, "acceptOrgInvite");
 
+export const callRemoveOrgMember = httpsCallable<
+  { organizationId: string; memberUid: string },
+  { organizationId: string; memberUid: string }
+>(functions, "removeOrgMember");
+
+export const callCancelOrgInvite = httpsCallable<
+  { inviteId: string },
+  { inviteId: string }
+>(functions, "cancelOrgInvite");
+
 export interface OrgRosterMember {
   uid: string;
   email: string;
