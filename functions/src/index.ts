@@ -12,6 +12,8 @@ export { verifyPaystackTransaction } from "./payments/verifyPaystackTransaction"
 export { inviteOrgMember } from "./org/inviteOrgMember";
 export { acceptOrgInvite } from "./org/acceptOrgInvite";
 export { getOrgRoster } from "./org/getOrgRoster";
+export { removeOrgMember } from "./org/removeOrgMember";
+export { cancelOrgInvite } from "./org/cancelOrgInvite";
 
 // ---- Secure viewer (Phase 5) ------------------------------------------------
 export { issueSecureViewStream } from "./reports/issueSecureViewStream";
