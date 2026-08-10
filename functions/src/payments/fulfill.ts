@@ -158,8 +158,30 @@ export async function fulfillFromVerify(
   if (result.processed) {
     try {
       const txn = (await txnRef.get()).data() as
-        | { customerUid: string; amount: number; purchaseKind: string }
+        | {
+            customerUid: string;
+            amount: number;
+            purchaseKind: string;
+            ownerType?: string;
+            organizationId?: string | null;
+            editionId?: string | null;
+          }
         | undefined;
+
+      // Corporate report purchase → auto-grant the edition to org members who
+      // have auto-grant of future purchases enabled.
+      if (
+        result.status === "success" &&
+        txn?.purchaseKind === "report" &&
+        txn.ownerType === "corporate" &&
+        txn.organizationId &&
+        txn.editionId
+      ) {
+        await autoGrantToMembers(txn.organizationId, txn.editionId).catch((e) =>
+          logger.warn("Auto-grant to members failed", e)
+        );
+      }
+
       if (txn?.customerUid) {
         if (result.status === "success") {
           await notifyCustomer({
@@ -191,4 +213,37 @@ export async function fulfillFromVerify(
   }
 
   return result;
+}
+
+/**
+ * Add an edition to the orgAccess of every member (except the buyer/primary,
+ * who own it directly) whose autoGrantFuture flag is on.
+ */
+async function autoGrantToMembers(
+  organizationId: string,
+  editionId: string
+): Promise<void> {
+  const orgSnap = await db.collection("organizations").doc(organizationId).get();
+  const memberUids = (orgSnap.data()?.memberUids as string[] | undefined) ?? [];
+  const primary = orgSnap.data()?.primaryContactUid as string | undefined;
+
+  await Promise.all(
+    memberUids
+      .filter((m) => m !== primary)
+      .map(async (memberUid) => {
+        const cSnap = await db.collection("customers").doc(memberUid).get();
+        const orgAccess = cSnap.data()?.orgAccess as
+          | { autoGrantFuture?: boolean }
+          | undefined;
+        if (orgAccess?.autoGrantFuture) {
+          await db
+            .collection("customers")
+            .doc(memberUid)
+            .set(
+              { orgAccess: { editionIds: FieldValue.arrayUnion(editionId) } },
+              { merge: true }
+            );
+        }
+      })
+  );
 }

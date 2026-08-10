@@ -14,6 +14,8 @@ export { acceptOrgInvite } from "./org/acceptOrgInvite";
 export { getOrgRoster } from "./org/getOrgRoster";
 export { removeOrgMember } from "./org/removeOrgMember";
 export { cancelOrgInvite } from "./org/cancelOrgInvite";
+export { setMemberAccess } from "./org/setMemberAccess";
+export { backfillOrgAccess } from "./org/backfillOrgAccess";
 
 // ---- Secure viewer (Phase 5) ------------------------------------------------
 export { issueSecureViewStream } from "./reports/issueSecureViewStream";

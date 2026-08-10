@@ -12,6 +12,7 @@ import {
   callInviteOrgMember,
   callRemoveOrgMember,
   callCancelOrgInvite,
+  callSetMemberAccess,
   callInitializeTransaction,
   OrgRoster,
 } from "../../firebase/functions";
@@ -58,11 +59,28 @@ const Account = () => {
   // UNIONed with any purchases the collection query returned (adds org-owned
   // items and richer metadata). So a paid report shows even if the purchases
   // query is blocked by security rules.
+  //
+  // For a corporate member the org query returns every org purchase, but the
+  // member should only see the editions the primary contact granted them. The
+  // primary contact owns org purchases directly (customerUid == theirs), so
+  // their own purchases pass regardless of orgAccess; a member's non-owned org
+  // items only pass when the edition is in orgAccess.editionIds.
   const ownedEditionIds = useMemo(() => {
+    const grants = profile?.orgAccess?.editionIds;
     const set = new Set<string>(profile?.purchasedReportIds || []);
-    myPurchases.forEach((p) => set.add(p.editionId));
+    myPurchases.forEach((p) => {
+      const isOwn = p.customerUid === user?.uid;
+      if (isOwn || !grants || grants.includes(p.editionId)) {
+        set.add(p.editionId);
+      }
+    });
     return Array.from(set);
-  }, [profile?.purchasedReportIds, myPurchases]);
+  }, [
+    profile?.purchasedReportIds,
+    profile?.orgAccess?.editionIds,
+    myPurchases,
+    user?.uid,
+  ]);
 
   const purchaseByEdition = useMemo(() => {
     const map: Record<string, Purchase> = {};
@@ -221,6 +239,10 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(
     null
   );
+  // Which member's access panel is open, and its unsaved edits.
+  const [manageUid, setManageUid] = useState<string | null>(null);
+  const [draftEditions, setDraftEditions] = useState<Set<string>>(new Set());
+  const [draftAutoGrant, setDraftAutoGrant] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -272,6 +294,46 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     try {
       await callCancelOrgInvite({ inviteId });
       setMsg({ kind: "ok", text: "Invite cancelled." });
+      await load();
+    } catch (err) {
+      setMsg({ kind: "err", text: readableError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const openManage = (m: OrgRoster["members"][number]) => {
+    if (manageUid === m.uid) {
+      setManageUid(null);
+      return;
+    }
+    setManageUid(m.uid);
+    setDraftEditions(new Set(m.access.editionIds));
+    setDraftAutoGrant(m.access.autoGrantFuture);
+    setMsg(null);
+  };
+
+  const toggleEdition = (editionId: string) => {
+    setDraftEditions((prev) => {
+      const next = new Set(prev);
+      if (next.has(editionId)) next.delete(editionId);
+      else next.add(editionId);
+      return next;
+    });
+  };
+
+  const saveAccess = async (memberUid: string) => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      await callSetMemberAccess({
+        organizationId,
+        memberUid,
+        editionIds: Array.from(draftEditions),
+        autoGrantFuture: draftAutoGrant,
+      });
+      setMsg({ kind: "ok", text: "Access updated." });
+      setManageUid(null);
       await load();
     } catch (err) {
       setMsg({ kind: "err", text: readableError(err) });
@@ -335,34 +397,103 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
         {/* Members */}
         <div className="space-y-2 mb-6">
           {roster.members.map((m) => (
-            <div
-              key={m.uid}
-              className="flex items-center justify-between gap-2 text-sm"
-            >
-              <span className="min-w-0">
-                {m.name || m.email}
-                {m.isPrimary ? (
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primaryBlue/10 text-primaryBlue">
-                    primary
+            <div key={m.uid}>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <span className="min-w-0">
+                  {m.name || m.email}
+                  {m.isPrimary ? (
+                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primaryBlue/10 text-primaryBlue">
+                      primary
+                    </span>
+                  ) : (
+                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                      invited
+                    </span>
+                  )}
+                </span>
+                <span className="flex items-center gap-3 shrink-0">
+                  <span className="text-gray-400 hidden sm:inline">
+                    {m.email}
                   </span>
-                ) : (
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                    invited
-                  </span>
-                )}
-              </span>
-              <span className="flex items-center gap-3 shrink-0">
-                <span className="text-gray-400 hidden sm:inline">{m.email}</span>
-                {roster.isPrimaryContact && !m.isPrimary && (
-                  <button
-                    onClick={() => removeMember(m.uid, m.name || m.email)}
-                    disabled={busy}
-                    className="text-red-600 hover:text-red-800 text-xs disabled:opacity-50"
-                  >
-                    Remove
-                  </button>
-                )}
-              </span>
+                  {roster.isPrimaryContact && !m.isPrimary && (
+                    <>
+                      <button
+                        onClick={() => openManage(m)}
+                        disabled={busy}
+                        className="text-primaryBlue hover:underline text-xs disabled:opacity-50"
+                      >
+                        {manageUid === m.uid ? "Close" : "Manage access"}
+                      </button>
+                      <button
+                        onClick={() => removeMember(m.uid, m.name || m.email)}
+                        disabled={busy}
+                        className="text-red-600 hover:text-red-800 text-xs disabled:opacity-50"
+                      >
+                        Remove
+                      </button>
+                    </>
+                  )}
+                </span>
+              </div>
+
+              {/* Per-member access panel */}
+              {roster.isPrimaryContact && manageUid === m.uid && (
+                <div className="mt-2 mb-3 p-4 bg-gray-50 rounded-lg border text-sm">
+                  <p className="font-medium text-gray-700 mb-2">
+                    Reports this member can access
+                  </p>
+                  {roster.reports.length === 0 ? (
+                    <p className="text-gray-500 mb-3">
+                      Your organisation hasn't purchased any reports yet.
+                    </p>
+                  ) : (
+                    <div className="space-y-1.5 mb-3">
+                      {roster.reports.map((r) => (
+                        <label
+                          key={r.editionId}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={draftEditions.has(r.editionId)}
+                            onChange={() => toggleEdition(r.editionId)}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-gray-700">{r.title}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                  <label className="flex items-center gap-2 cursor-pointer mb-4">
+                    <input
+                      type="checkbox"
+                      checked={draftAutoGrant}
+                      onChange={(e) => setDraftAutoGrant(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-gray-700">
+                      Automatically grant access to future reports the
+                      organisation buys
+                    </span>
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => saveAccess(m.uid)}
+                      disabled={busy}
+                      className="px-4 py-1.5 bg-primaryBlue text-white rounded-md text-xs hover:opacity-90 disabled:opacity-50"
+                    >
+                      Save access
+                    </button>
+                    <button
+                      onClick={() => setManageUid(null)}
+                      disabled={busy}
+                      className="px-4 py-1.5 border border-gray-300 rounded-md text-xs hover:bg-gray-100 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           {roster.pendingInvites.map((inv) => (

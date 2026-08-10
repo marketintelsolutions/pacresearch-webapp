@@ -131,6 +131,13 @@ export interface Customer {
   totalSpend?: number;
   lastLoginAt?: string;
   createdAt?: string;
+  // Corporate members only: which org editions this member may read, and whether
+  // future org purchases are auto-granted. The primary contact always has full
+  // access regardless of this field.
+  orgAccess?: {
+    editionIds: string[];
+    autoGrantFuture: boolean;
+  };
 }
 
 export interface Organization {

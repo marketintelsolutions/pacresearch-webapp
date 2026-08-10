@@ -36,34 +36,41 @@ export const issueSecureViewStream = onRequest({ cors: true }, async (req, res) 
     return;
   }
 
-  // ---- entitlement check (self or organization) ----
+  // ---- entitlement check ----
+  // A customer may view an edition if they own it directly, OR — for a
+  // corporate member — it's an org purchase AND the primary contact has granted
+  // them access to that edition (customers/{uid}.orgAccess.editionIds). The
+  // buyer/primary owns org purchases directly (customerUid == theirs), so the
+  // "own purchase" check already covers them.
   try {
     const customerSnap = await db.collection("customers").doc(uid).get();
-    const organizationId =
-      (customerSnap.data()?.organizationId as string | undefined) ?? null;
+    const cust = customerSnap.data() as
+      | { organizationId?: string | null; orgAccess?: { editionIds?: string[] } }
+      | undefined;
+    const organizationId = cust?.organizationId ?? null;
+    const grantedEditions = cust?.orgAccess?.editionIds ?? [];
 
-    const checks = [
-      db
+    const mine = await db
+      .collection("purchases")
+      .where("editionId", "==", editionId)
+      .where("customerUid", "==", uid)
+      .where("status", "==", "active")
+      .limit(1)
+      .get();
+
+    let entitled = !mine.empty;
+
+    if (!entitled && organizationId && grantedEditions.includes(editionId)) {
+      const org = await db
         .collection("purchases")
         .where("editionId", "==", editionId)
-        .where("customerUid", "==", uid)
+        .where("organizationId", "==", organizationId)
         .where("status", "==", "active")
         .limit(1)
-        .get(),
-    ];
-    if (organizationId) {
-      checks.push(
-        db
-          .collection("purchases")
-          .where("editionId", "==", editionId)
-          .where("organizationId", "==", organizationId)
-          .where("status", "==", "active")
-          .limit(1)
-          .get()
-      );
+        .get();
+      entitled = !org.empty;
     }
-    const snaps = await Promise.all(checks);
-    const entitled = snaps.some((s) => !s.empty);
+
     if (!entitled) {
       res.status(403).send("No access to this report");
       return;
