@@ -60,7 +60,13 @@ const CustomerAuthGuard: React.FC<Props> = ({ children, requireEntitlement }) =>
             )
           ),
         ];
-        if (profile?.organizationId) {
+        // Org-wide access only counts if the primary contact has granted this
+        // member the edition. (The primary contact owns org purchases directly,
+        // so they pass via the customerUid query above regardless.)
+        if (
+          profile?.organizationId &&
+          profile?.orgAccess?.editionIds?.includes(editionId)
+        ) {
           checks.push(
             getDocs(
               query(
@@ -96,6 +102,7 @@ const CustomerAuthGuard: React.FC<Props> = ({ children, requireEntitlement }) =>
     user,
     editionId,
     profile?.organizationId,
+    profile?.orgAccess?.editionIds,
     profile?.purchasedReportIds,
   ]);
 

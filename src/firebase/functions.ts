@@ -50,11 +50,21 @@ export const callCancelOrgInvite = httpsCallable<
   { inviteId: string }
 >(functions, "cancelOrgInvite");
 
+export interface OrgMemberAccess {
+  editionIds: string[];
+  autoGrantFuture: boolean;
+}
 export interface OrgRosterMember {
   uid: string;
   email: string;
   name: string;
   isPrimary: boolean;
+  access: OrgMemberAccess;
+}
+export interface OrgRosterReport {
+  editionId: string;
+  reportId: string;
+  title: string;
 }
 export interface OrgRoster {
   orgName: string;
@@ -63,12 +73,23 @@ export interface OrgRoster {
   isPrimaryContact: boolean;
   members: OrgRosterMember[];
   pendingInvites: { id: string; email: string }[];
+  reports: OrgRosterReport[];
 }
 
 export const callGetOrgRoster = httpsCallable<
   { organizationId: string },
   OrgRoster
 >(functions, "getOrgRoster");
+
+export const callSetMemberAccess = httpsCallable<
+  {
+    organizationId: string;
+    memberUid: string;
+    editionIds: string[];
+    autoGrantFuture: boolean;
+  },
+  { memberUid: string; editionIds: string[]; autoGrantFuture: boolean }
+>(functions, "setMemberAccess");
 
 // ---- Admin (Phase 6) --------------------------------------------------------
 

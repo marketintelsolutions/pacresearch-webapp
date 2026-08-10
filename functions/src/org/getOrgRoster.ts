@@ -40,14 +40,44 @@ export const getOrgRoster = onCall({ cors: true }, async (request) => {
   const members = memberDocs
     .filter((d) => d.exists)
     .map((d) => {
-      const data = d.data() as { email?: string; name?: string };
+      const data = d.data() as {
+        email?: string;
+        name?: string;
+        orgAccess?: { editionIds?: string[]; autoGrantFuture?: boolean };
+      };
       return {
         uid: d.id,
         email: data.email ?? "",
         name: data.name ?? "",
         isPrimary: d.id === org.primaryContactUid,
+        access: {
+          editionIds: data.orgAccess?.editionIds ?? [],
+          autoGrantFuture: data.orgAccess?.autoGrantFuture ?? false,
+        },
       };
     });
+
+  // The org's purchased reports (for the access-management UI).
+  const purchaseSnap = await db
+    .collection("purchases")
+    .where("organizationId", "==", organizationId)
+    .where("status", "==", "active")
+    .get();
+  const editionToReport = new Map<string, string>();
+  purchaseSnap.forEach((d) => {
+    const p = d.data() as { editionId?: string; reportId?: string };
+    if (p.editionId) editionToReport.set(p.editionId, p.reportId ?? "");
+  });
+  const reports = await Promise.all(
+    Array.from(editionToReport.entries()).map(async ([editionId, reportId]) => {
+      let title = "Report";
+      if (reportId) {
+        const r = await db.collection("reports").doc(reportId).get();
+        if (r.exists) title = (r.data()?.title as string) || title;
+      }
+      return { editionId, reportId, title };
+    })
+  );
 
   const pendingSnap = await db
     .collection("organizationInvites")
@@ -66,5 +96,6 @@ export const getOrgRoster = onCall({ cors: true }, async (request) => {
     isPrimaryContact: org.primaryContactUid === uid,
     members,
     pendingInvites,
+    reports,
   };
 });

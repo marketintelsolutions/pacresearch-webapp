@@ -23,7 +23,7 @@ export const acceptOrgInvite = onCall({ cors: true }, async (request) => {
 
   const inviteRef = db.collection("organizationInvites").doc(inviteId);
 
-  const organizationId = await db.runTransaction(async (t) => {
+  const result = await db.runTransaction(async (t) => {
     const inviteSnap = await t.get(inviteRef);
     if (!inviteSnap.exists) throw new HttpsError("not-found", "Invite not found.");
     const invite = inviteSnap.data() as {
@@ -47,7 +47,7 @@ export const acceptOrgInvite = onCall({ cors: true }, async (request) => {
     if (members.includes(uid)) {
       // Already a member — just settle the invite.
       t.update(inviteRef, { status: "accepted", acceptedAt: FieldValue.serverTimestamp() });
-      return invite.organizationId;
+      return { organizationId: invite.organizationId, isNew: false };
     }
     if (members.length >= org.seatLimit) {
       throw new HttpsError("resource-exhausted", "The organization has no free seats.");
@@ -68,8 +68,32 @@ export const acceptOrgInvite = onCall({ cors: true }, async (request) => {
       acceptedAt: FieldValue.serverTimestamp(),
       acceptedBy: uid,
     });
-    return invite.organizationId;
+    return { organizationId: invite.organizationId, isNew: true };
   });
 
-  return { organizationId };
+  // New members start with access to all of the org's current reports and
+  // auto-grant of future purchases (the primary contact can adjust this later).
+  if (result.isNew) {
+    const orgPurchases = await db
+      .collection("purchases")
+      .where("organizationId", "==", result.organizationId)
+      .where("status", "==", "active")
+      .get();
+    const editionIds = Array.from(
+      new Set(
+        orgPurchases.docs
+          .map((d) => d.data().editionId as string | undefined)
+          .filter((e): e is string => !!e)
+      )
+    );
+    await db
+      .collection("customers")
+      .doc(uid)
+      .set(
+        { orgAccess: { editionIds, autoGrantFuture: true } },
+        { merge: true }
+      );
+  }
+
+  return { organizationId: result.organizationId };
 });
