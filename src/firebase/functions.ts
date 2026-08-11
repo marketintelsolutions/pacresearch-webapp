@@ -91,6 +91,11 @@ export const callSetMemberAccess = httpsCallable<
   { memberUid: string; editionIds: string[]; autoGrantFuture: boolean }
 >(functions, "setMemberAccess");
 
+export const callTransferOwnership = httpsCallable<
+  { organizationId: string; newOwnerUid: string },
+  { organizationId: string; newOwnerUid: string }
+>(functions, "transferOwnership");
+
 // ---- Admin (Phase 6) --------------------------------------------------------
 
 export const callProcessRefund = httpsCallable<

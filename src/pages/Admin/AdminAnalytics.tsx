@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -76,6 +76,59 @@ const AdminAnalytics = () => {
     const repeat = Array.from(purchasesByCustomer.values()).filter((n) => n > 1)
       .length;
     const retentionRate = buyers > 0 ? Math.round((repeat / buyers) * 100) : 0;
+
+    // Lookups for the drill-down tables.
+    const customerById = new Map(customers.map((c) => [c.uid, c]));
+    const reportTitleById = new Map(reports.map((r) => [r.id, r.title]));
+    const nameOf = (uid: string) => {
+      const c = customerById.get(uid);
+      return {
+        name: c?.name || "—",
+        email: c?.email || "—",
+        type: c?.type || "individual",
+      };
+    };
+
+    // Repeat customers = anyone with more than one purchase (the count behind
+    // the "Retention" and "Repeat customers" KPIs).
+    const repeatCustomers = Array.from(purchasesByCustomer.entries())
+      .filter(([, n]) => n > 1)
+      .map(([uid, count]) => {
+        const spent = purchases
+          .filter((p) => p.customerUid === uid)
+          .reduce((s, p) => s + p.price, 0);
+        return { uid, count, spent, ...nameOf(uid) };
+      })
+      .sort((a, b) => b.count - a.count || b.spent - a.spent);
+
+    // Loyalty utilizers = customers who redeemed the successor-edition discount
+    // on at least one purchase, with how many times and on which reports.
+    const loyaltyByCustomer = new Map<
+      string,
+      { redemptions: number; percent: number; reports: Set<string> }
+    >();
+    purchases
+      .filter((p) => p.loyaltyDiscountApplied)
+      .forEach((p) => {
+        const cur = loyaltyByCustomer.get(p.customerUid) || {
+          redemptions: 0,
+          percent: 0,
+          reports: new Set<string>(),
+        };
+        cur.redemptions += 1;
+        cur.percent = Math.max(cur.percent, p.loyaltyDiscountPercent || 0);
+        cur.reports.add(reportTitleById.get(p.reportId) || p.reportId);
+        loyaltyByCustomer.set(p.customerUid, cur);
+      });
+    const loyaltyCustomers = Array.from(loyaltyByCustomer.entries())
+      .map(([uid, v]) => ({
+        uid,
+        redemptions: v.redemptions,
+        percent: v.percent,
+        reports: Array.from(v.reports),
+        ...nameOf(uid),
+      }))
+      .sort((a, b) => b.redemptions - a.redemptions);
     const purchaseFrequency =
       buyers > 0 ? (purchases.length / buyers).toFixed(1) : "0";
     const conversionRate =
@@ -149,10 +202,13 @@ const AdminAnalytics = () => {
       perReport,
       loyaltyUtilization,
       loyaltyRedeemed,
+      repeatCustomers,
+      loyaltyCustomers,
     };
   }, [customers, transactions, purchases, reports]);
 
   const busy = loading.customers || loading.transactions;
+  const [detail, setDetail] = useState<null | "repeat" | "loyalty">(null);
 
   const revenueSplit = [
     { name: "PAC Research (75%)", value: stats.pacShare },
@@ -333,10 +389,110 @@ const AdminAnalytics = () => {
           label="Loyalty utilization"
           value={`${stats.loyaltyUtilization}%`}
           sub={`${stats.loyaltyRedeemed} redeemed`}
+          onClick={() => setDetail((d) => (d === "loyalty" ? null : "loyalty"))}
+          active={detail === "loyalty"}
         />
-        <Kpi label="Repeat customers" value={String(stats.repeat)} />
+        <Kpi
+          label="Repeat customers"
+          value={String(stats.repeat)}
+          sub="View customers"
+          onClick={() => setDetail((d) => (d === "repeat" ? null : "repeat"))}
+          active={detail === "repeat"}
+        />
         <Kpi label="Refunds" value={String(stats.refundedCount)} />
       </div>
+
+      {/* Drill-down: repeat customers */}
+      {detail === "repeat" && (
+        <ChartCard
+          title="Repeat customers"
+          subtitle="Customers with more than one purchase"
+          className="mb-5"
+        >
+          {stats.repeatCustomers.length === 0 ? (
+            <Empty />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase text-gray-500 border-b">
+                    <th className="py-2 pr-3">Customer</th>
+                    <th className="py-2 pr-3">Email</th>
+                    <th className="py-2 pr-3">Type</th>
+                    <th className="py-2 pr-3 text-right">Purchases</th>
+                    <th className="py-2 pr-3 text-right">Total spend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.repeatCustomers.map((c) => (
+                    <tr key={c.uid} className="border-b last:border-b-0">
+                      <td className="py-3 pr-3 font-medium text-gray-800">
+                        {c.name}
+                      </td>
+                      <td className="py-3 pr-3 text-gray-600">{c.email}</td>
+                      <td className="py-3 pr-3 capitalize text-gray-600">
+                        {c.type}
+                      </td>
+                      <td className="py-3 pr-3 text-right tabular-nums">
+                        {c.count}
+                      </td>
+                      <td className="py-3 pr-3 text-right tabular-nums">
+                        {formatNaira(c.spent)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </ChartCard>
+      )}
+
+      {/* Drill-down: loyalty utilization */}
+      {detail === "loyalty" && (
+        <ChartCard
+          title="Loyalty utilization"
+          subtitle="Customers who redeemed a successor-edition discount"
+          className="mb-5"
+        >
+          {stats.loyaltyCustomers.length === 0 ? (
+            <Empty />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase text-gray-500 border-b">
+                    <th className="py-2 pr-3">Customer</th>
+                    <th className="py-2 pr-3">Email</th>
+                    <th className="py-2 pr-3 text-right">Redemptions</th>
+                    <th className="py-2 pr-3 text-right">Discount</th>
+                    <th className="py-2 pr-3">Reports</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.loyaltyCustomers.map((c) => (
+                    <tr key={c.uid} className="border-b last:border-b-0">
+                      <td className="py-3 pr-3 font-medium text-gray-800">
+                        {c.name}
+                      </td>
+                      <td className="py-3 pr-3 text-gray-600">{c.email}</td>
+                      <td className="py-3 pr-3 text-right tabular-nums">
+                        {c.redemptions}
+                      </td>
+                      <td className="py-3 pr-3 text-right tabular-nums">
+                        {c.percent}%
+                      </td>
+                      <td className="py-3 pr-3 text-gray-600">
+                        {c.reports.join(", ")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </ChartCard>
+      )}
 
       <ChartCard title="All reports" subtitle="Purchases and revenue per report">
         {stats.perReport.length === 0 ? (
@@ -377,21 +533,51 @@ const Kpi: React.FC<{
   value: string;
   sub?: string;
   accent?: string;
-}> = ({ label, value, sub, accent }) => (
-  <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm p-4">
-    <div className="flex items-center gap-1.5">
-      {accent && (
-        <span
-          className="inline-block w-2 h-2 rounded-full"
-          style={{ background: accent }}
-        />
+  onClick?: () => void;
+  active?: boolean;
+}> = ({ label, value, sub, accent, onClick, active }) => {
+  const clickable = !!onClick;
+  return (
+    <div
+      onClick={onClick}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onKeyDown={
+        clickable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
+      className={`bg-white rounded-xl border shadow-sm p-4 transition ${
+        active ? "border-primaryBlue ring-1 ring-primaryBlue/30" : "border-black/[0.06]"
+      } ${clickable ? "cursor-pointer hover:border-primaryBlue/50" : ""}`}
+    >
+      <div className="flex items-center gap-1.5">
+        {accent && (
+          <span
+            className="inline-block w-2 h-2 rounded-full"
+            style={{ background: accent }}
+          />
+        )}
+        <p className="text-xs text-gray-500">{label}</p>
+      </div>
+      <p className="text-lg font-bold text-primaryBlue mt-1 tabular-nums">{value}</p>
+      {sub && (
+        <p
+          className={`text-[11px] mt-0.5 ${
+            clickable ? "text-primaryBlue/70" : "text-gray-400"
+          }`}
+        >
+          {sub}
+        </p>
       )}
-      <p className="text-xs text-gray-500">{label}</p>
     </div>
-    <p className="text-lg font-bold text-primaryBlue mt-1 tabular-nums">{value}</p>
-    {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
-  </div>
-);
+  );
+};
 
 const Empty = () => (
   <div className="h-[220px] flex items-center justify-center text-sm text-gray-400">

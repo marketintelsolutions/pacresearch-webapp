@@ -15,6 +15,7 @@ export { getOrgRoster } from "./org/getOrgRoster";
 export { removeOrgMember } from "./org/removeOrgMember";
 export { cancelOrgInvite } from "./org/cancelOrgInvite";
 export { setMemberAccess } from "./org/setMemberAccess";
+export { transferOwnership } from "./org/transferOwnership";
 export { backfillOrgAccess } from "./org/backfillOrgAccess";
 
 // ---- Secure viewer (Phase 5) ------------------------------------------------

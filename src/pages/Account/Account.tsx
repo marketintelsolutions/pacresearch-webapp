@@ -13,10 +13,10 @@ import {
   callRemoveOrgMember,
   callCancelOrgInvite,
   callSetMemberAccess,
+  callTransferOwnership,
   callInitializeTransaction,
   OrgRoster,
 } from "../../firebase/functions";
-import { formatNaira } from "../../utils/format";
 import PageBanner from "../../components/Layout/PageBanner";
 
 const Account = () => {
@@ -205,7 +205,7 @@ const Account = () => {
                 <div>
                   <p className="font-medium text-primaryBlue">{r.title}</p>
                   <p className="text-xs text-gray-500">
-                    {r.price != null ? `Purchased ${formatNaira(r.price)}` : "Purchased"}
+                    Purchased
                     {r.loyaltyDiscountApplied
                       ? ` • ${r.loyaltyDiscountPercent}% loyalty`
                       : ""}
@@ -308,8 +308,8 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
       return;
     }
     setManageUid(m.uid);
-    setDraftEditions(new Set(m.access.editionIds));
-    setDraftAutoGrant(m.access.autoGrantFuture);
+    setDraftEditions(new Set(m.access?.editionIds ?? []));
+    setDraftAutoGrant(m.access?.autoGrantFuture ?? false);
     setMsg(null);
   };
 
@@ -334,6 +334,26 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
       });
       setMsg({ kind: "ok", text: "Access updated." });
       setManageUid(null);
+      await load();
+    } catch (err) {
+      setMsg({ kind: "err", text: readableError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const transferOwnership = async (memberUid: string, who: string) => {
+    if (
+      !window.confirm(
+        `Make ${who} the account owner? You will become a team member and can no longer manage seats, members or report access.`
+      )
+    )
+      return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      await callTransferOwnership({ organizationId, newOwnerUid: memberUid });
+      setMsg({ kind: "ok", text: `${who} is now the owner.` });
       await load();
     } catch (err) {
       setMsg({ kind: "err", text: readableError(err) });
@@ -369,6 +389,8 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
   }
 
   const seatsFull = roster.used >= roster.seatLimit;
+  // Defensive: an older deployed getOrgRoster may not return `reports` yet.
+  const orgReports = roster.reports ?? [];
 
   return (
     <div className="mt-12">
@@ -403,11 +425,11 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
                   {m.name || m.email}
                   {m.isPrimary ? (
                     <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-primaryBlue/10 text-primaryBlue">
-                      primary
+                      Owner
                     </span>
                   ) : (
                     <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                      invited
+                      Team member
                     </span>
                   )}
                 </span>
@@ -423,6 +445,15 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
                         className="text-primaryBlue hover:underline text-xs disabled:opacity-50"
                       >
                         {manageUid === m.uid ? "Close" : "Manage access"}
+                      </button>
+                      <button
+                        onClick={() =>
+                          transferOwnership(m.uid, m.name || m.email)
+                        }
+                        disabled={busy}
+                        className="text-secondaryBlue hover:underline text-xs disabled:opacity-50"
+                      >
+                        Make owner
                       </button>
                       <button
                         onClick={() => removeMember(m.uid, m.name || m.email)}
@@ -442,13 +473,13 @@ const OrgSeats: React.FC<{ organizationId: string }> = ({ organizationId }) => {
                   <p className="font-medium text-gray-700 mb-2">
                     Reports this member can access
                   </p>
-                  {roster.reports.length === 0 ? (
+                  {orgReports.length === 0 ? (
                     <p className="text-gray-500 mb-3">
                       Your organisation hasn't purchased any reports yet.
                     </p>
                   ) : (
                     <div className="space-y-1.5 mb-3">
-                      {roster.reports.map((r) => (
+                      {orgReports.map((r) => (
                         <label
                           key={r.editionId}
                           className="flex items-center gap-2 cursor-pointer"
