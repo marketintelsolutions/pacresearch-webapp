@@ -4,6 +4,7 @@ import { FileText, Check } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { fetchCatalog } from "../../store/reportArchiveSlice";
 import { requestInvoice } from "../../store/invoicesSlice";
+import { fetchMyPurchases } from "../../store/purchasesSlice";
 import { formatNaira } from "../../utils/format";
 import PageBanner from "../../components/Layout/PageBanner";
 
@@ -17,6 +18,28 @@ const NewInvoice = () => {
     editionsById: s.reportArchive.editionsById,
     loading: s.reportArchive.loading,
   }));
+  const { profile, user } = useAppSelector((s) => ({
+    profile: s.customerAuth.profile,
+    user: s.customerAuth.user,
+  }));
+  const myPurchases = useAppSelector((s) => s.purchases.myPurchases);
+
+  // Editions the customer (or their org) already owns/has access to, and the
+  // reports they own any edition of — so a newer edition can be flagged.
+  const owned = useMemo(() => {
+    const editionIds = new Set<string>([
+      ...(profile?.purchasedReportIds || []),
+      ...(profile?.orgAccess?.editionIds || []),
+      ...myPurchases.map((p) => p.editionId),
+    ]);
+    const reportIds = new Set<string>(myPurchases.map((p) => p.reportId));
+    // Older owned editions loaded in the catalog also mark their report as owned.
+    editionIds.forEach((eid) => {
+      const rid = editionsById[eid]?.reportId;
+      if (rid) reportIds.add(rid);
+    });
+    return { editionIds, reportIds };
+  }, [profile?.purchasedReportIds, profile?.orgAccess?.editionIds, myPurchases, editionsById]);
 
   // Only reports with a published current edition can be invoiced.
   const invoiceable = useMemo(
@@ -25,11 +48,15 @@ const NewInvoice = () => {
         .filter(
           (r) => r.currentEditionId && editionsById[r.currentEditionId]
         )
-        .map((r) => ({
-          report: r,
-          edition: editionsById[r.currentEditionId as string],
-        })),
-    [reports, editionsById]
+        .map((r) => {
+          const edition = editionsById[r.currentEditionId as string];
+          const ownsCurrent = owned.editionIds.has(edition.id);
+          // Owns an earlier edition of this report but not the current one → the
+          // current edition is a new version they can still buy.
+          const isNewVersion = !ownsCurrent && owned.reportIds.has(r.id);
+          return { report: r, edition, ownsCurrent, isNewVersion };
+        }),
+    [reports, editionsById, owned]
   );
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -39,13 +66,24 @@ const NewInvoice = () => {
 
   useEffect(() => {
     dispatch(fetchCatalog());
-  }, [dispatch]);
+    if (user) {
+      dispatch(
+        fetchMyPurchases({
+          uid: user.uid,
+          organizationId: profile?.organizationId ?? null,
+        })
+      );
+    }
+  }, [dispatch, user, profile?.organizationId]);
 
-  // Pre-select an edition passed via ?edition= (from a report's details page).
+  // Pre-select an edition passed via ?edition= (from a report's details page),
+  // unless it's one the customer already owns.
   useEffect(() => {
     const pre = params.get("edition");
-    if (pre) setSelected((s) => new Set(s).add(pre));
-  }, [params]);
+    if (pre && !owned.editionIds.has(pre)) {
+      setSelected((s) => new Set(s).add(pre));
+    }
+  }, [params, owned.editionIds]);
 
   const toggle = (editionId: string) => {
     setSelected((prev) => {
@@ -109,34 +147,52 @@ const NewInvoice = () => {
               No reports are available to invoice yet.
             </div>
           ) : (
-            invoiceable.map(({ report, edition }) => {
+            invoiceable.map(({ report, edition, ownsCurrent, isNewVersion }) => {
               const checked = selected.has(edition.id);
+              const disabled = ownsCurrent;
               return (
                 <label
                   key={report.id}
-                  className="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-50/60"
+                  className={`flex items-center gap-3 p-4 ${
+                    disabled
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer hover:bg-gray-50/60"
+                  }`}
                 >
                   <span
                     className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${
-                      checked
+                      disabled
+                        ? "border-gray-200 bg-gray-100"
+                        : checked
                         ? "bg-primaryBlue border-primaryBlue text-white"
                         : "border-gray-300"
                     }`}
                   >
-                    {checked && <Check size={14} />}
+                    {checked && !disabled && <Check size={14} />}
                   </span>
                   <input
                     type="checkbox"
                     className="hidden"
                     checked={checked}
-                    onChange={() => toggle(edition.id)}
+                    disabled={disabled}
+                    onChange={() => !disabled && toggle(edition.id)}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">
+                    <p className="font-medium text-gray-900 truncate flex items-center gap-2">
                       {report.title}
+                      {isNewVersion && (
+                        <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-secondaryBlue/10 text-secondaryBlue shrink-0">
+                          New version
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs text-gray-500">
                       {edition.editionLabel}
+                      {ownsCurrent && (
+                        <span className="ml-2 text-gray-400">
+                          • Already purchased
+                        </span>
+                      )}
                     </p>
                   </div>
                   <span className="text-primaryBlue font-semibold">

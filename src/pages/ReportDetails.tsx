@@ -178,30 +178,6 @@ const ReportDetails = () => {
                 </p>
               )}
 
-              {/* What you get */}
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Feature
-                  icon={<Eye size={18} />}
-                  title="Secure online reader"
-                  text="Read in-browser, view-only. Reports are not downloadable."
-                />
-                <Feature
-                  icon={<ShieldCheck size={18} />}
-                  title="Licensed access"
-                  text="Unlimited access to your purchased edition within your account."
-                />
-                <Feature
-                  icon={<BadgePercent size={18} />}
-                  title="Loyalty discount"
-                  text="Own an earlier edition? A discount is applied automatically to the successor edition."
-                />
-                <Feature
-                  icon={<Lock size={18} />}
-                  title="Paystack checkout"
-                  text="Pay securely by card or bank transfer."
-                />
-              </div>
-
               {/* Editions */}
               {activeReportEditions.length > 0 && (
                 <div className="mt-8">
@@ -248,6 +224,30 @@ const ReportDetails = () => {
                   />
                 </div>
               )}
+
+              {/* What you get */}
+              <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Feature
+                  icon={<Eye size={18} />}
+                  title="Secure online reader"
+                  text="Read in-browser, view-only. Reports are not downloadable."
+                />
+                <Feature
+                  icon={<ShieldCheck size={18} />}
+                  title="Licensed access"
+                  text="Unlimited access to your purchased edition within your account."
+                />
+                <Feature
+                  icon={<BadgePercent size={18} />}
+                  title="Loyalty discount"
+                  text="Own an earlier edition? A discount is applied automatically to the successor edition."
+                />
+                <Feature
+                  icon={<Lock size={18} />}
+                  title="Paystack checkout"
+                  text="Pay securely by card or bank transfer."
+                />
+              </div>
             </div>
           </div>
         )}

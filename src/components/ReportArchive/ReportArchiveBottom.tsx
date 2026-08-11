@@ -6,7 +6,6 @@ import {
   fetchCatalog,
   setSelectedCategory,
 } from "../../store/reportArchiveSlice";
-import { formatNaira } from "../../utils/format";
 import { Report } from "../../types";
 
 const ReportArchiveBottom: React.FC = () => {
@@ -114,8 +113,8 @@ const ReportArchiveBottom: React.FC = () => {
                 )}
 
                 <div className="mt-auto pt-5 flex items-center justify-between">
-                  <span className="text-primaryBlue font-bold font-['Inter']">
-                    {price !== null ? formatNaira(price) : "Coming soon"}
+                  <span className="text-gray-400 text-sm font-['Inter']">
+                    {price === null ? "Coming soon" : ""}
                   </span>
                   <Link
                     to={`/report-archive/${report.id}`}

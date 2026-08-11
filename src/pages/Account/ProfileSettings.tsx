@@ -78,7 +78,7 @@ const ProfileSettings = () => {
           to="/account"
           className="text-secondaryBlue border border-secondaryBlue px-4 py-2 rounded-[16px] hover:underline text-sm font-['Inter']"
         >
-          ← Back to my account
+          My reports
         </Link>
 
         {/* Profile details */}

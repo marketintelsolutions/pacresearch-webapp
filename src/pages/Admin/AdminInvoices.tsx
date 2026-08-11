@@ -29,6 +29,7 @@ const AdminInvoices = () => {
 
   const [filter, setFilter] = useState<"all" | "issued" | "cancelled">("all");
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     dispatch(fetchInvoices());
@@ -70,6 +71,47 @@ const AdminInvoices = () => {
     }
   };
 
+  // Only issued (not-yet-cancelled) invoices are selectable for a batch cancel.
+  const cancellable = useMemo(
+    () => visible.filter((i) => i.status !== "cancelled"),
+    [visible]
+  );
+  const allSelected =
+    cancellable.length > 0 && cancellable.every((i) => selected.has(i.id));
+
+  const toggleOne = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleAll = () =>
+    setSelected((prev) => {
+      if (cancellable.every((i) => prev.has(i.id))) return new Set();
+      return new Set(cancellable.map((i) => i.id));
+    });
+
+  const cancelSelected = async () => {
+    const ids = cancellable
+      .filter((i) => selected.has(i.id))
+      .map((i) => i.id);
+    if (ids.length === 0) return;
+    if (
+      !window.confirm(
+        `Cancel ${ids.length} invoice${ids.length > 1 ? "s" : ""}? The customer will be notified by email.`
+      )
+    )
+      return;
+    for (const id of ids) {
+      // Sequential so each dispatch's success/error is applied cleanly.
+      // eslint-disable-next-line no-await-in-loop
+      await dispatch(cancelInvoice(id));
+    }
+    setSelected(new Set());
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-primaryBlue mb-6">Invoices</h1>
@@ -80,11 +122,14 @@ const AdminInvoices = () => {
       )}
 
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap items-center gap-2 mb-6">
           {(["all", "issued", "cancelled"] as const).map((s) => (
             <button
               key={s}
-              onClick={() => setFilter(s)}
+              onClick={() => {
+                setFilter(s);
+                setSelected(new Set());
+              }}
               className={`px-4 py-1.5 rounded-full text-sm ${
                 filter === s
                   ? "bg-primaryBlue text-white"
@@ -94,6 +139,26 @@ const AdminInvoices = () => {
               {s}
             </button>
           ))}
+
+          {selected.size > 0 && (
+            <div className="ml-auto flex items-center gap-3">
+              <span className="text-sm text-gray-500">
+                {selected.size} selected
+              </span>
+              <button
+                onClick={cancelSelected}
+                className="inline-flex items-center gap-1 px-4 py-1.5 rounded-full text-sm bg-red-600 text-white hover:bg-red-700"
+              >
+                <Ban size={14} /> Cancel selected
+              </button>
+              <button
+                onClick={() => setSelected(new Set())}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Clear
+              </button>
+            </div>
+          )}
         </div>
 
         {loading.invoices ? (
@@ -105,6 +170,16 @@ const AdminInvoices = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase text-gray-500 border-b">
+                  <th className="py-2 pr-3 w-8">
+                    <input
+                      type="checkbox"
+                      aria-label="Select all"
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      disabled={cancellable.length === 0}
+                      className="rounded border-gray-300"
+                    />
+                  </th>
                   <th className="py-2 pr-3">Invoice</th>
                   <th className="py-2 pr-3">Customer</th>
                   <th className="py-2 pr-3">Date</th>
@@ -117,6 +192,17 @@ const AdminInvoices = () => {
               <tbody>
                 {visible.map((inv) => (
                   <tr key={inv.id} className="border-b last:border-b-0">
+                    <td className="py-3 pr-3">
+                      {inv.status !== "cancelled" && (
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${inv.invoiceNumber}`}
+                          checked={selected.has(inv.id)}
+                          onChange={() => toggleOne(inv.id)}
+                          className="rounded border-gray-300"
+                        />
+                      )}
+                    </td>
                     <td className="py-3 pr-3 font-medium text-primaryBlue">
                       {inv.invoiceNumber}
                     </td>
