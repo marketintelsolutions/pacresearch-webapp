@@ -1,0 +1,50 @@
+rules_version = '2';
+
+// =============================================================================
+// PAC Research — Storage Security Rules
+// -----------------------------------------------------------------------------
+// Report source files live under /reports/** and are NEVER client-readable or
+// client-writable. They are served only by the issueSecureViewStream Cloud
+// Function (Admin SDK), which checks purchase entitlement per request.
+// Report cover art is public. Legacy /resources/** keeps prior behavior.
+// =============================================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn()
+        && firestore.exists(/databases/(default)/documents/adminUsers/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/adminUsers/$(request.auth.uid)).data.active == true;
+    }
+
+    // Paid report source files — locked to Cloud Functions (Admin SDK) only.
+    // No client read (view happens via streaming function) and no client write
+    // except active admins uploading new editions from the admin panel.
+    match /reports/{reportId}/{allPaths=**} {
+      allow read: if false;
+      allow write: if isAdmin();
+    }
+
+    // Public report cover images.
+    match /reportCovers/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Legacy free resources — preserve prior behavior (public read, authed write).
+    match /resources/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Everything else: public read, authed write (matches current site behavior).
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+  }
+}

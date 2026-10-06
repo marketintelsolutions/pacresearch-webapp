@@ -1,14 +1,33 @@
 import React, { useState } from "react";
-import { AiOutlineMail } from "react-icons/ai";
-import { BiSolidLockAlt } from "react-icons/bi";
-import { auth } from "../../firebase/firebaseConfig";
+import { auth, db } from "../../firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 import {
   AuthError,
   UserCredential,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Lock, Mail } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff } from "lucide-react";
+
+function friendlyAuthError(err: AuthError): string {
+  switch (err?.code) {
+    case "auth/invalid-email":
+      return "Enter a valid email address.";
+    case "auth/user-disabled":
+      return "This account has been disabled.";
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Incorrect email or password.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please wait a few minutes and try again.";
+    case "auth/network-request-failed":
+      return "Network error. Check your connection and try again.";
+    default:
+      return "Could not sign in. Please try again.";
+  }
+}
 
 const AdminLoginDetails = () => {
   const navigate = useNavigate();
@@ -16,6 +35,7 @@ const AdminLoginDetails = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -25,33 +45,37 @@ const AdminLoginDetails = () => {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle login logic here
+    setError(null);
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential: UserCredential) => {
-        // Signed in
-        const user = JSON.stringify(userCredential.user);
-        // ...
+    try {
+      const userCredential: UserCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-        // add user details to local storage
-        localStorage.setItem("user", user);
+      // Customers share this Firebase project, so signing in successfully does
+      // not make you an admin — the account needs an active adminUsers doc.
+      const adminSnap = await getDoc(
+        doc(db, "adminUsers", userCredential.user.uid)
+      );
+      if (!adminSnap.exists() || adminSnap.data()?.active !== true) {
+        await signOut(auth);
+        setError(
+          "This account doesn't have administrator access. Use your admin account, or sign in as a customer at /account/login."
+        );
+        return;
+      }
 
-        // set isAuth to true add add to localStorage
-        localStorage.setItem("isAuth", JSON.stringify(true));
-        // setIsAuth(true);
+      localStorage.setItem("user", JSON.stringify(userCredential.user));
+      localStorage.setItem("isAuth", JSON.stringify(true));
 
-        setError(null);
-        navigate("/admin/macroeconomics");
-      })
-      .catch((error: AuthError) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(error);
-
-        setError(error.message);
-      });
+      navigate("/admin/macroeconomics");
+    } catch (err) {
+      setError(friendlyAuthError(err as AuthError));
+    }
   };
 
   return (
@@ -76,19 +100,28 @@ const AdminLoginDetails = () => {
               className="bg-transparent w-full focus:outline-none"
             />
           </div>
-          <div className="py-5 px-6 rounded-full border border-gray-500 flex gap-3">
+          <div className="py-5 px-6 rounded-full border border-gray-500 flex items-center gap-3">
             <label htmlFor="password">
               <Lock />
             </label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
               value={password}
               onChange={handlePasswordChange}
               className="bg-transparent w-full focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              title={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="text-gray-400 hover:text-gray-600 shrink-0"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
           {error && <p>{error}</p>}
