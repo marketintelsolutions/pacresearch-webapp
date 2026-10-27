@@ -266,13 +266,30 @@ export const updateMyProfile = createAsyncThunk(
 );
 
 // ---- load profile (+ organization) for the current user ---------------------
+// Firestore Timestamps aren't serializable, so Redux Toolkit warns when they
+// land in the store. Convert any Timestamp-shaped field (has toDate/seconds) on
+// a fetched document to an ISO string before it enters state.
+function normalizeTimestamps<T extends Record<string, unknown>>(obj: T): T {
+  const out: Record<string, unknown> = { ...obj };
+  for (const [key, val] of Object.entries(out)) {
+    if (
+      val &&
+      typeof val === "object" &&
+      typeof (val as { toDate?: unknown }).toDate === "function"
+    ) {
+      out[key] = (val as { toDate: () => Date }).toDate().toISOString();
+    }
+  }
+  return out as T;
+}
+
 export const loadProfile = createAsyncThunk(
   "customerAuth/loadProfile",
   async (uid: string, { rejectWithValue }) => {
     try {
       const snap = await getDoc(doc(db, "customers", uid));
       if (!snap.exists()) return { profile: null, organization: null };
-      const profile = { uid, ...snap.data() } as Customer;
+      const profile = normalizeTimestamps({ uid, ...snap.data() }) as Customer;
 
       let organization: Organization | null = null;
       if (profile.organizationId) {
@@ -280,7 +297,10 @@ export const loadProfile = createAsyncThunk(
           doc(db, "organizations", profile.organizationId)
         );
         if (orgSnap.exists()) {
-          organization = { id: orgSnap.id, ...orgSnap.data() } as Organization;
+          organization = normalizeTimestamps({
+            id: orgSnap.id,
+            ...orgSnap.data(),
+          }) as Organization;
         }
       }
       return { profile, organization };
