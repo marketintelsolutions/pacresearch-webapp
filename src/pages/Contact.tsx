@@ -60,8 +60,8 @@ const Contact = () => {
                 <MapPin size={50} />
               </span>
               <p className="lg:w-96 h-28 mt-3 px-3 text-center justify-start text-primaryBlue text-base md:text-xl font-bold font-['Montserrat'] leading-normal tracking-tight">
-                Plot 8A, Elsie Femi Pearse Street, Off Adeola Odeku, Victoria
-                Island Lagos P.O. Box 70823, Victoria Island, Lagos, Nigeria.
+                4th Floor, 999C Danmole Street, Off Idejo Street, Victoria
+                Island, Lagos.
               </p>
             </div>
           </div>
@@ -133,7 +133,7 @@ const Contact = () => {
         </div>
         <div className="w-full mb-32">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.7037020698344!2d3.409201775240221!3d6.432094793559022!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8ad0e16842f3%3A0x3d9a06e8b5a2c72a!2s8A%20Elsie%20Femi%20Pearse%20St%2C%20Victoria%20Island%2C%20Lagos%20106104%2C%20Lagos!5e0!3m2!1sen!2sng!4v1746313983366!5m2!1sen!2sng"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.7311430295235!2d3.411366174643367!3d6.428576193562478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8ad1fcc3a273%3A0xe03d45a196e48c89!2s4th%20Floor%2C%20999c%20Danmole%20St%2C%20Victoria%20Island%2C%20Lagos%20106104%2C%20Lagos!5e0!3m2!1sen!2sng!4v1793105471264!5m2!1sen!2sng"
             width="100%"
             height="450"
             style={{ border: 0 }}
