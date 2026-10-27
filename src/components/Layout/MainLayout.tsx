@@ -30,7 +30,7 @@ const metadata = {
   contact: {
     title: "Contact for Research Agencies",
     description:
-      "Plot 8A, Elsie Femi Pearse Street, Off Adeola Odeku, Victoria Island, Lagos P.O. Box 70823, Victoria Island, Lagos, Nigeria.",
+      "4th Floor, 999C Danmole Street, Off Idejo Street, Victoria Island, Lagos, Nigeria.",
   },
   "report-archive": {
     title: "Report Archive | PAC Research",
