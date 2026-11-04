@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import MainBackgroundStyles from "./MainBackgroundStyles";
 import { Helmet } from "react-helmet-async";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import NewsletterForm from "../Landing/NewsletterForm";
 
 // Telephone: +234 (1) 2716892, +234 (1) 2718630
@@ -67,11 +67,33 @@ const MainLayout = ({
   children: React.ReactNode;
 }>) => {
   const { pathname } = window.location;
+  const { hash } = useLocation();
   const params = useParams();
 
   useEffect(() => {
-    window.scroll(0, 0);
-  }, [pathname, params]);
+    if (!hash) {
+      window.scroll(0, 0);
+      return;
+    }
+
+    // React Router doesn't scroll to #anchors, and the target section may
+    // render late (e.g. after a Firestore fetch), so poll briefly for it.
+    const id = decodeURIComponent(hash.slice(1));
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const scrollToTarget = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (attempts++ < 40) {
+        timer = setTimeout(scrollToTarget, 100);
+      }
+    };
+
+    scrollToTarget();
+    return () => clearTimeout(timer);
+  }, [pathname, hash, params]);
 
   const pageName =
     pathname === "/" ? "home" : (pathname.split("/")[1] as PageName);

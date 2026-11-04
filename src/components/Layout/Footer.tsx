@@ -50,7 +50,7 @@ const footerData: FooterItem[] = [
       },
       {
         text: "News",
-        path: "#",
+        path: "/#news",
         icon: null,
       },
     ],
@@ -121,9 +121,14 @@ const Footer = () => {
         </div>
       </footer>
       <div className="relative z-[4] bg-[#A4A4A4] flex justify-between w-full max-w-[1050px] mx-auto -translate-y-[50%] py-[25px] px-[45px] rounded-[30px]">
-        <p className="justify-start text-white text-sm font-semibold font-['Montserrat'] leading-normal tracking-tight">
-          © PAC Research Nigeria Copyright {new Date().getFullYear()}
-        </p>
+        <div className="flex flex-col">
+          <p className="justify-start text-white text-sm font-semibold font-['Montserrat'] leading-normal tracking-tight">
+            © PAC Research Nigeria Copyright {new Date().getFullYear()}
+          </p>
+          <p className="justify-start text-white text-xs font-medium font-['Montserrat'] leading-normal tracking-tight">
+            A subsidiary of PanAfrican Capital Holding Company
+          </p>
+        </div>
         <div className="flex gap-[22px] text-[#FFFFFF]">
           {/* <span>
             <Facebook size={20} />

@@ -91,7 +91,10 @@ const NewsCommentary: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto">
+      <section
+        id="news"
+        className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto"
+      >
         <h1 className="text-center justify-start text-primaryBlue text-2xl md:text-4xl font-bold font-['Montserrat'] leading-[57px] tracking-tight">
           NEWS COMMENTARY
         </h1>
@@ -104,7 +107,10 @@ const NewsCommentary: React.FC = () => {
 
   if (error) {
     return (
-      <section className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto">
+      <section
+        id="news"
+        className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto"
+      >
         <h1 className="text-center justify-start text-primaryBlue text-2xl md:text-4xl font-bold font-['Montserrat'] leading-[57px] tracking-tight">
           NEWS COMMENTARY
         </h1>
@@ -116,7 +122,10 @@ const NewsCommentary: React.FC = () => {
   }
 
   return (
-    <section className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto">
+    <section
+      id="news"
+      className="mt-[98px] px-6 xl:px-0 w-full max-w-[1032px] mx-auto"
+    >
       <h1 className="text-center justify-start text-primaryBlue text-2xl md:text-4xl font-bold font-['Montserrat'] leading-[57px] tracking-tight">
         NEWS COMMENTARY
       </h1>
