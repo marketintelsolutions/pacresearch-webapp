@@ -59,7 +59,7 @@ const LetsTalk = () => {
           className="w-44 mt-[30px] md:mt-[50px] lg:mt-[70px] px-10 py-3.5 bg-sky-500 rounded-[5px] inline-flex flex-col justify-start items-center gap-2.5 overflow-hidden"
         >
           <span className="text-center justify-start text-white text-sm font-bold font-['Montserrat'] underline leading-snug tracking-tight">
-            LETS’S TALK
+            LET’S TALK
           </span>
         </Link>
       </div>

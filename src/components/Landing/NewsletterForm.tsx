@@ -86,30 +86,38 @@ const NewsletterForm: React.FC = () => {
     setSubmitStatus(null);
 
     try {
-      // Replace 'YOUR_PLUNK_API_KEY' with your actual Plunk API key
+      // Plunk (next platform). /v1/track accepts the PUBLIC key (pk_*), which is
+      // safe to ship in the browser; it upserts the contact as subscribed and
+      // fires the "newsletter-subscribe" event, which can trigger a Plunk
+      // workflow (e.g. a welcome email or an admin notification).
+      const plunkPublicKey = process.env.REACT_APP_PLUNK_PUBLIC_KEY;
+      if (!plunkPublicKey) {
+        throw new Error("REACT_APP_PLUNK_PUBLIC_KEY is not configured");
+      }
+
       const response: Response = await fetch(
-        "https://api.useplunk.com/v1/send",
+        "https://next-api.useplunk.com/v1/track",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer YOUR_PLUNK_API_KEY`,
+            Authorization: `Bearer ${plunkPublicKey}`,
           },
           body: JSON.stringify({
-            to: "admin@yourcompany.com", // Replace with your admin email
-            subject: "New Newsletter Subscription",
-            body: `
-            <h2>New Newsletter Subscription</h2>
-            <p><strong>Name:</strong> ${formData.name}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Subscribed at:</strong> ${new Date().toLocaleString()}</p>
-          `,
-            type: "html",
+            email: formData.email.trim(),
+            event: "newsletter-subscribe",
+            subscribed: true,
+            data: {
+              name: formData.name.trim(),
+              source: "pacresearch.org newsletter popup",
+            },
           }),
         }
       );
 
-      if (response.ok) {
+      const result = await response.json().catch(() => null);
+
+      if (response.ok && result?.success !== false) {
         setSubmitStatus("success");
         setFormData({ email: "", name: "" });
         // Auto-close after successful submission
@@ -117,7 +125,9 @@ const NewsletterForm: React.FC = () => {
           setIsOpen(false);
         }, 2000);
       } else {
-        throw new Error("Failed to send email");
+        throw new Error(
+          result?.error?.message || `Plunk request failed (${response.status})`
+        );
       }
     } catch (error) {
       console.error("Submission error:", error);
