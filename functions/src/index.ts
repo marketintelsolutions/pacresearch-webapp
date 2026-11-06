@@ -25,6 +25,9 @@ export { previewReport } from "./reports/previewReport";
 // ---- Auth emails ------------------------------------------------------------
 export { sendPasswordResetLink } from "./auth/sendPasswordResetLink";
 
+// ---- Newsletter -------------------------------------------------------------
+export { subscribeNewsletter } from "./newsletter/subscribeNewsletter";
+
 // ---- Invoices (pro-forma quotes) --------------------------------------------
 export { requestInvoice } from "./invoices/requestInvoice";
 export { invoicePdf } from "./invoices/invoicePdf";
