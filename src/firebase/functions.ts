@@ -20,6 +20,11 @@ export interface InitTransactionResult {
   loyaltyDiscountPercent: number;
 }
 
+export const callSubscribeNewsletter = httpsCallable<
+  { name: string; email: string },
+  { subscribed: boolean }
+>(functions, "subscribeNewsletter");
+
 export const callInitializeTransaction = httpsCallable<
   InitTransactionInput,
   InitTransactionResult

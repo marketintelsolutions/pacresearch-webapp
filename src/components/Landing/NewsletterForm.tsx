@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { callSubscribeNewsletter } from "../../firebase/functions";
 
 interface FormData {
   email: string;
@@ -86,49 +87,17 @@ const NewsletterForm: React.FC = () => {
     setSubmitStatus(null);
 
     try {
-      // Plunk (next platform). /v1/track accepts the PUBLIC key (pk_*), which is
-      // safe to ship in the browser; it upserts the contact as subscribed and
-      // fires the "newsletter-subscribe" event, which can trigger a Plunk
-      // workflow (e.g. a welcome email or an admin notification).
-      const plunkPublicKey = process.env.REACT_APP_PLUNK_PUBLIC_KEY;
-      if (!plunkPublicKey) {
-        throw new Error("REACT_APP_PLUNK_PUBLIC_KEY is not configured");
-      }
+      await callSubscribeNewsletter({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+      });
 
-      const response: Response = await fetch(
-        "https://next-api.useplunk.com/v1/track",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${plunkPublicKey}`,
-          },
-          body: JSON.stringify({
-            email: formData.email.trim(),
-            event: "newsletter-subscribe",
-            subscribed: true,
-            data: {
-              name: formData.name.trim(),
-              source: "pacresearch.org newsletter popup",
-            },
-          }),
-        }
-      );
-
-      const result = await response.json().catch(() => null);
-
-      if (response.ok && result?.success !== false) {
-        setSubmitStatus("success");
-        setFormData({ email: "", name: "" });
-        // Auto-close after successful submission
-        setTimeout((): void => {
-          setIsOpen(false);
-        }, 2000);
-      } else {
-        throw new Error(
-          result?.error?.message || `Plunk request failed (${response.status})`
-        );
-      }
+      setSubmitStatus("success");
+      setFormData({ email: "", name: "" });
+      // Auto-close after successful submission
+      setTimeout((): void => {
+        setIsOpen(false);
+      }, 2000);
     } catch (error) {
       console.error("Submission error:", error);
       setSubmitStatus("error");
