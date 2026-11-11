@@ -25,6 +25,11 @@ export const callSubscribeNewsletter = httpsCallable<
   { subscribed: boolean }
 >(functions, "subscribeNewsletter");
 
+export const callSendContactMessage = httpsCallable<
+  { name: string; email: string; subject: string; message: string },
+  { sent: boolean }
+>(functions, "sendContactMessage");
+
 export const callInitializeTransaction = httpsCallable<
   InitTransactionInput,
   InitTransactionResult
