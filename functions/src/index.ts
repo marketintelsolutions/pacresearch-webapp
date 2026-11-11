@@ -28,6 +28,9 @@ export { sendPasswordResetLink } from "./auth/sendPasswordResetLink";
 // ---- Newsletter -------------------------------------------------------------
 export { subscribeNewsletter } from "./newsletter/subscribeNewsletter";
 
+// ---- Contact form -----------------------------------------------------------
+export { sendContactMessage } from "./contact/sendContactMessage";
+
 // ---- Invoices (pro-forma quotes) --------------------------------------------
 export { requestInvoice } from "./invoices/requestInvoice";
 export { invoicePdf } from "./invoices/invoicePdf";

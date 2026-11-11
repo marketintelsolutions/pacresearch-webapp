@@ -1,9 +1,91 @@
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import PageBanner from "../components/Layout/PageBanner";
-import { Helmet } from "react-helmet-async";
+import { callSendContactMessage } from "../firebase/functions";
+
+interface ContactForm {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+const emptyForm: ContactForm = { name: "", email: "", subject: "", message: "" };
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const validate = (form: ContactForm): Partial<ContactForm> => {
+  const errors: Partial<ContactForm> = {};
+  if (form.name.trim().length < 2) errors.name = "Please enter your name";
+  if (!EMAIL_RE.test(form.email.trim()))
+    errors.email = "Please enter a valid email address";
+  if (!form.subject.trim()) errors.subject = "Please enter a subject";
+  if (form.message.trim().length < 10)
+    errors.message = "Message must be at least 10 characters";
+  return errors;
+};
 
 const Contact = () => {
+  const [form, setForm] = useState<ContactForm>(emptyForm);
+  const [errors, setErrors] = useState<Partial<ContactForm>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<
+    { type: "success" | "error"; text: string } | null
+  >(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof ContactForm]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const nextErrors = validate(form);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
+    setIsSubmitting(true);
+    setStatus(null);
+    try {
+      await callSendContactMessage({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.subject.trim(),
+        message: form.message.trim(),
+      });
+      setForm(emptyForm);
+      setStatus({
+        type: "success",
+        text: "Thank you! Your message has been sent. We'll get back to you within 24 hours.",
+      });
+    } catch (err) {
+      console.error("Contact form error:", err);
+      const message = (err as { message?: string })?.message;
+      setStatus({
+        type: "error",
+        text:
+          message && !/internal/i.test(message)
+            ? message
+            : "Your message could not be sent. Please try again or email info@pacresearch.org.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const fieldClass = (field: keyof ContactForm) =>
+    `bg-white p-[15px] w-full border ${
+      errors[field] ? "border-red-500" : "border-transparent"
+    }`;
+  const errorText = (field: keyof ContactForm) =>
+    errors[field] ? (
+      <p className="text-red-600 text-xs mt-1">{errors[field]}</p>
+    ) : null;
+
   return (
     <>
       {/* <Helmet>
@@ -87,38 +169,72 @@ const Contact = () => {
               24 hours.
             </p>
 
-            <div className="w-[100%]  bg-[#D9D5D5] py-8 px-3 md:px-[34px] rounded-[30px] flex flex-col gap-2.5 ">
-              <input
-                type="text"
-                name="name"
-                id="name"
-                className="bg-white p-[15px]"
-                placeholder="Your Name"
-              />
-              <input
-                type="email"
-                name="email"
-                id="email"
-                className="bg-white p-[15px]"
-                placeholder="Your Email"
-              />
-              <input
-                type="text"
-                name="ssubject"
-                id="subject"
-                className="bg-white p-[15px]"
-                placeholder="Subject"
-              />
-              <textarea
-                name=""
-                id=""
-                className="h-[100px] md:h-[200px] p-[15px]"
-                placeholder="Message"
-              ></textarea>
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="w-[100%]  bg-[#D9D5D5] py-8 px-3 md:px-[34px] rounded-[30px] flex flex-col gap-2.5 "
+            >
+              <div>
+                <input
+                  type="text"
+                  name="name"
+                  id="contact-name"
+                  value={form.name}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={fieldClass("name")}
+                  placeholder="Your Name"
+                />
+                {errorText("name")}
+              </div>
+              <div>
+                <input
+                  type="email"
+                  name="email"
+                  id="contact-email"
+                  value={form.email}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={fieldClass("email")}
+                  placeholder="Your Email"
+                />
+                {errorText("email")}
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="subject"
+                  id="contact-subject"
+                  value={form.subject}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={fieldClass("subject")}
+                  placeholder="Subject"
+                />
+                {errorText("subject")}
+              </div>
+              <div>
+                <textarea
+                  name="message"
+                  id="contact-message"
+                  value={form.message}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={`h-[100px] md:h-[200px] ${fieldClass("message")}`}
+                  placeholder="Message"
+                ></textarea>
+                {errorText("message")}
+              </div>
 
-              <button className="mt-[14px] w-[120px] h-14 relative rounded-[35px] bg-primaryBlue ">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`mt-[14px] w-[120px] h-14 relative rounded-[35px] bg-primaryBlue ${
+                  isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+              >
                 <p className="left-[18px] top-[18px] absolute text-white text-base font-normal font-['Sans'] leading-tight tracking-tight">
-                  Send
+                  {isSubmitting ? "..." : "Send"}
                 </p>
                 <div className="w-[42px] h-[42px] left-[71px] top-[7px] absolute">
                   <div className="w-[42px] h-[42px] left-0 top-0 absolute flex justify-center items-center bg-[#fefdff] rounded-full">
@@ -128,7 +244,18 @@ const Contact = () => {
                   </div>
                 </div>
               </button>
-            </div>
+
+              {status && (
+                <p
+                  role="status"
+                  className={`text-sm font-medium ${
+                    status.type === "success" ? "text-green-700" : "text-red-600"
+                  }`}
+                >
+                  {status.text}
+                </p>
+              )}
+            </form>
           </div>
         </div>
         <div className="w-full mb-32">
